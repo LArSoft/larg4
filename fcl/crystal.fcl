@@ -1,0 +1,101 @@
+process_name:processA
+source: {
+  module_type: EmptyEvent
+  maxEvents:  10
+}
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  TFileService :
+  {
+    fileName      : "CheckHits.root"
+  }
+
+    DetectorHolder: {}
+    ActionHolder: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {} 
+    PhysicsList: { 
+	PhysicsListName: "FTFP_BERT"
+	DumpList: false	
+  	enableCerenkov: false
+  	enableScintillation: false
+  	enableAbsorption: false   
+  	enableRayleigh: false     
+  	enableMieHG: false       
+  	enableBoundary: false    
+  	enableWLS: false
+}
+
+    // Detector(s) for the simulation
+    GDMLDetector : 
+    {
+    category: "world"
+    gdmlFileName_ : "crystalcal_PbF2.gdml"
+    }   
+
+
+
+
+//    writeGdml: {
+//      name: "writeGdml"
+//      gdmlFileName:"output.gdml"	
+//    }
+
+
+    ExampleGeneralAction: {
+      name: "exampleGeneral"
+    }
+      myParticleGunAction: {
+      name: "myParticleGun"	
+      NParticle: 1
+      Name: "mu+"
+      Direction: [ 0,  0,  1  ]
+      Energy: 10.
+      Position: [ 1,  1,  -20.  ]
+    }
+}
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "Testingout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      //afterEvent: pause
+    }
+
+  }
+  analyzers: {
+   CheckHits: {   module_type: CheckHits
+		  hist_dir: "HistoDir"
+		  DumpGDML: true}	
+   CheckPhotonHits: {   module_type: CheckPhotonHits
+		  DumpGDML: true}	
+}
+
+  path1: [ artg4Main ]
+  stream1:  [ out1, CheckHits,CheckPhotonHits  ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}

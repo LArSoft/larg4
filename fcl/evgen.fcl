@@ -1,0 +1,68 @@
+// #include "detectorDefaults.fcl"
+process_name:processA
+
+source: 
+{
+  module_type: EmptyEvent
+  maxEvents:  100
+}
+
+services: 
+{
+
+  message : 
+  {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : 
+     {
+       LogToConsole : 
+       {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : 
+	 {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+
+  RandomNumberGenerator: {}
+
+}
+
+outputs: 
+{
+out1: {
+  module_type: RootOutput   
+  fileName: "exampleTestingout.root"
+  }
+}
+
+physics: {
+
+  producers: 
+  {
+
+     PrimaryGenerator:
+     {
+        module_type: EventGenerator
+	nparticles : 1
+	momentum: [ 0., 0., 5. ] // in GeV 
+     }
+
+  }
+
+  analyzers: 
+  {
+     
+  }
+
+  path1: [ PrimaryGenerator ] 
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+
+}

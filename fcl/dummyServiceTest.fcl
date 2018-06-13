@@ -1,0 +1,59 @@
+// #include "minimalMessageService.fcl"
+// services.message: @local::default_message
+
+process_name: processB
+
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 3
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  
+  user: {
+    Dummy: {}
+    DetectorHolder: {}
+    ActionHolder: {}
+  }
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "testing.root"
+  }
+}
+
+physics: {
+  producers: {
+
+    clock: {
+      module_type: clockAction
+      name: "myClock"
+    }
+  }
+
+  path1: [clock ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+
+}

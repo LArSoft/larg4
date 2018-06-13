@@ -1,0 +1,103 @@
+#include "detectorDefaults.fcl"
+process_name:processA
+source: {
+  module_type: EmptyEvent
+  maxEvents:  10000000
+}
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  TFileService :
+  {
+    fileName      : "CheckProtonProductionBiINCLXX542_1.root"
+  }
+  user: {
+    DetectorHolder: {}
+    ActionHolder: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {} 
+    PhysicsList: { 
+	PhysicsListName: "QGSP_INCLXX"
+	DumpList: false	
+  	enableCerenkov: false
+  	enableScintillation: false
+  	enableAbsorption: false   
+  	enableRayleigh: false     
+  	enableMieHG: false       
+  	enableBoundary: false    
+  	enableWLS: false
+}
+
+    // Detector(s) for the simulation
+    GDMLDetector : 
+    {
+    category: "world"
+    gdmlFileName_ : "./gdml/Bi_target.gdml"
+    }   
+
+
+    // Action(s) for the simulation
+    ClockAction: {}
+
+//    writeGdml: {
+//      name: "writeGdml"
+//      gdmlFileName:"output.gdml"	
+//    }
+
+
+    ExampleGeneralAction: {
+      name: "exampleGeneral"
+    }
+      myParticleGunAction: {
+      name: "myParticleGun"	
+      NParticle: 1
+      Name: "neutron"
+      Direction: [ 0,  0,  1  ]
+      Energy: 0.542
+      Position: [ 0,  0,  -1.  ]
+    }
+  }
+}
+
+///outputs: {
+//out1: {
+//  module_type: RootOutput   
+//  fileName: "exampleTestingINCLXX542.root"
+//  }
+//}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      //afterEvent: pause
+    }
+
+  }
+  analyzers: {
+//   CheckHits: {   module_type: CheckHits
+//		  DumpGDML: true}
+   CheckProtonProduction: {   module_type: CheckProtonProduction}	
+
+}
+
+  path1: [ artg4Main ]
+  stream1:  [CheckProtonProduction ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}

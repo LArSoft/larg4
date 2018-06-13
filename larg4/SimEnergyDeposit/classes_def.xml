@@ -1,0 +1,33 @@
+<!--  art::Wrapper lines need only top level data product objects  -->
+
+<lcgdict>
+    <!-- For DRCaloArtHit -->
+    <class name="artg4tk::DRCalorimeterHit"/>
+    <class name="std::vector< artg4tk::DRCalorimeterHit >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::DRCalorimeterHit> >"/>
+    <!-- For CaloArtHit -->
+    <class name="artg4tk::CalorimeterHit"/>
+    <class name="std::vector< artg4tk::CalorimeterHit >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::CalorimeterHit> >"/>
+    <!-- For PhotonArtHit -->
+    <class name="artg4tk::PhotonHit"/>
+    <class name="std::vector< artg4tk::PhotonHit >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::PhotonHit> >"/>
+    <!-- For TrackerArtHit -->
+    <class name="artg4tk::TrackerHit"/>
+    <class name="std::vector< artg4tk::TrackerHit >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::TrackerHit> >"/>
+    <!-- For SimEnergyDepositHit -->
+    <class name="artg4tk::SimEnergyDepositHit"/>
+    <class name="std::vector< artg4tk::SimEnergyDepositHit >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::SimEnergyDepositHit> >"/>
+    <!-- For InteractionArtHit -->
+    <class name="artg4tk::myInteractionArtHitData"/>
+    <class name="std::vector< artg4tk::myInteractionArtHitData >"/>
+    <class name="art::Wrapper< std::vector< artg4tk::myInteractionArtHitData> >"/>
+    <!-- For Energy/NCeren contribution by particle -->
+    <class name="art::Wrapper< artg4tk::myParticleEContribArtData >"/> 
+ <!--
+    <class name="art::Wrapper< artg4tk::myParticleNCerenContribArtData >"/> 
+    -->
+</lcgdict>

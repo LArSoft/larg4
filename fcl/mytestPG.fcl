@@ -1,0 +1,98 @@
+#include "detectorDefaults.fcl"
+process_name:processA
+source: {
+  module_type: EmptyEvent
+  maxEvents:  100
+}
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  TFileService :
+  {
+    fileName      : "CheckHits.root"
+  }
+  user: {
+    DetectorHolder: {}
+    ActionHolder: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {} 
+    PhysicsList: { 
+	PhysicsListName: "FTFP_BERT"
+	DumpList: false	
+  	enableCerenkov: false
+  	enableScintillation: false
+  	enableAbsorption: false   
+  	enableRayleigh: false     
+  	enableMieHG: false       
+  	enableBoundary: false    
+  	enableWLS: false
+}
+
+    // Detector(s) for the simulation
+    GDMLDetector : 
+    {
+    category: "world"
+    gdmlFileName_ : "tiledsamplingcal4mmpb1mmSz.gdml"
+    }   
+
+    // Action(s) for the simulation
+    ClockAction: {}
+
+
+    ExampleGeneralAction: {
+      name: "exampleGeneral"
+    }
+    SimplemyParticleGunAction: {
+      name: "SimplemyParticleGun"
+      NumberOfParticlesToBeGenerated: 1
+      particleName:  "mu+"
+      particle_momentum_direction: [0., 0., 1.]
+      particle_position:  [0.,  0.,  0.]
+      particle_energy: 1.
+//      particle_momentum: 1
+//      particle_charge: 1.
+//      particle_polarization: [0., 0., 1.]
+    }
+  }
+}
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "exampleTestingout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      //afterEvent: pause
+    }
+
+  }
+  analyzers: {
+   CheckHits: {   module_type: CheckHits
+		  hist_dir: "HistoDir"}	
+}
+
+  path1: [ artg4Main ]
+  stream1:  [ out1, CheckHits ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}

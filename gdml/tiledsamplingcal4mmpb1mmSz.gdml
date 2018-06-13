@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+   <define>
+      <variable name="i" value="0"/>
+      <variable name="j" value="0"/>
+      <variable name="k" value="0"/>
+      <constant name="numlay" value="2"/>
+      <constant name="numcol" value="2"/>
+      <constant name="numrow" value="2"/>
+      <constant name="scalex" value="300"/>
+      <constant name="scaley" value="300"/>
+      <constant name="scalez" value="5"/>
+      <constant name="absoffsetz" value="-0.5"/>
+      <constant name="szoffsetz" value="2.0"/>
+   </define>
+
+   <materials>
+      <element name="Oxygen"   formula="O"  Z="8.">  <atom value="16.0"/>   </element>
+      <element name="Nitrogen" formula="N"  Z="7.">  <atom value="14.01"/>  </element>
+      <element name="Lead"     formula="Pb" Z="82."> <atom value="207.20"/> </element>
+      <element name="Carbon"   formula="C"  Z="6.">  <atom value="12.01" unit="g/mole"/>  </element>
+      <element name="Hydrogen" formula="H"  Z="1.">  <atom value="1.01" unit="g/mole"/>  </element>
+ 
+      <material name="Air">
+	<D value="1.290" unit="mg/cm3"/>
+	<fraction n="0.7" ref="Nitrogen"/>
+	<fraction n="0.3" ref="Oxygen"/>
+      </material>
+
+      <material name="Scintillator">
+	<D value="1.032" unit="g/cm3"/>
+	<composite n="9" ref="Carbon"/> 
+	<composite n="10" ref="Hydrogen"/> 
+      </material>
+      
+      <material name="metalPb">
+	<D value="11.340" unit="g/cm3"/>
+	<composite n="1" ref="Lead"/> 
+      </material>
+
+   </materials>
+   <solids>
+      <box name="WorldBox" lunit="mm" x="5000" y="5000" z="5000"/>
+      <box name="CalorimeterCell"  lunit="mm" x="300" y="300" z="4"/>
+      <box name="ScintillatorCell"  lunit="mm" x="300" y="300" z="1"/>
+   </solids>
+
+   <structure>
+      <volume name="CaloVol">
+         <materialref ref="metalPb"/>
+         <solidref ref="CalorimeterCell"/>
+	 <auxiliary auxtype="SensDet" auxvalue="DRCalorimeter"/>
+      </volume>
+      <volume name="ScintVol">
+         <materialref ref="Scintillator"/>
+         <solidref ref="ScintillatorCell"/>
+	 <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
+      </volume>
+      <volume name="TOP">
+         <materialref ref="Air"/>
+         <solidref ref="WorldBox"/>
+         <loop for="i" from="0" to="numrow" step="1">
+         <loop for="j" from="0" to="numcol" step="1">
+         <loop for="k" from="0" to="numlay" step="1">
+            <physvol>
+	       <volumeref ref="CaloVol"/>
+               <position name="posijk" x="scalex*(i-numrow/2)" y="scaley*(j-numcol/2)" z="absoffsetz+scalez*(k-numlay/2)"/>
+            </physvol>
+	    <physvol>
+	       <volumeref ref="ScintVol"/>
+               <position name="posijk2" x="scalex*(i-numrow/2)" y="scaley*(j-numcol/2)" z="szoffsetz+scalez*(k-numlay/2)"/>
+            </physvol>
+         </loop>
+	 </loop>
+         </loop>
+      </volume>
+   </structure>
+
+   <setup version="1.0" name="Default">
+      <world ref="TOP"/>
+   </setup>
+
+</gdml>

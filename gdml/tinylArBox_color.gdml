@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+    <define>
+        <constant name="TWOPI" value="2.*pi"/>
+        <constant name="HALFPI" value="pi/2."/>
+        <variable name="i" value="0"/>
+        <constant name="num" value="77"/>
+        <constant name="scale" value="2."/>
+        <matrix name="SY"  coldim="1" values="51282/MeV" />
+        <matrix name="RS"  coldim="1" values="1.0" />
+        <matrix name="FTC" coldim="1" values="7.*ns" />
+        <matrix name="STC" coldim="1" values="1400.*ns" />
+        <matrix name="YR"  coldim="1" values="0.75" /> 
+<!--
+    In case we want to enable  we want to enable ScintillationByParticleType we need to at least define the yield for electrons (see below)
+    for now since I don't know correct values I commented things out.
+
+       <matrix name="YP"  coldim="1" values="1./MeV" /> 
+       <matrix name="YD"  coldim="1" values="1./MeV" /> 
+       <matrix name="YT"  coldim="1" values="1./MeV" /> 
+       <matrix name="YA"  coldim="1" values="1./MeV" /> 
+       <matrix name="YI"  coldim="1" values="1./MeV" /> 
+       <matrix name="YE"  coldim="1" values="1./MeV" /> 
+-->
+        <matrix name="ArINDEX" coldim="2" values="6.7*eV 1.5
+                                                 7.1*eV 1.5 
+                                                 7.4*eV 1.5  
+                                                 7.7*eV 1.5 
+                                                 7.9*eV 1.5 
+                                                 8.1*eV 1.5          
+                                                 8.4*eV 1.5 
+                                                 8.5*eV 1.5 
+                                                 8.6*eV 1.5 
+                                                 8.8*eV 1.5 
+                                                 9.0*eV 1.5 
+                                                 9.1*eV 1.5 
+                                                 9.4*eV 1.5 
+                                                 9.8*eV 1.5 
+                                                 10.4*eV 1.5"/>
+        <matrix name="REFLECTIVITY" coldim="2" values="6.7*eV 0.8
+                                                 7.1*eV 0.8 
+                                                 7.4*eV 0.8  
+                                                 7.7*eV 0.8 
+                                                 7.9*eV 0.8 
+                                                 8.1*eV 0.8          
+                                                 8.4*eV 0.8 
+                                                 8.5*eV 0.8 
+                                                 8.6*eV 0.8 
+                                                 8.8*eV 0.8 
+                                                 9.0*eV 0.8 
+                                                 9.1*eV 0.8 
+                                                 9.4*eV 0.8 
+                                                 9.8*eV 0.8 
+                                                 10.4*eV 0.8"/>
+        <matrix name="SCINT" coldim="2" values="6.7*eV 0.04
+                                                 7.1*eV 0.12 
+                                                 7.4*eV 0.27 
+                                                 7.7*eV 0.44 
+                                                 7.9*eV 0.62
+                                                 8.1*eV 0.80          
+                                                 8.4*eV 0.91 
+                                                 8.5*eV 0.92 
+                                                 8.6*eV 0.85 
+                                                 8.8*eV 0.70
+                                                 9.0*eV 0.50 
+                                                 9.1*eV 0.31 
+                                                 9.4*eV 0.13 
+                                                 9.8*eV 0.04 
+                                                10.4*eV 0.01"/>
+    </define>
+
+    <materials>
+        <material name="LAr" formula="LAr">
+            <D value="1.40" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Ar"/>
+            <property name="RINDEX" ref="ArINDEX"/>
+            <property name="SLOWCOMPONENT" ref="SCINT"/>
+            <property name="SCINTILLATIONYIELD" ref="SY" />
+            <property name="RESOLUTIONSCALE" ref="RS" />
+            <property name="SLOWTIMECONSTANT" ref="STC" />
+            <property name="YIELDRATIO" ref="YR" />
+<!--
+    In case we want to enable  we want to enable ScintillationByParticleType we need to at least define the yield for electrons
+
+    <property name="PROTONSCINTILLATIONYIELD" ref="YP"/>
+    <property name="DEUTERONSCINTILLATIONYIELD" ref="YD"/>
+    <property name="TRITONSCINTILLATIONYIELD" ref="YT"/>
+    <property name="ALPHASCINTILLATIONYIELD" ref="YA"/>
+    <property name="IONSCINTILLATIONYIELD" ref="YI"/>
+    <property name="ELECTRONSCINTILLATIONYIELD" ref="YE"/>
+-->
+        </material>
+        <material name="Iron" formula="Iron">
+            <D value="4.0" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Fe"/>
+            <property name="RINDEX" ref="ArINDEX"/>
+        </material>
+        <material name="Silicon" formula="Si">
+            <D value="2.33" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Si"/>
+            <property name="RINDEX" ref="ArINDEX"/>
+        </material>
+    </materials>
+    <solids>
+        <box name="WorldBox" lunit="cm" x="100" y="100" z="410"/>
+        <tube name="Cryostat"  lunit="cm" z="100.0" rmax="40." deltaphi="TWOPI" aunit="rad" />
+        <tube name="ArgonVolume"  lunit="cm" z="99.0" rmax="39.5" deltaphi="TWOPI" aunit="rad" />
+        <box name="PhotoBox"  lunit="cm" x="10.0" y="0.03" z="90.0"/>
+        <box name="PaddleBox"  lunit="cm" x="20.0" y="5." z=".5"/>
+        <box name="TPCVolume"  lunit="cm" x="40" y="40" z="90"/>
+        <tube name="t1000"  lunit="cm" z="90.0" rmax="0.01" deltaphi="TWOPI" aunit="rad" />
+        <opticalsurface name="surf" model="glisur" finish="polished" type="dielectric_metal" value="1.0">
+            <property name="REFLECTIVITY" ref="REFLECTIVITY" />
+        </opticalsurface>
+    </solids>
+    <structure>
+        <volume name="Paddle">
+            <materialref ref="G4_PLEXIGLASS"/>
+            <solidref ref="PaddleBox"/>
+            <auxiliary auxtype="SensDet" auxvalue="Tracker"/>
+            <auxiliary auxtype="Color" auxvalue="Blue"/>
+            <auxiliary auxtype="Solid" auxvalue="True"/>
+        </volume> 
+        <volume name="SenseWire">
+            <materialref ref="G4_W"/>
+            <solidref ref="t1000"/>
+            <auxiliary auxtype="Color" auxvalue="Green"/>
+        </volume>   
+        <volume name="volTPCActiveInner">
+            <materialref ref="LAr"/>
+            <solidref ref="TPCVolume"/>
+            <auxiliary auxtype="SensDet" auxvalue="SimEnergyDeposit"/>
+            <auxiliary auxtype="Color" auxvalue="Blue"/>
+            <auxiliary auxtype="StepLimit" auxvalue="0.01"/>
+            <auxiliary auxtype="Efield" auxvalue="1000."/>
+            <loop for="i" from="0" to="num" step="1">
+                <physvol name="psenseWireVolume">
+                    <volumeref ref="SenseWire"/>
+                    <position name="posijk"  unit="mm" x="-200.0+(i+1)*5." y="-199.8" z="0"/>
+                </physvol>
+            </loop>
+        </volume>
+        <volume name="volPhotodetector">
+            <materialref ref="Silicon"/>
+            <solidref ref="PhotoBox"/>
+            <auxiliary auxtype="SensDet" auxvalue="PhotonDetector"/>
+            <auxiliary auxtype="Color" auxvalue="Red"/>
+            <auxiliary auxtype="Solid" auxvalue="True"/>
+        </volume>
+        <volume name="volArgon">
+            <materialref ref="LAr"/>
+            <solidref ref="ArgonVolume"/>
+            <auxiliary auxtype="Color" auxvalue="Yellow"/>
+            <physvol name="pCalorimeterVolume">
+                <volumeref ref="volTPCActiveInner"/>
+                <position name="Calpos" x="0" y="0" z="0"/>
+            </physvol>
+            <physvol name="pvolPhotodetector">
+                <volumeref ref="volPhotodetector"/>
+                <position name="photondetectorpos" unit="mm" x="0" y="391." z="0"/>
+            </physvol>
+        </volume>
+        <volume name="volCryostat">
+            <materialref ref="Iron"/>
+            <solidref ref="Cryostat"/>
+            <auxiliary auxtype="Color" auxvalue="Yellow"/>
+            <physvol name="pArgonVolume">
+                <volumeref ref="volArgon"/>
+                <position name="Argonpos" x="0" y="0" z="0"/>
+            </physvol>
+        </volume>
+        <volume name="TOP">
+            <materialref ref="G4_AIR"/>
+            <solidref ref="WorldBox"/>
+            <physvol name="pCryostatVolume">
+                <volumeref ref="volCryostat"/>
+                <position name="Cryopos" x="0" y="0" z="0"/>
+            </physvol>
+            <physvol name="pPaddle1">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos1" unit="cm" x="0" y="0" z="-110."/>
+            </physvol>
+            <physvol name="pPaddle3">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos3" unit="cm" x="0" y="0" z="-111."/>
+                <rotation name="rotatebyz3" z="HALFPI"/>
+            </physvol>
+            <physvol name="pPaddle2">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos2" unit="cm" x="0" y="0" z="110."/>
+            </physvol>
+            <physvol name="pPaddle4">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos4" unit="cm" x="0" y="0" z="111."/>
+                <rotation name="rotatebyz4" z="HALFPI"/>
+            </physvol>
+        </volume>
+        <bordersurface name="bordersrf" surfaceproperty="surf" >
+            <physvolref ref="pArgonVolume"/>
+            <physvolref ref="pCryostatVolume"/>
+        </bordersurface> 
+    </structure>
+    <setup version="1.0" name="Default">
+        <world ref="TOP"/>
+    </setup>
+</gdml>

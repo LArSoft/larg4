@@ -1,0 +1,92 @@
+process_name:processA
+source: {
+  module_type: EmptyEvent
+  maxEvents:  5
+}
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  TFileService :
+  {
+    fileName      : "singleCrystal.root"
+  }
+    DetectorHolder: {}
+    ActionHolder: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {} 
+    PhysicsList: { 
+	PhysicsListName: "FTFP_BERT"
+	DumpList: true	
+  	enableCerenkov: true
+	CerenkovStackPhotons: true
+	CerenkovTrackSecondariesFirst: true
+  	enableScintillation: false
+  	enableAbsorption: true   
+  	enableRayleigh: false     
+  	enableMieHG: false       
+  	enableBoundary: true    
+  	enableWLS: false
+}
+
+    // Detector(s) for the simulation
+    GDMLDetector : 
+    {
+    category: "world"
+    gdmlFileName_ : "singlecrystal_PbF2.gdml"
+    }   
+
+
+    ExampleGeneralAction: {
+      name: "exampleGeneral"
+    }
+      myParticleGunAction: {
+      name: "myParticleGun"	
+      NParticle: 1
+      Name: "mu+"
+      Direction: [ 0,  0,  1  ]
+      Energy: 10.
+      Position: [ 0,  0,  -10.  ]
+    }
+}
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "singleCrystalout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      //afterEvent: pause
+    }
+  }
+  analyzers: {
+   CheckPhotonHits: {   module_type: CheckPhotonHits
+		  DumpGDML: false}	
+   CheckCalorimeterHits: {   module_type: CheckCalorimeterHits
+		  DumpGDML: false}
+}
+
+  path1: [ artg4Main ]
+  stream1:  [ out1, CheckPhotonHits,CheckCalorimeterHits ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}

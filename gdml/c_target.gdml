@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gdml_simple_extension xmlns:gdml_simple_extension="http://www.example.org"
+		       xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"          
+		       xs:noNamespaceSchemaLocation="SimpleExtension.xsd"> 
+<!-- NOTE-2: 
+     If you wish to use G4Nist-like materials naming, do NOT put in any specs of materials;
+     better stick to one approach... 
+-->
+
+<!--
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+-->
+
+<!-- NOTE-2: 
+     If you wish to use G4Nist-like materials naming, do NOT put in any specs of materials;
+     better stick to one approach... 
+-->
+
+    <solids>
+        <box name="WorldBox" lunit="m" x="20.0" y="20.0" z="20.0"/>
+	<box name="SubWorldBox" lunit="m" x="19.998" y="19.998" z="19.998"/>
+	<tube aunit="degree" lunit="mm" name="TargetSolid" rmin="0" rmax="3.15" deltaphi="360." z="160." />  
+    </solids>
+
+    <structure>
+        <volume name="TargetVolume">
+            <materialref ref="G4_C"/>
+            <solidref ref="TargetSolid"/>
+            <auxiliary auxtype="SensDet" auxvalue="HadInteraction"/>
+        </volume>
+	
+	<volume name="SubWldVolume">
+	   <materialref ref="G4_AIR"/>
+	   <solidref ref="SubWorldBox"/>
+	   <physvol name="Target">
+	      <volumeref ref="TargetVolume"/>
+	      <position name="tgpos" x="0" y="0" z="0"/>
+	   </physvol>
+	</volume>
+
+
+        <volume name="TOP">
+            <materialref ref="G4_AIR"/>
+            <solidref ref="WorldBox"/>
+            <physvol name="SubWorld">
+                <volumeref ref="SubWldVolume"/>
+                <position name="subwldpos" x="0" y="0" z="0"/>
+            </physvol>
+
+        </volume>
+
+    </structure>
+
+    <setup version="1.0" name="Default">
+        <world ref="TOP"/>
+    </setup>
+
+</gdml>

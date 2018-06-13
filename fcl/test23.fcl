@@ -1,0 +1,105 @@
+#include "detectorDefaults.fcl"
+process_name:processA
+source: {
+  module_type: EmptyEvent
+  maxEvents:  10000
+}
+
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []    
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  TFileService :
+  {
+    fileName      : "CheckHits.root"
+  }
+
+  DetectorHolder: {}
+  ActionHolder: {}
+  RandomNumberGenerator: {}
+  PhysicsListHolder: {} 
+  PhysicsList: { 
+	PhysicsListName: "FTFP_BERT"
+	DumpList: false	
+  	enableCerenkov: false
+  	enableScintillation: false
+  	enableAbsorption: false   
+  	enableRayleigh: false     
+  	enableMieHG: false       
+  	enableBoundary: false    
+  	enableWLS: false
+  }
+
+  // Detector(s) for the simulation
+  GDMLDetector : 
+  {
+      category: "world"
+      gdmlFileName_ : "$MRB_SOURCE/artg4tk/gdml/ta_target.gdml"
+  }   
+
+
+  // Action(s) for the simulation
+  // ClockAction: {}
+
+//    writeGdml: {
+//      name: "writeGdml"
+//      gdmlFileName:"output.gdml"	
+//    }
+
+
+  ExampleGeneralAction: {
+      name: "exampleGeneral"
+  }
+
+  myParticleGunAction: {
+      name: "myParticleGun"	
+      NParticle: 1
+      Name: "proton"
+      Direction: [ 0,  0,  1  ]
+      Energy: 10.
+      Position: [ 0,  0,  -130.  ]
+  }
+
+}
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "exampleTestingout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      //afterEvent: pause
+    }
+
+  }
+  analyzers: {
+   CheckHits: {   module_type: CheckHits
+		  DumpGDML: true}
+   CheckInteractions: {   module_type: CheckInteractions}	
+
+}
+
+  path1: [ artg4Main ]
+  stream1:  [ out1, CheckHits, CheckInteractions ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}
