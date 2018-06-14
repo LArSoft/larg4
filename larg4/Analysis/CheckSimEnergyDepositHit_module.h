@@ -9,7 +9,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// CheckSimEnergyDepositHit_module.hh: Analyzer module that demonstrates access to 
+// CheckSimEnergyDepositHit_module.h: Analyzer module that demonstrates access to 
 // SimEnergyDepositHit hits 
 // and makes some histograms
 // 
@@ -30,7 +30,7 @@
 // artg4 includes:
 #include "artg4tk/services/DetectorHolder_service.hh"
 // artg4tk includes:
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.hh"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 // Root includes.
 #include "TFile.h"
 #include "TH1F.h"

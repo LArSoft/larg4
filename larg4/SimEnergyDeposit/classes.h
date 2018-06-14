@@ -22,7 +22,7 @@
 #include "artg4tk/pluginDetectors/gdml/DRCalorimeterHit.hh"
 #include "artg4tk/pluginDetectors/gdml/PhotonHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.hh"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 #include "artg4tk/pluginDetectors/gdml/myInteractionArtHitData.hh"
 #include "artg4tk/pluginDetectors/gdml/myParticleEContribArtData.hh"
 //#include "artg4tk/pluginDetectors/gdml/myParticleNCerenContribArtData.hh"

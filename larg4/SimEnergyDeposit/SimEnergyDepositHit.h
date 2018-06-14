@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  SimEnergyDepositHit.hh
+/// \file  SimEnergyDepositHit.h
 /// \brief contains information for a single step in the detector simulation
 ///
 /// \author  Hans Wenzel and William Seligman

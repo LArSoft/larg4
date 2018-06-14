@@ -9,7 +9,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// GDMLDetector_service.hh: 
+// GDMLDetector_service.h: 
 // GDMLDetectorService is the service that constructs the Geant 4 Geometry 
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section

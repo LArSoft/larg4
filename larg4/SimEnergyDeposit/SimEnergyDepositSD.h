@@ -16,7 +16,7 @@
 #define SimEnergyDepositSD_h 1
 
 #include "Geant4/G4VSensitiveDetector.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.hh"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 class G4Step;
 class G4HCofThisEvent;
 class SimEnergyDepositHitCollection;

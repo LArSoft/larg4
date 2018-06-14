@@ -9,7 +9,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// GDMLDetector_service.hh: 
+// GDMLDetector_service.h: 
 // GDMLDetectorService is the service that constructs the Geant 4 Geometry 
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section
@@ -31,7 +31,7 @@
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 // artg4tk includes: 
-#include "larg4/SimEnergyDeposit/GDMLDetector_service.hh"
+#include "larg4/SimEnergyDeposit/GDMLDetector_service.h"
 #include "artg4tk/pluginDetectors/gdml/ColorReader.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterSD.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterHit.hh"
@@ -42,8 +42,8 @@
 #include "artg4tk/pluginDetectors/gdml/PhotonHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.hh"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.h"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 //
 #include "artg4tk/pluginDetectors/gdml/InteractionSD.hh"
 #include "artg4tk/pluginDetectors/gdml/myInteractionArtHitData.hh"

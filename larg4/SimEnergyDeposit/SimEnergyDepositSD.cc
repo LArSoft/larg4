@@ -12,8 +12,8 @@
 // nobleGasTPCSD.cc: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
-#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.hh"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.h"
+#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4ThreeVector.hh"
