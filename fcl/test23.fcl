@@ -41,7 +41,7 @@ services: {
   }
 
   // Detector(s) for the simulation
-  GDMLDetector : 
+  LArG4Detector : 
   {
       category: "world"
       gdmlFileName_ : "$MRB_SOURCE/artg4tk/gdml/ta_target.gdml"

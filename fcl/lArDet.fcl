@@ -40,7 +40,7 @@ services: {
 }
 
     // Detector(s) for the simulation
-    GDMLDetector : 
+    LArG4Detector : 
     {
     category: "world"
     gdmlFileName_ : "lArDet.gdml"
