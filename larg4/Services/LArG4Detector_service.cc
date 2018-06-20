@@ -31,7 +31,7 @@
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 // larg4 includes: 
-#include "larg4/Services/LarG4Detector_service.h"
+#include "larg4/Services/LArG4Detector_service.h"
 // artg4tk includes:
 #include "artg4tk/pluginDetectors/gdml/ColorReader.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterSD.hh"
@@ -44,7 +44,7 @@
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
 #include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
-//#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
+#include "lardataobj/Simulation/SimEnergyDeposit.h"
 //
 #include "artg4tk/pluginDetectors/gdml/InteractionSD.hh"
 #include "artg4tk/pluginDetectors/gdml/myInteractionArtHitData.hh"
@@ -164,7 +164,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
             if ((*vit).type == "SensDet") {
                 if ((*vit).value == "DRCalorimeter") {
                     G4String name = ((*iter).first)->GetName() + "_DRCalorimeter";
-                    DRCalorimeterSD* aDRCalorimeterSD = new DRCalorimeterSD(name);
+		    artg4tk::DRCalorimeterSD* aDRCalorimeterSD = new artg4tk::DRCalorimeterSD(name);
                     SDman->AddNewDetector(aDRCalorimeterSD);
                     ((*iter).first)->SetSensitiveDetector(aDRCalorimeterSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
@@ -172,7 +172,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "Calorimeter") {
                     G4String name = ((*iter).first)->GetName() + "_Calorimeter";
-                    CalorimeterSD* aCalorimeterSD = new CalorimeterSD(name);
+		    artg4tk::CalorimeterSD* aCalorimeterSD = new artg4tk::CalorimeterSD(name);
                     SDman->AddNewDetector(aCalorimeterSD);
                     ((*iter).first)->SetSensitiveDetector(aCalorimeterSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
@@ -180,7 +180,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "PhotonDetector") {
                     G4String name = ((*iter).first)->GetName() + "_PhotonDetector";
-                    PhotonSD* aPhotonSD = new PhotonSD(name);
+		    artg4tk::PhotonSD* aPhotonSD = new artg4tk::PhotonSD(name);
                     SDman->AddNewDetector(aPhotonSD);
                     ((*iter).first)->SetSensitiveDetector(aPhotonSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
@@ -188,7 +188,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "Tracker") {
                     G4String name = ((*iter).first)->GetName() + "_Tracker";
-                    TrackerSD* aTrackerSD = new TrackerSD(name);
+                    artg4tk::TrackerSD* aTrackerSD = new artg4tk::TrackerSD(name);
                     SDman->AddNewDetector(aTrackerSD);
                     ((*iter).first)->SetSensitiveDetector(aTrackerSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
@@ -204,7 +204,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "Interaction") {
                     G4String name = ((*iter).first)->GetName() + "_Interaction";
-                    InteractionSD* aInteractionSD = new InteractionSD(name);
+                    artg4tk::InteractionSD* aInteractionSD = new artg4tk::InteractionSD(name);
                     SDman->AddNewDetector(aInteractionSD);
                     ((*iter).first)->SetSensitiveDetector(aInteractionSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
@@ -212,7 +212,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "HadInteraction") {
                     G4String name = ((*iter).first)->GetName() + "_HadInteraction";
-                    HadInteractionSD* aHadInteractionSD = new HadInteractionSD(name);
+                    artg4tk::HadInteractionSD* aHadInteractionSD = new artg4tk::HadInteractionSD(name);
                     // NOTE: This will be done in the HadInteractionSD ctor
 		    // SDman->AddNewDetector(aHadInteractionSD);
                     ((*iter).first)->SetSensitiveDetector(aHadInteractionSD);
@@ -221,7 +221,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ( (*vit).value == "HadIntAndEdepTrk" ) {
                     G4String name = ((*iter).first)->GetName() + "_HadIntAndEdepTrk";
-                    HadIntAndEdepTrkSD* aHadIntAndEdepTrkSD = new HadIntAndEdepTrkSD(name);
+                    artg4tk::HadIntAndEdepTrkSD* aHadIntAndEdepTrkSD = new artg4tk::HadIntAndEdepTrkSD(name);
                     // NOTE: This will be done in the HadIntAndEdepTrkSD ctor
 		    // SDman->AddNewDetector(aHadIntAndEdepTrkSD);
                     ((*iter).first)->SetSensitiveDetector(aHadIntAndEdepTrkSD);
@@ -262,34 +262,34 @@ void larg4::LArG4DetectorService::doCallArtProduces(art::EDProducer * producer) 
     for (cii = DetectorList.begin(); cii != DetectorList.end(); cii++) {
         if ((*cii).second == "DRCalorimeter") {
             std::string identifier = myName() +(*cii).first;
-            producer -> produces<DRCalorimeterHitCollection>(identifier);
+            producer -> produces<artg4tk::DRCalorimeterHitCollection>(identifier);
             std::string EdepID = identifier + "Edep";
-            producer -> produces<myParticleEContribArtData>(EdepID);
+            producer -> produces<artg4tk::myParticleEContribArtData>(EdepID);
             std::string NCerenID = identifier + "NCeren";
-            producer -> produces<myParticleEContribArtData>(NCerenID);
+            producer -> produces<artg4tk::myParticleEContribArtData>(NCerenID);
         } else if ((*cii).second == "Calorimeter") {
             std::string identifier = myName() +(*cii).first;
-            producer -> produces<CalorimeterHitCollection>(identifier);
+            producer -> produces<artg4tk::CalorimeterHitCollection>(identifier);
         } else if ((*cii).second == "PhotonDetector") {
             std::string identifier = myName() + (*cii).first;
-            producer -> produces<PhotonHitCollection>(identifier);
+            producer -> produces<artg4tk::PhotonHitCollection>(identifier);
         } else if ((*cii).second == "Tracker") {
             std::string identifier = myName() + (*cii).first;
-            producer -> produces<TrackerHitCollection>(identifier);
+            producer -> produces<artg4tk::TrackerHitCollection>(identifier);
 	} else if ((*cii).second == "SimEnergyDeposit") {
             std::string identifier = myName() + (*cii).first;
-            producer -> produces<SimEnergyDepositHitCollection>(identifier);
+            producer -> produces<sim::SimEnergyDepositCollection>(identifier);
         } else if ((*cii).second == "Interaction") {
             std::string identifier = myName() + (*cii).first;
-            producer -> produces<myInteractionArtHitDataCollection>(identifier);
+            producer -> produces<artg4tk::myInteractionArtHitDataCollection>(identifier);
         } else if ( (*cii).second == "HadInteraction") {
             // std::string identifier = myName() + (*cii).first;
-            producer -> produces<ArtG4tkVtx>(); // do NOT use product instance name (for now)
+            producer -> produces<artg4tk::ArtG4tkVtx>(); // do NOT use product instance name (for now)
         }
 	else if ( (*cii).second == "HadIntAndEdepTrk" )
 	{
-	   producer->produces<ArtG4tkVtx>();
-	   producer->produces<TrackerHitCollection>();
+	   producer->produces<artg4tk::ArtG4tkVtx>();
+	   producer->produces<artg4tk::TrackerHitCollection>();
 	} 
     }
 }
@@ -298,10 +298,10 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
   //
   // the following are left over sensitive detectors that write into the geant 4 hit collection first and then copy to the EDM
   //
-    std::unique_ptr<DRCalorimeterHitCollection> myDRArtHits(new DRCalorimeterHitCollection);
-    std::unique_ptr<myInteractionArtHitDataCollection> myInteractionHits(new myInteractionArtHitDataCollection);
-    std::unique_ptr<myParticleEContribArtData> myEdepCon(new myParticleEContribArtData);
-    std::unique_ptr<myParticleEContribArtData> myNCerenCon(new myParticleEContribArtData);
+    std::unique_ptr<artg4tk::DRCalorimeterHitCollection> myDRArtHits(new artg4tk::DRCalorimeterHitCollection);
+    std::unique_ptr<artg4tk::myInteractionArtHitDataCollection> myInteractionHits(new artg4tk::myInteractionArtHitDataCollection);
+    std::unique_ptr<artg4tk::myParticleEContribArtData> myEdepCon(new artg4tk::myParticleEContribArtData);
+    std::unique_ptr<artg4tk::myParticleEContribArtData> myNCerenCon(new artg4tk::myParticleEContribArtData);
     
     // NOTE(JVY): 1st hadronic interaction will be fetched as-is from HadInteractionSD
     //            a copy (via copy ctor) will be placed directly into art::Event
@@ -316,13 +316,13 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
        if ( (*cii).second == "HadInteraction" )
        {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  HadInteractionSD* hisd = dynamic_cast<HadInteractionSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::HadInteractionSD* hisd = dynamic_cast<artg4tk::HadInteractionSD*>(sdman->FindSensitiveDetector(sdname));
 	  if ( hisd )
 	  {
-             const ArtG4tkVtx& inter = hisd->Get1stInteraction();
+             const artg4tk::ArtG4tkVtx& inter = hisd->Get1stInteraction();
 	     if ( inter.GetNumOutcoming() > 0 )
 	     {
-	        std::unique_ptr<ArtG4tkVtx> firstint(new ArtG4tkVtx(inter));
+	        std::unique_ptr<artg4tk::ArtG4tkVtx> firstint(new artg4tk::ArtG4tkVtx(inter));
                 art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
                 art::Event & e = detectorHolder -> getCurrArtEvent();
                 e.put(std::move(firstint)); // note that there's NO product instance name (for now, at least)
@@ -335,23 +335,23 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
        else if ( (*cii).second == "HadIntAndEdepTrk" )
        {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  HadIntAndEdepTrkSD* sd = dynamic_cast<HadIntAndEdepTrkSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::HadIntAndEdepTrkSD* sd = dynamic_cast<artg4tk::HadIntAndEdepTrkSD*>(sdman->FindSensitiveDetector(sdname));
 	  if ( sd )
 	  {
              art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
              art::Event & e = detectorHolder -> getCurrArtEvent();
-             const ArtG4tkVtx& inter = sd->Get1stInteraction();
+             const artg4tk::ArtG4tkVtx& inter = sd->Get1stInteraction();
 	     if ( inter.GetNumOutcoming() > 0 )
 	     {
-	        std::unique_ptr<ArtG4tkVtx> firstint(new ArtG4tkVtx(inter));
+	        std::unique_ptr<artg4tk::ArtG4tkVtx> firstint(new artg4tk::ArtG4tkVtx(inter));
                 e.put(std::move(firstint)); // note that there's NO product instance name (for now, at least)
 		                            // (part of) the is that the name is encoded into the "collection"
 					    // which is NOT used in this specific case
 	     }
-	     const TrackerHitCollection& trkhits = sd->GetEdepTrkHits();
+	     const artg4tk::TrackerHitCollection& trkhits = sd->GetEdepTrkHits();
 	     if ( !trkhits.empty() )
 	     {
-	        std::unique_ptr<TrackerHitCollection> hits(new TrackerHitCollection(trkhits)); 
+	        std::unique_ptr<artg4tk::TrackerHitCollection> hits(new artg4tk::TrackerHitCollection(trkhits)); 
 		e.put(std::move(hits));
 	     } 	     
 	     sd->clear(); // clear out after moving info to EDM; no need to clea out in the producer !
@@ -359,31 +359,31 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
        }
 	else if ( (*cii).second == "Tracker") {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  TrackerSD* trsd = dynamic_cast<TrackerSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::TrackerSD* trsd = dynamic_cast<artg4tk::TrackerSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
-	  const TrackerHitCollection& trkhits = trsd->GetHits();
-	  std::unique_ptr<TrackerHitCollection> hits(new TrackerHitCollection(trkhits)); 
+	  const artg4tk::TrackerHitCollection& trkhits = trsd->GetHits();
+	  std::unique_ptr<artg4tk::TrackerHitCollection> hits(new artg4tk::TrackerHitCollection(trkhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
 	} 
 	else if ( (*cii).second == "Calorimeter") {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  CalorimeterSD* calsd = dynamic_cast<CalorimeterSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::CalorimeterSD* calsd = dynamic_cast<artg4tk::CalorimeterSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
-	  const CalorimeterHitCollection& calhits = calsd->GetHits();
-	  std::unique_ptr<CalorimeterHitCollection> hits(new CalorimeterHitCollection(calhits)); 
+	  const artg4tk::CalorimeterHitCollection& calhits = calsd->GetHits();
+	  std::unique_ptr<artg4tk::CalorimeterHitCollection> hits(new artg4tk::CalorimeterHitCollection(calhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
 	} 
 	else if ( (*cii).second == "DRCalorimeter") {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  DRCalorimeterSD* drcalsd = dynamic_cast<DRCalorimeterSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::DRCalorimeterSD* drcalsd = dynamic_cast<artg4tk::DRCalorimeterSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
-	  const DRCalorimeterHitCollection& drcalhits = drcalsd->GetHits();
-	  std::unique_ptr<DRCalorimeterHitCollection> hits(new DRCalorimeterHitCollection(drcalhits)); 
+	  const artg4tk::DRCalorimeterHitCollection& drcalhits = drcalsd->GetHits();
+	  std::unique_ptr<artg4tk::DRCalorimeterHitCollection> hits(new artg4tk::DRCalorimeterHitCollection(drcalhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
 	}
@@ -394,18 +394,18 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
 	  SimEnergyDepositSD* sedsd = dynamic_cast<SimEnergyDepositSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
-	  const SimEnergyDepositHitCollection& sedhits = sedsd->GetHits();
-	  std::unique_ptr<SimEnergyDepositHitCollection> hits(new SimEnergyDepositHitCollection(sedhits)); 
+	  const sim::SimEnergyDepositCollection& sedhits = sedsd->GetHits();
+	  std::unique_ptr<sim::SimEnergyDepositCollection> hits(new sim::SimEnergyDepositCollection(sedhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
 	} 
 	else if ( (*cii).second == "PhotonDetector") {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-	  PhotonSD* phsd = dynamic_cast<PhotonSD*>(sdman->FindSensitiveDetector(sdname));
+	  artg4tk::PhotonSD* phsd = dynamic_cast<artg4tk::PhotonSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
-	  const PhotonHitCollection& phhits = phsd->GetHits();
-	  std::unique_ptr<PhotonHitCollection> hits(new PhotonHitCollection(phhits)); 
+	  const artg4tk::PhotonHitCollection& phhits = phsd->GetHits();
+	  std::unique_ptr<artg4tk::PhotonHitCollection> hits(new artg4tk::PhotonHitCollection(phhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
         } 
@@ -425,9 +425,9 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
 	G4cout << "===================    " << NbHits << G4endl;
 	for (G4int ii = 0; ii < NbHits; ii++) {
 	  G4VHit* hit = hc->GetHit(ii);
-	  InteractionHit* Hit = dynamic_cast<InteractionHit*> (hit);
+	  artg4tk::InteractionHit* Hit = dynamic_cast<artg4tk::InteractionHit*> (hit);
 	  Hit->Print();
-	  myInteractionArtHitData myInteractionhit = myInteractionArtHitData(
+	  artg4tk::myInteractionArtHitData myInteractionhit = artg4tk::myInteractionArtHitData(
 									     Hit->GetPname(),
 									     Hit->GetPmom(),
 									     Hit->GetEkin(),
