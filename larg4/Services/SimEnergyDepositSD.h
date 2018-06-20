@@ -1,3 +1,6 @@
+#ifndef LARG4_SERVICES_SIMENERGYDEPOSITSD_H
+#define LARG4_SERVICES_SIMENERGYDEPOSITSD_H
+// vim: set sw=2 expandtab :
 //
 //               __        __ __  __  __  
 //   ____ ______/ /_____ _/ // / / /_/ /__
@@ -12,8 +15,6 @@
 // nobleGasTPCSD.hh: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
-#ifndef SimEnergyDepositSD_h
-#define SimEnergyDepositSD_h 1
 
 #include "Geant4/G4VSensitiveDetector.hh"
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
@@ -40,5 +41,5 @@ namespace larg4 {
 
     //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 }
-#endif
 
+#endif // LARG4_SERVICES_SIMENERGYDEPOSITSD_H

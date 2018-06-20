@@ -1,15 +1,3 @@
-# ======================================================================
-#  larg4 main build file
-#
-#  . mrb slp   # Run if you have local products to set up
-#  . mrbsetenv     # Needed to set up local development products
-#  mrb b       # Build
-#  mrb t       # Test (if applicable)
-#  mrb i       # Install to local products
-#  art -c <fhicl_file>  # Run!
-#
-# ======================================================================
-
 # use cmake 3.7 or later
 cmake_minimum_required (VERSION 3.7)
 
@@ -36,7 +24,6 @@ cet_report_compiler_flags()
 # These are needed for Art stuff
 
 find_ups_product(cetbuildtools)
-#
 find_ups_product(artg4tk)
 find_ups_product(art)
 find_ups_product(canvas)
@@ -52,22 +39,10 @@ include(ArtMake)
 include(BuildPlugins)
 
 # Build these directories
-add_subdirectory( larg4 )
-add_subdirectory( fcl )
-add_subdirectory( gdml )
-
-
-# ups - table and config files
-
+add_subdirectory(larg4)
+add_subdirectory(fcl)
+add_subdirectory(gdml)
 add_subdirectory(ups)
 
-
 # packaging utility
-
 include(UseCPack)
-
-
-
-
-
-

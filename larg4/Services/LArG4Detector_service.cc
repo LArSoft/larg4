@@ -43,7 +43,7 @@
 #include "artg4tk/pluginDetectors/gdml/PhotonHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
-#include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
+#include "larg4/Services/SimEnergyDepositSD.h"
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
 //
 #include "artg4tk/pluginDetectors/gdml/InteractionSD.hh"

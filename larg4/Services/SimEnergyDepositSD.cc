@@ -12,7 +12,7 @@
 // SimEnergyDeposit.cc: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
-#include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
+#include "larg4/Services/SimEnergyDepositSD.h"
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4ThreeVector.hh"
