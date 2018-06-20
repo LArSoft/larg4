@@ -12,8 +12,7 @@
 // nobleGasTPCSD.cc: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
-#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.h"
-//#include "lardataobj/Simulation/SimEnergyDeposit.h"
+#include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4ThreeVector.hh"
@@ -28,9 +27,9 @@
 #include "Geant4/G4SteppingManager.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-namespace artg4tk {
+namespace larg4 {
 
- artg4tk::SimEnergyDepositSD::SimEnergyDepositSD(G4String name)
+  larg4::SimEnergyDepositSD::SimEnergyDepositSD(G4String name)
 : G4VSensitiveDetector(name) {
    hitCollection.clear();
     G4String HCname =  name + "_HC";
@@ -41,26 +40,26 @@ namespace artg4tk {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-artg4tk::SimEnergyDepositSD::~SimEnergyDepositSD() {
+ larg4::SimEnergyDepositSD::~SimEnergyDepositSD() {
 //    RootIO::GetInstance()->Close();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void  artg4tk::SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
+void   larg4::SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
    hitCollection.clear();
 
     if (HCID < 0) {
-        G4cout << "artg4tk::SimEnergyDepositSD::Initialize:  " << SensitiveDetectorName << "   " << collectionName[0] << G4endl;
+        G4cout << "SimEnergyDepositSD::Initialize:  " << SensitiveDetectorName << "   " << collectionName[0] << G4endl;
         HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
     }
     //    HCE->AddHitsCollection(HCID, trackerCollection);
 }
-//artg4tk::nobleGasTPCHitCollection* artg4tk::nobleGasTPCSD::getTrackerCollection()
+//nobleGasTPCHitCollection* nobleGasTPCSD::getTrackerCollection()
 //      {return trackerCollection;}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool  artg4tk::SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+G4bool   larg4::SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
        G4double edep = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
       
     if (edep == 0.) return false;

@@ -9,8 +9,8 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// GDMLDetector_service.h: 
-// GDMLDetectorService is the service that constructs the Geant 4 Geometry 
+// LArG4Detector_service.h: 
+// LArG4DetectorService is the service that constructs the Geant 4 Geometry 
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section
 // of the fcl configuration file, like this (Just change the name of the gdml file):
@@ -19,7 +19,7 @@
 // services: { 
 //   ...
 //     ...  
-// GDMLDetector : 
+// LArG4Detector : 
 //    {
 //    category: "world"
 //    gdmlFileName_ : "ta_target.gdml"
@@ -30,8 +30,9 @@
 //=============================================================================
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-// artg4tk includes: 
-#include "larg4/SimEnergyDeposit/GDMLDetector_service.h"
+// larg4 includes: 
+#include "larg4/Services/LarG4Detector_service.h"
+// artg4tk includes:
 #include "artg4tk/pluginDetectors/gdml/ColorReader.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterSD.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterHit.hh"
@@ -42,8 +43,8 @@
 #include "artg4tk/pluginDetectors/gdml/PhotonHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositSD.h"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
+#include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
+//#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
 //
 #include "artg4tk/pluginDetectors/gdml/InteractionSD.hh"
 #include "artg4tk/pluginDetectors/gdml/myInteractionArtHitData.hh"
@@ -86,13 +87,13 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return split(s, delim, elems);
 }
 
-artg4tk::GDMLDetectorService::GDMLDetectorService(fhicl::ParameterSet const & p, art::ActivityRegistry &)
+larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p, art::ActivityRegistry &)
   : artg4tk::DetectorBase(p,
-    p.get<string>("name", "GDMLDetectorService"),
+    p.get<string>("name", "LArG4DetectorService"),
     p.get<string>("category", "World"),
     p.get<string>("mother_category", "")),
     // Initialize our message logger
-    logInfo_("GDMLDetectorService") 
+    logInfo_("LArG4DetectorService") 
 {
 
    std::string fntmp = p.get<std::string>("gdmlFileName_");
@@ -122,10 +123,10 @@ artg4tk::GDMLDetectorService::GDMLDetectorService(fhicl::ParameterSet const & p,
 
 // Destructor
 
-artg4tk::GDMLDetectorService::~GDMLDetectorService() {
+larg4::LArG4DetectorService::~LArG4DetectorService() {
 }
 
-std::vector<G4LogicalVolume *> artg4tk::GDMLDetectorService::doBuildLVs() {
+std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     ColorReader* fReader = new ColorReader;
     G4GDMLParser *parser = new G4GDMLParser(fReader);
     parser->Read(gdmlFileName_);
@@ -247,7 +248,7 @@ std::vector<G4LogicalVolume *> artg4tk::GDMLDetectorService::doBuildLVs() {
     return myLVvec;
 }
 
-std::vector<G4VPhysicalVolume *> artg4tk::GDMLDetectorService::doPlaceToPVs(std::vector<G4LogicalVolume *>) {
+std::vector<G4VPhysicalVolume *> larg4::LArG4DetectorService::doPlaceToPVs(std::vector<G4LogicalVolume *>) {
     // Note we don't use our input.
     std::vector<G4VPhysicalVolume *> myPVvec;
     G4PhysicalVolumeStore *pPVStore = G4PhysicalVolumeStore::GetInstance();
@@ -255,7 +256,7 @@ std::vector<G4VPhysicalVolume *> artg4tk::GDMLDetectorService::doPlaceToPVs(std:
     return myPVvec;
 }
 
-void artg4tk::GDMLDetectorService::doCallArtProduces(art::EDProducer * producer) {
+void larg4::LArG4DetectorService::doCallArtProduces(art::EDProducer * producer) {
     // Tell Art what we produce, and label the entries
     std::vector<std::pair<std::string, std::string> >::const_iterator cii;
     for (cii = DetectorList.begin(); cii != DetectorList.end(); cii++) {
@@ -293,7 +294,7 @@ void artg4tk::GDMLDetectorService::doCallArtProduces(art::EDProducer * producer)
     }
 }
 
-void artg4tk::GDMLDetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC) {
+void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC) {
   //
   // the following are left over sensitive detectors that write into the geant 4 hit collection first and then copy to the EDM
   //
@@ -445,5 +446,5 @@ void artg4tk::GDMLDetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC
       
     };
 }
-using artg4tk::GDMLDetectorService;
-DEFINE_ART_SERVICE(GDMLDetectorService)
+using larg4::LArG4DetectorService;
+DEFINE_ART_SERVICE(LArG4DetectorService)

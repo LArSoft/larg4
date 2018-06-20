@@ -19,7 +19,7 @@ services: {
   }
   TFileService :
   {
-    fileName      : "CheckSimEnergyDepositHits.root"
+    fileName      : "CheckSimEnergyDeposit.root"
   }
 
     DetectorHolder: {}
@@ -38,7 +38,7 @@ services: {
   	enableBoundary: false    
   	enableWLS: false
 }
-
+   
     // Detector(s) for the simulation
     LArG4Detector : 
     {
@@ -77,7 +77,7 @@ out1: {
 
 physics: {
   producers: {
-    artg4Main: {
+    artg4Main: {  
       module_type: artg4Main
       enableVisualization: false
       macroPath: ".:./macros"
@@ -87,14 +87,13 @@ physics: {
 
   }
   analyzers: {
-   CheckSimEnergyDepositHit: {   module_type: CheckSimEnergyDepositHit
+   CheckSimEnergyDeposit: {   module_type: CheckSimEnergyDeposit
 		  hist_dir: "HistoDir"}
-   CheckPhotonHits: {   module_type: CheckPhotonHits
-		  DumpGDML: true}	
+	
 }
 
   path1: [ artg4Main ]
-  stream1:  [ out1,CheckSimEnergyDepositHit ,CheckPhotonHits  ]
+  stream1:  [ out1,CheckSimEnergyDeposit ]
 
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]

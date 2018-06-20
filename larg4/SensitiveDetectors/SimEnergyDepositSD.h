@@ -16,13 +16,14 @@
 #define SimEnergyDepositSD_h 1
 
 #include "Geant4/G4VSensitiveDetector.hh"
-#include "larg4/SimEnergyDeposit/SimEnergyDepositHit.h"
+#include "lardataobj/Simulation/SimEnergyDeposit.h"
+
 class G4Step;
 class G4HCofThisEvent;
-class SimEnergyDepositHitCollection;
+//class SimEnergyDepositCollection;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-namespace artg4tk {
+namespace larg4 {
 
     class SimEnergyDepositSD : public G4VSensitiveDetector {
     public:
@@ -30,10 +31,10 @@ namespace artg4tk {
         ~SimEnergyDepositSD();
         void Initialize(G4HCofThisEvent*);
         G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-      const SimEnergyDepositHitCollection& GetHits() const { return hitCollection; }
+	const sim::SimEnergyDepositCollection& GetHits() const { return hitCollection; }
     private:
-        SimEnergyDepositHitCollection hitCollection;
-        G4int HCID;
+      sim::SimEnergyDepositCollection hitCollection;
+      G4int HCID;
 
     };
 

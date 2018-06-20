@@ -33,8 +33,8 @@
 
 
 // Include guard
-#ifndef GDMLDETECTOR_SERVICE_HH
-#define GDMLDETECTOR_SERVICE_HH
+#ifndef LARG4DETECTOR_SERVICE_HH
+#define LARG4DETECTOR_SERVICE_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -54,14 +54,14 @@
 #include "artg4tk/Core/DetectorBase.hh"
 
 
-namespace artg4tk {
+namespace larg4 {
 
-    class GDMLDetectorService : public artg4tk::DetectorBase {
+    class LArG4DetectorService : public artg4tk::DetectorBase {
     private:
         std::vector<std::pair<std::string,std::string> > DetectorList;
     public:
-        GDMLDetectorService(fhicl::ParameterSet const&, art::ActivityRegistry&);
-        virtual ~GDMLDetectorService();
+        LArG4DetectorService(fhicl::ParameterSet const&, art::ActivityRegistry&);
+        virtual ~LArG4DetectorService();
 
     private:
 
@@ -81,7 +81,7 @@ namespace artg4tk {
         mf::LogInfo logInfo_;
     };
 }
-using artg4tk::GDMLDetectorService;
-DECLARE_ART_SERVICE(GDMLDetectorService,LEGACY)
+using larg4::LArG4DetectorService;
+DECLARE_ART_SERVICE(LArG4DetectorService,LEGACY)
 #endif
 
