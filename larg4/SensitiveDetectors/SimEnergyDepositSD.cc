@@ -9,7 +9,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// nobleGasTPCSD.cc: Class representing a sensitive tracking detector
+// SimEnergyDeposit.cc: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 #include "larg4/SensitiveDetectors/SimEnergyDepositSD.h"
@@ -29,7 +29,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 namespace larg4 {
 
-  larg4::SimEnergyDepositSD::SimEnergyDepositSD(G4String name)
+  SimEnergyDepositSD::SimEnergyDepositSD(G4String name)
 : G4VSensitiveDetector(name) {
    hitCollection.clear();
     G4String HCname =  name + "_HC";
@@ -40,13 +40,13 @@ namespace larg4 {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
- larg4::SimEnergyDepositSD::~SimEnergyDepositSD() {
+ SimEnergyDepositSD::~SimEnergyDepositSD() {
 //    RootIO::GetInstance()->Close();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void   larg4::SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
+void   SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
    hitCollection.clear();
 
     if (HCID < 0) {
@@ -59,7 +59,7 @@ void   larg4::SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
 //      {return trackerCollection;}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool   larg4::SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+G4bool   SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
        G4double edep = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
       
     if (edep == 0.) return false;
