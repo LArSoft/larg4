@@ -19,7 +19,7 @@ services: {
   }
   TFileService :
   {
-    fileName      : "multiCrystal.root"
+    fileName      : "eic_Crystal_PbF2.root"
   }
     DetectorHolder: {}
     ActionHolder: {}
@@ -43,7 +43,7 @@ services: {
     GDMLDetector : 
     {
     category: "world"
-    gdmlFileName_ : "CrystalCal_PbF2.gdml"
+    gdmlFileName_ : "eic_CrystalCal_PbF2.gdml"
     }   
 
 
