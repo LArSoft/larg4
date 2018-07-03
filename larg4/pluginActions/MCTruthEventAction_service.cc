@@ -18,6 +18,8 @@
 #include <cmath>
 #include <CLHEP/Vector/LorentzVector.h>
 using std::string;
+  
+G4ParticleTable* larg4::MCTruthEventActionService::fParticleTable=nullptr; 
 
 larg4::MCTruthEventActionService::
 MCTruthEventActionService(fhicl::ParameterSet const & p,
