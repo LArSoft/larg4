@@ -1,16 +1,13 @@
 #include "larg4/pluginActions/MCTruthEventAction_service.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
-//#include "artg4tk/DataProducts/EventGenerators/GenParticle.hh"
-//#include "artg4tk/DataProducts/EventGenerators/GenParticleCollection.hh"
 // Geant4  includes
-
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4ParticleTable.hh"
 #include "Geant4/G4IonTable.hh"
 #include "Geant4/G4PrimaryVertex.hh"
 #include "Geant4/G4ParticleDefinition.hh"
-//#include "Geant4/G4HEPEvtInterface.hh"
+//
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nutools/G4Base/PrimaryParticleInformation.h"
@@ -26,7 +23,10 @@ MCTruthEventActionService(fhicl::ParameterSet const & p,
         art::ActivityRegistry &)
 : PrimaryGeneratorActionBase(p.get<string>("name", "MCTruthEventActionService")),
 // Initialize our message logger
-logInfo_("MCTruthEventActionService") {
+logInfo_("MCTruthEventActionService")
+  //fConvertMCTruth    (nullptr)
+ {
+  //    fConvertMCTruth = new ConvertMCTruthToG4;
 }
 
 // Destructor
@@ -47,7 +47,14 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
     art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
     art::Event & evt = actionHolder -> getCurrArtEvent();
     std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
-    evt.getManyByType(mclists);
+    //    if(fInputLabels.size()==0)
+      evt.getManyByType(mclists);
+      //else{
+      //mclists.resize(fInputLabels.size());
+      //for(size_t i=0; i<fInputLabels.size(); i++)
+      //  evt.getByLabel(fInputLabels[i],mclists[i]);
+      // }
+    //    evt.getManyByType(mclists);
     std::cout << "Primary:: MCTRUTH: Size: "<<mclists.size()<<std::endl;
     for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
       art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
@@ -69,7 +76,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	//	  <<"  t: "<<t
 	//	  <<std::endl;
 	//std::cout << "Primary:: m  Size: "<<*(mct.get())<<std::endl;
-	simb::MCTruth GHFJ =(simb::MCTruth) *(mct.get());
+	//simb::MCTruth GHFJ =(simb::MCTruth) *(mct.get());
 	//simb::MCParticle pp = GHFJ.GetParticle(1);
 	//std::cout << "pdgid  "<<pp.PdgCode()<<std::endl;
 
@@ -161,12 +168,12 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	// the MCTruth pointer in it.  This will allow the
 	// ParticleActionList class to access MCTruth
 	// information during Geant4's tracking.
-	//hjw g4b::PrimaryParticleInformation* primaryParticleInfo = new g4b::PrimaryParticleInformation;
-	//hjw primaryParticleInfo->SetMCTruth( mct, index );
+	g4b::PrimaryParticleInformation* primaryParticleInfo = new g4b::PrimaryParticleInformation;
+	primaryParticleInfo->SetMCTruth( mct.get(), index );
 	  
 	// Save the PrimaryParticleInformation in the
 	// G4PrimaryParticle for access during tracking.
-	//hjwg4particle->SetUserInformation( primaryParticleInfo );
+	g4particle->SetUserInformation( primaryParticleInfo );
 
 	LOG_DEBUG("ConvertPrimaryToGeant4") << ": %%% primary PDG=" << pdgCode
 					    << ", (x,y,z,t)=(" << x
@@ -179,7 +186,6 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
       } // for each particle in MCTruth
       ++index;
     }
-
 
 }
 

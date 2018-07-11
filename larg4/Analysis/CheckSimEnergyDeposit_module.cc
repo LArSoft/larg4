@@ -70,7 +70,7 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event) {
 	    }
 	  _hnumPhotons->Fill( hit.NumPhotons());
 	  _hEdep->Fill( hit.Energy());
-	  std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
+	  //	  std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
 	  _hSteplength->Fill( hit.StepLength());      
 	  /*
 	    _ntuple->Fill(event.event(),
