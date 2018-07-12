@@ -294,7 +294,6 @@ namespace larg4 {
   // With every step, add to the particle's trajectory.
   void ParticleListActionService::userSteppingAction(const G4Step* step)
   {
-    
     if ( !fCurrentParticle.hasParticle() ) {
       return;
     }
