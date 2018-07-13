@@ -100,7 +100,8 @@ services: {
     ExampleGeneralAction: {
       name: "exampleGeneral"
     }
-MCTruthEventAction: {}
+MCTruthEventAction: {service_type: "MCTruthEventActionService"}
+ParticleListAction: {service_type: "ParticleListActionService"}
 }
 
 outputs: {
@@ -113,8 +114,8 @@ out1: {
 physics: {
   producers: {
    generator: @local::standard_singlep
-    artg4Main: {  
-      module_type: artg4Main
+    larg4Main: {  
+      module_type: larg4Main
       enableVisualization: false
       macroPath: ".:./macros"
       visMacro: "vis.mac"
@@ -128,7 +129,7 @@ physics: {
 	
 }
 
-  path1: [ generator,artg4Main ]
+  path1: [ generator,larg4Main ]
   stream1:  [ out1,CheckSimEnergyDeposit ]
 
   trigger_paths: [ path1 ]

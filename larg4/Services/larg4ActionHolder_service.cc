@@ -42,6 +42,7 @@ larg4::larg4ActionHolderService::larg4ActionHolderService(fhicl::ParameterSet co
   steppingActionsMap_(),
   stackingActionsMap_(),
   primaryGeneratorActionsMap_(),
+  particleListActionsMap_(),
   currentArtEvent_(nullptr),
   allActionsMap_()
 {}
@@ -109,7 +110,10 @@ void larg4::larg4ActionHolderService::registerAction(PrimaryGeneratorActionBase 
  cerr<< "registering to  primaryGeneratorActionsMap_"<<endl;
   doRegisterAction(action, primaryGeneratorActionsMap_);
 }
-
+void larg4::larg4ActionHolderService::registerAction(ParticleListActionBase * const action) {
+ cerr<< "registering to  particleListActions_"<<endl;
+  doRegisterAction(action, particleListActionsMap_);
+}
 template <typename A>
 A* larg4::larg4ActionHolderService::doGetAction(std::string name, std::map<std::string, A*>& actionMap) {
   
@@ -125,36 +129,39 @@ A* larg4::larg4ActionHolderService::doGetAction(std::string name, std::map<std::
   return actionIter->second;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, RunActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, RunActionBase* out) {
   out = doGetAction(name, runActionsMap_);
   return out;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, EventActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, EventActionBase* out) {
   out = doGetAction(name, eventActionsMap_);
   return out;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, TrackingActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, TrackingActionBase* out) {
   out = doGetAction(name, trackingActionsMap_);
   return out;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, SteppingActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, SteppingActionBase* out) {
   out = doGetAction(name, steppingActionsMap_);
   return out;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, StackingActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, StackingActionBase* out) {
   out = doGetAction(name, stackingActionsMap_);
   return out;
 }
 
-larg4::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, PrimaryGeneratorActionBase* out) {
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, PrimaryGeneratorActionBase* out) {
   out = doGetAction(name, primaryGeneratorActionsMap_);
   return out;
 }
-
+artg4tk::ActionBase* larg4::larg4ActionHolderService::getAction(std::string name, ParticleListActionBase* out) {
+  out = doGetAction(name, particleListActionsMap_);
+  return out;
+}
 // h3. Art-specific methods
 void larg4::larg4ActionHolderService::callArtProduces(art::EDProducer * prod)
 {

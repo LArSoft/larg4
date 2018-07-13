@@ -18,6 +18,7 @@
 #include "artg4tk/geantInit/ArtG4RunManager.hh"
 #include "artg4tk/geantInit/ArtG4DetectorConstruction.hh"
 
+
 // The actions
 #include "artg4tk/geantInit/ArtG4EventAction.hh"
 #include "artg4tk/geantInit/ArtG4PrimaryGeneratorAction.hh"
@@ -25,13 +26,15 @@
 #include "artg4tk/geantInit/ArtG4SteppingAction.hh"
 #include "artg4tk/geantInit/ArtG4StackingAction.hh"
 #include "artg4tk/geantInit/ArtG4TrackingAction.hh"
-
+#include "larg4//pluginActions/ParticleListAction_service.h"
 // Services
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 #include "artg4tk/services/DetectorHolder_service.hh"
 #include "artg4tk/services/PhysicsListHolder_service.hh"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+
+#include "nutools/ParticleNavigation/ParticleList.h"
 
 
 // G4 includes
@@ -136,6 +139,7 @@ namespace larg4 {
     
     // Message logger
     mf::LogInfo logInfo_;
+
   };
 }
 
@@ -156,7 +160,9 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     uiAtBeginRun_( p.get<bool>("uiAtBeginRun", false)),
     uiAtEndEvent_(false),
     afterEvent_( p.get<std::string>("afterEvent", "pass")),
-    logInfo_("ArtG4Main")
+  logInfo_("ArtG4Main")
+  //  pla_("ParticleListAction")
+
 {
 	// If we're in "visualize specific events" mode (essentially only pause
 	// after given events), then extract the list of events we need to
@@ -216,6 +222,7 @@ larg4::larg4Main::~larg4Main()
 // At begin job
 void larg4::larg4Main::beginJob()
 {
+ 
   // Set up run manager
   mf::LogDebug("Main_Run_Manager") << "In begin job";
   runManager_.reset( new artg4tk::ArtG4RunManager );
@@ -249,7 +256,7 @@ void larg4::larg4Main::beginRun(art::Run & r)
   
   // Declare the primary generator action to Geant
   runManager_->SetUserAction(new artg4tk::ArtG4PrimaryGeneratorAction);
-
+ 
   // Note that these actions (and ArtG4PrimaryGeneratorAction above) are all
   // generic actions that really don't do much on their own. Rather, to 
   // use the power of actions, one must create action objects (derived from
@@ -336,7 +343,9 @@ void larg4::larg4Main::produce(art::Event & e)
 
   // Done with the event
   runManager_ -> BeamOnEndEvent();
-
+  art::ServiceHandle<larg4::ParticleListActionService> h;
+  sim::ParticleList particlelist =h->YieldList();
+  std::cout << "ashgkdfhasgjklgjkl   " <<particlelist.size()<<std::endl;
 #ifdef G4VIS_USE
   // If visualization is enabled, and we want to pause after each event, do
   // the pausing.

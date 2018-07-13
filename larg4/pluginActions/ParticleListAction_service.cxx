@@ -68,6 +68,7 @@ namespace larg4 {
   {
     // Create the particle list that we'll (re-)use during the course
     // of the Geant4 simulation.
+    std::cout<< "********************************ParticleListActionService constructor"<<std::endl;
     fparticleList = new sim::ParticleList;
     fParentIDMap.clear();
   }
@@ -294,6 +295,8 @@ namespace larg4 {
   // With every step, add to the particle's trajectory.
   void ParticleListActionService::userSteppingAction(const G4Step* step)
   {
+   std::cout<< "********************************stepping ParticleListActionService constructor"<<std::endl;
+
     if ( !fCurrentParticle.hasParticle() ) {
       return;
     }
@@ -443,6 +446,7 @@ namespace larg4 {
   // daughters yet.  That's done in this method.
   void ParticleListActionService::endOfEventAction(const G4Event*)
   {
+   std::cout<< "********************************Event ParticleListActionService constructor"<<std::endl;
     // Set up the utility class for the "for_each" algorithm.  (We only
     // need a separate set-up for the utility class because we need to
     // give it the pointer to the particle list.  We're using the STL

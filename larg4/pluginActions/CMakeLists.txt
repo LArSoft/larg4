@@ -1,13 +1,14 @@
 # Use the magic that is @art_make@ to construct the shared object files for
 # this whole directory. 
 simple_plugin(
-  ParticleListAction service
+  ParticleListAction service     nutools_G4Base
   SOURCE
     ParticleListAction_service.cxx
+
 )
 
 
-art_make( SERVICE_LIBRARIES ${G4_LIB_LIST}  ${XERCESCLIB} nutools_G4Base
+art_make( SERVICE_LIBRARIES ${G4_LIB_LIST}  ${XERCESCLIB} nutools_G4Base 
          LIB_LIBRARIES 
                         larsim_PhotonPropagation
                         larsim_PhotonPropagation_PhotonVisibilityService_service
