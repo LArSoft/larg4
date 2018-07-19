@@ -4,7 +4,7 @@
 # detector construction class.
 
 # Create a library called "artg4tk_core"
-art_make(MODULE_LIBRARIES "artg4tk_geantInit" "larg4_pluginActions_ParticleListAction_service" "larg4_geantInit" "artg4tk_pluginDetectors_gdml" "${XERCESCLIB}" "${G4_LIB_LIST}" )
+art_make(MODULE_LIBRARIES "artg4tk_geantInit" "larg4_pluginActions_ParticleListAction_service"  "artg4tk_pluginDetectors_gdml" "${XERCESCLIB}" "${G4_LIB_LIST}" )
 
 # Install header files into the products area
 install_headers() 

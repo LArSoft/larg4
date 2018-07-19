@@ -4,9 +4,8 @@
 // creates and initializes the run manager, controls the beginning and end of 
 // events, and controls visualization.
 
-// Authors: Tasha Arvanitis, Adam Lyon
 
-// Date: July 2012
+
 
 // Art includes
 #include "art/Framework/Core/EDProducer.h"
@@ -26,7 +25,7 @@
 #include "artg4tk/geantInit/ArtG4SteppingAction.hh"
 #include "artg4tk/geantInit/ArtG4StackingAction.hh"
 #include "artg4tk/geantInit/ArtG4TrackingAction.hh"
-#include "larg4//pluginActions/ParticleListAction_service.h"
+#include "larg4/pluginActions/ParticleListAction_service.h" // combined actions.
 // Services
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
@@ -35,7 +34,9 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
 #include "nutools/ParticleNavigation/ParticleList.h"
+#include "lardataobj/Simulation/GeneratedParticleInfo.h"
 
+#include "larsim/MCDumpers/MCDumpers.h"
 
 // G4 includes
 #ifdef G4VIS_USE
@@ -139,6 +140,8 @@ namespace larg4 {
     
     // Message logger
     mf::LogInfo logInfo_;
+    //    bool fSparsifyTrajectories; ///< Sparsify MCParticle Trajectories
+    //larg4::ParticleListAction* fparticleListAction; ///< Geant4 user action to particle information. 
 
   };
 }
@@ -161,6 +164,8 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     uiAtEndEvent_(false),
     afterEvent_( p.get<std::string>("afterEvent", "pass")),
   logInfo_("ArtG4Main")
+//  fSparsifyTrajectories(false),
+//  fparticleListAction(0)
   //  pla_("ParticleListAction")
 
 {
@@ -343,9 +348,49 @@ void larg4::larg4Main::produce(art::Event & e)
 
   // Done with the event
   runManager_ -> BeamOnEndEvent();
+  /*
+  unsigned int nGeneratedParticles = 0;
   art::ServiceHandle<larg4::ParticleListActionService> h;
-  sim::ParticleList particlelist =h->YieldList();
-  std::cout << "ashgkdfhasgjklgjkl   " <<particlelist.size()<<std::endl;
+  sim::ParticleList particleList =h->YieldList();
+
+  std::unique_ptr< std::vector<simb::MCParticle> >               partCol                    (new std::vector<simb::MCParticle  >);
+
+  auto tpassn = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
+        for(auto const& partPair: particleList) {
+          simb::MCParticle& p = *(partPair.second);
+          ++nGeneratedParticles;
+          
+          // if the particle has been marked as dropped, we don't save it
+          // (as of LArSoft ~v5.6 this does not ever happen because
+          // ParticleListAction has already taken care of deleting them)
+          //if (ParticleListAction::isDropped(&p)) continue;
+          
+          sim::GeneratedParticleInfo const truthInfo{
+            fparticleListAction->GetPrimaryTruthIndex(p.TrackId())
+            };
+          if (!truthInfo.hasGeneratedParticleIndex() && (p.Mother() == 0)) {
+            // this means it's primary but with no information; logic error!!
+            art::Exception error(art::errors::LogicError);
+            error << "Failed to match primary particle:\n";
+            sim::dump::DumpMCParticle(error, p, "  ");
+	    //            error << "\nwith particles from the truth record '"
+            //  << mclistHandle.provenance()->inputTag() << "':\n";
+	    //            sim::dump::DumpMCTruth(error, *mct, 2U, "  "); // 2 points per line
+            //error << "\n";
+            throw error;
+          }
+
+	  if(fSparsifyTrajectories) p.SparsifyTrajectory();
+          
+          partCol->push_back(std::move(p));
+          
+          tpassn->addSingle(mct, makeMCPartPtr(partCol->size() - 1), truthInfo);
+          
+        } // for(particleList)
+
+  */
+
+
 #ifdef G4VIS_USE
   // If visualization is enabled, and we want to pause after each event, do
   // the pausing.

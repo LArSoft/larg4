@@ -30,7 +30,7 @@ using std::pair;
 using namespace std;
 /////////////////////
 // Message category
-static std::string msgctg = "ActionHolderService";
+static std::string msgctg = "larg4ActionHolderService";
 
 // Constructor doesn't do much with the passed arguments, but does initialize
 // the logger for the service

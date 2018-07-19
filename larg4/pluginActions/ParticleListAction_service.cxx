@@ -12,8 +12,13 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// Framework includes
+#include "art/Framework/Core/EDProducer.h"
+// framework includes:
+#include "art/Framework/Services/Registry/ServiceMacros.h"
+
+
 #include "Geant4/G4Event.hh"
-//#include <G4RunManager.hh>
 #include "Geant4/G4Track.hh"
 #include "Geant4/G4ThreeVector.hh"
 #include "Geant4/G4ParticleDefinition.hh"
@@ -85,6 +90,7 @@ namespace larg4 {
   // Begin the event
   void ParticleListActionService::beginOfEventAction(const G4Event*)
   {
+    std::cout<<"ParticleListActionService BeginOfEventAction"<<std::endl;
     // Clear any previous particle information.
     fCurrentParticle.clear();
     fparticleList->clear();
@@ -124,6 +130,7 @@ namespace larg4 {
   // Create our initial simb::MCParticle object and add it to the sim::ParticleList.
   void ParticleListActionService::preUserTrackingAction(const G4Track* track)
   {
+ std::cout<< "********************************stepping ParticleListActionService preuserTr "<<std::endl;
     // Particle type.
     G4ParticleDefinition* particleDefinition = track->GetDefinition();
     G4int pdgCode = particleDefinition->GetPDGEncoding();
@@ -268,6 +275,7 @@ namespace larg4 {
   //----------------------------------------------------------------------------
   void ParticleListActionService::postUserTrackingAction( const G4Track* aTrack)
   {
+    std::cout<< "********************************stepping ParticleListActionService postUser "<<std::endl;
     if (!fCurrentParticle.hasParticle()) return;
     
     // if we have found no reason to keep it, drop it!
@@ -295,7 +303,7 @@ namespace larg4 {
   // With every step, add to the particle's trajectory.
   void ParticleListActionService::userSteppingAction(const G4Step* step)
   {
-   std::cout<< "********************************stepping ParticleListActionService constructor"<<std::endl;
+   std::cout<< "********************************stepping ParticleListActionService Stepping "<<std::endl;
 
     if ( !fCurrentParticle.hasParticle() ) {
       return;
@@ -444,9 +452,10 @@ namespace larg4 {
   // There's one last thing to do: All the particles have their
   // parent IDs set (in PostTrackingAction), but we haven't set the
   // daughters yet.  That's done in this method.
+  /*
   void ParticleListActionService::endOfEventAction(const G4Event*)
   {
-   std::cout<< "********************************Event ParticleListActionService constructor"<<std::endl;
+   std::cout<< "********************************Event ParticleListActionService end of event"<<std::endl;
     // Set up the utility class for the "for_each" algorithm.  (We only
     // need a separate set-up for the utility class because we need to
     // give it the pointer to the particle list.  We're using the STL
@@ -460,7 +469,7 @@ namespace larg4 {
                   fparticleList->end(), 
                   updateDaughterInformation);
   }
-  
+  */
   //----------------------------------------------------------------------------
   // Returns the ParticleList accumulated during the current event.
   const sim::ParticleList* ParticleListActionService::GetList() const
@@ -513,7 +522,60 @@ namespace larg4 {
   
 
   //----------------------------------------------------------------------------
+ void ParticleListActionService::doCallArtProduces(art::EDProducer * producer) {
+     // Tell Art what we produce, and label the entries
+   // std::unique_ptr< std::vector<simb::MCParticle> >               partCol                    (new std::vector<simb::MCParticle  >);
+   // auto tpassn = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
+   //art::PtrMaker<simb::MCParticle> makeMCPartPtr(evt, *this);
+   std::cout<<"ParticleListActionService Producing!!!!"<<std::endl;
+     producer -> produces< std::vector<simb::MCParticle> >();
+     producer -> produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
+ }
+  /*
+// Called at the beginning of each event. Pass the call on to action objects
+void ParticleListActionService::beginOfEventAction(const G4Event*)
+{
+  std::cout<<"ParticleListActionService BeginOfEventAction"<<std::endl;
+  // Get the action holder service
+  art::ServiceHandle<ActionHolderService> ahs;
   
+  // Run beginOfEvent
+  //ahs -> beginOfEventAction(currentEvent);
+
+}
+  */
+// Called at the end of each event. Call detectors to convert hits for the 
+// event and pass the call on to the action objects.
+  void ParticleListActionService::endOfEventAction(const G4Event*)
+{
+   std::cout<< "********************************Event ParticleListActionService end of event"<<std::endl;
+    // Set up the utility class for the "for_each" algorithm.  (We only
+    // need a separate set-up for the utility class because we need to
+    // give it the pointer to the particle list.  We're using the STL
+    // "for_each" instead of the C++ "for loop" because it's supposed
+    // to be faster.
+    UpdateDaughterInformation updateDaughterInformation;
+    updateDaughterInformation.SetParticleList( fparticleList );
+
+    // Update the daughter information for each particle in the list.
+    std::for_each(fparticleList->begin(), 
+                  fparticleList->end(), 
+                  updateDaughterInformation);
+   // Run EndOfEventAction
+  art::ServiceHandle<ActionHolderService> ahs;
+  sim::ParticleList particleList = YieldList();
+  std::cout<< "Dump sim::ParticleList; size()="
+	   << particleList.size() << "\n"
+	   << particleList
+	   <<std::endl;
+  //  ahs -> endOfEventAction(currentEvent);
+  
+  // Every ACTION needs to write out their event data now, if they have any
+  // (do this within ArtG4EventAction) since some still need to be within
+  // Geant
+  ahs -> fillEventWithArtStuff();
+}
+
 } // namespace LArG4
 using larg4::ParticleListActionService;
 DEFINE_ART_SERVICE(ParticleListActionService)

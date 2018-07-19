@@ -21,6 +21,7 @@
 #include "larsim/LArG4/ParticleFilters.h" // larg4::PositionInVolumeFilter
 #include "nutools/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
 // Get the base classes
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/TrackingActionBase.hh"
@@ -50,15 +51,27 @@ namespace larg4 {
       
       simb::MCParticle* particle = nullptr;  ///< simple structure representing particle
       bool              keep = false;        ///< if there was decision to keep
-      
+      /// Index of the particle in the original generator truth record.
+      simb::GeneratedParticleIndex_t truthIndex = simb::NoGeneratedParticleIndex;
+
       /// Resets the information (does not release memory it does not own)
-      void clear() { particle = nullptr; keep = false; }
+      void clear()
+      { particle = nullptr; 
+	keep = false;  
+	truthIndex = simb::NoGeneratedParticleIndex;
+      }
       
       /// Returns whether there is a particle
       bool hasParticle() const { return particle; }
+
+       /// Returns whether there is a particle
+      bool isPrimary() const { return simb::isGeneratedParticleIndex(truthIndex); }
       
       /// Rerturns whether there is a particle known to be kept
       bool keepParticle() const { return hasParticle() && keep; }
+
+      /// Returns the index of the particle in the generator truth record.
+      simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
       
     }; // ParticleInfo_t
 
@@ -72,8 +85,8 @@ namespace larg4 {
 
     // UserActions method that we'll override, to obtain access to
     // Geant4's particle tracks and trajectories.
-    virtual void beginOfEventAction(const G4Event*);
-    virtual void endOfEventAction  (const G4Event*);
+    //virtual void beginOfEventAction(const G4Event*);
+    //virtual void endOfEventAction  (const G4Event*);
     virtual void preUserTrackingAction (const G4Track*);
     virtual void postUserTrackingAction(const G4Track*);
     virtual void userSteppingAction(const G4Step* );
@@ -90,12 +103,29 @@ namespace larg4 {
 
     // Returns the ParticleList accumulated during the current event.
     const sim::ParticleList* GetList() const;
+        
+    /// Returns a map of truth record information index for each of the primary
+    /// particles (by track ID).
+    std::map<int, simb::GeneratedParticleIndex_t> const& GetPrimaryTruthMap() const
+      { return fPrimaryTruthMap; }
+    
+    /// Returns the index of primary truth (`sim::NoGeneratorIndex` if none).
+    simb::GeneratedParticleIndex_t GetPrimaryTruthIndex(int trackId) const;
     
     // Yields the ParticleList accumulated during the current event.
     sim::ParticleList&& YieldList();
 
     /// returns whether the specified particle has been marked as dropped
     static bool isDropped(simb::MCParticle const* p);
+
+    // Called at the beginning of each event (note that this is after the
+    // primaries have been generated and sent to the event manager)
+    void beginOfEventAction(const G4Event* ) override;
+
+    // Called at the end of each event, right before GEANT's state switches
+    // out of event processing and into closed geometry (last chance to access
+    // the current event).
+    void endOfEventAction(const G4Event* ) override;
 
   private:
 
@@ -119,11 +149,18 @@ namespace larg4 {
     
     std::unique_ptr<PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
     
+    /// Map: particle track ID -> index of primary information in MC truth.
+    std::map<int, simb::GeneratedParticleIndex_t> fPrimaryTruthMap;
+
+  
+
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
                                    TLorentzVector const& mom,
                                    std::string    const& process);
-
+ 
+    // Tell Art what we'll produce
+    virtual void doCallArtProduces(art::EDProducer * producer);
   };
 
 } // namespace larg4

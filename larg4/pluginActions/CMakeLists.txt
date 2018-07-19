@@ -1,7 +1,7 @@
 # Use the magic that is @art_make@ to construct the shared object files for
 # this whole directory. 
 simple_plugin(
-  ParticleListAction service     nutools_G4Base
+  ParticleListAction service     nutools_G4Base artg4tk_actionBase
   SOURCE
     ParticleListAction_service.cxx
 
