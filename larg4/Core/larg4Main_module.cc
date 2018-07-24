@@ -4,7 +4,8 @@
 // creates and initializes the run manager, controls the beginning and end of 
 // events, and controls visualization.
 
-
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
 
 
 // Art includes
@@ -30,6 +31,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 #include "artg4tk/services/DetectorHolder_service.hh"
+
 #include "artg4tk/services/PhysicsListHolder_service.hh"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
@@ -169,6 +171,8 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   //  pla_("ParticleListAction")
 
 {
+  produces< std::vector<simb::MCParticle> >();
+  produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
 	// If we're in "visualize specific events" mode (essentially only pause
 	// after given events), then extract the list of events we need to
 	// pause for. They are placed in a map because it is more efficient to
@@ -187,6 +191,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   // by retrieving the holder services.
   art::ServiceHandle<ActionHolderService> actionHolder;
   art::ServiceHandle<DetectorHolderService> detectorHolder;
+
     detectorHolder->initialize();
     //hjw:
     //detectorHolder -> callArtProduces(this);
@@ -195,7 +200,10 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     // And running @callArtProduces@ on each
     actionHolder -> callArtProduces(this);
     detectorHolder -> callArtProduces(this);
-    
+
+    //    ((artg4tk::SteppingActionBase*)&*pla)-> callArtProduces(this);
+    // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);
+    // ((artg4tk::TrackingActionBase*)&*pla) -> callArtProduces(this);
   // Set up the random number engine.
   // See the documentation in RandomNumberHeader.h for
   // how this works. Note that @createEngine@ is a member function
@@ -254,11 +262,13 @@ void larg4::larg4Main::beginRun(art::Run & r)
   
   // Get all of the actions and initialize them
   art::ServiceHandle<ActionHolderService> actionHolder;
+
+
   actionHolder->initialize();
   
   // Store the run in the action holder
   actionHolder->setCurrArtRun(r);
-  
+
   // Declare the primary generator action to Geant
   runManager_->SetUserAction(new artg4tk::ArtG4PrimaryGeneratorAction);
  
@@ -337,9 +347,11 @@ void larg4::larg4Main::produce(art::Event & e)
   // The holder services need the event
   art::ServiceHandle<ActionHolderService> actionHolder;
   art::ServiceHandle<DetectorHolderService> detectorHolder;
-  
+  art::ServiceHandle<ParticleListActionService> pla;
   actionHolder -> setCurrArtEvent(e);
   detectorHolder -> setCurrArtEvent(e);
+  pla -> setCurrArtEvent(e);
+  pla -> setProductID( getProductID<std::vector<simb::MCParticle>>());
 
   // Begin event
   runManager_ -> BeamOnDoOneEvent(e.id().event());
@@ -348,6 +360,12 @@ void larg4::larg4Main::produce(art::Event & e)
 
   // Done with the event
   runManager_ -> BeamOnEndEvent();
+
+  auto  &partCol=pla->GetParticleCollection();
+  auto &tpassn = pla->GetAssnsMCTruthToMCParticle();
+  e.put(std::move(partCol));
+  e.put(std::move(tpassn));
+
   /*
   unsigned int nGeneratedParticles = 0;
   art::ServiceHandle<larg4::ParticleListActionService> h;

@@ -13,11 +13,10 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // Framework includes
-#include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/ProducingService.h"
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-
-
+#include "canvas/Persistency/Common/Ptr.h"
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4Track.hh"
 #include "Geant4/G4ThreeVector.hh"
@@ -32,6 +31,7 @@
 
 #include <TLorentzVector.h>
 #include <TString.h>
+
 
 #include <algorithm>
 
@@ -71,14 +71,17 @@ namespace larg4 {
       //fstoreTrajectories(storeTrajectories),
       //fKeepEMShowerDaughters(keepEMShowerDaughters)
   {
+
     // Create the particle list that we'll (re-)use during the course
     // of the Geant4 simulation.
     std::cout<< "********************************ParticleListActionService constructor"<<std::endl;
+
     fparticleList = new sim::ParticleList;
     fParentIDMap.clear();
   }
 
-  //----------------------------------------------------------------------------
+  art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
+ //----------------------------------------------------------------------------
   // Destructor.
   ParticleListActionService::~ParticleListActionService()
   {
@@ -257,8 +260,7 @@ namespace larg4 {
     
       // Create the sim::Particle object.
     fCurrentParticle.clear();
-    fCurrentParticle.particle
-    = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
+    fCurrentParticle.particle    = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
       // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
     
@@ -521,16 +523,7 @@ namespace larg4 {
   } // ParticleListActionService::AddPointToCurrentParticle()
   
 
-  //----------------------------------------------------------------------------
- void ParticleListActionService::doCallArtProduces(art::EDProducer * producer) {
-     // Tell Art what we produce, and label the entries
-   // std::unique_ptr< std::vector<simb::MCParticle> >               partCol                    (new std::vector<simb::MCParticle  >);
-   // auto tpassn = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
-   //art::PtrMaker<simb::MCParticle> makeMCPartPtr(evt, *this);
-   std::cout<<"ParticleListActionService Producing!!!!"<<std::endl;
-     producer -> produces< std::vector<simb::MCParticle> >();
-     producer -> produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
- }
+
   /*
 // Called at the beginning of each event. Pass the call on to action objects
 void ParticleListActionService::beginOfEventAction(const G4Event*)
@@ -548,6 +541,9 @@ void ParticleListActionService::beginOfEventAction(const G4Event*)
 // event and pass the call on to the action objects.
   void ParticleListActionService::endOfEventAction(const G4Event*)
 {
+
+  partCol_ = std::make_unique<std::vector<simb::MCParticle > >();
+   tpassn_ = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle >>();
    std::cout<< "********************************Event ParticleListActionService end of event"<<std::endl;
     // Set up the utility class for the "for_each" algorithm.  (We only
     // need a separate set-up for the utility class because we need to
@@ -562,12 +558,42 @@ void ParticleListActionService::beginOfEventAction(const G4Event*)
                   fparticleList->end(), 
                   updateDaughterInformation);
    // Run EndOfEventAction
-  art::ServiceHandle<ActionHolderService> ahs;
+   art::ServiceHandle<ActionHolderService> ahs;
   sim::ParticleList particleList = YieldList();
-  std::cout<< "Dump sim::ParticleList; size()="
+  std::cout<< "Dump sim::ParticleList size()="
 	   << particleList.size() << "\n"
 	   << particleList
 	   <<std::endl;
+
+  art::Event * evt= getCurrArtEvent();
+  std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
+  evt->getManyByType(mclists);
+  std::cout << "Primary:: MCTRUTH: Size: "<<mclists.size()<<std::endl;
+  for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
+    art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
+    for(size_t m = 0; m < mclistHandle->size(); ++m){
+      art::Ptr<simb::MCTruth> mct(mclistHandle, m);
+      unsigned int nGeneratedParticles = 0;
+        auto iPartPair = particleList.begin();
+        while (iPartPair != particleList.end()) {
+          simb::MCParticle& p = *(iPartPair->second);
+          ++nGeneratedParticles;         
+          partCol_->push_back(std::move(p));
+
+	  art::Ptr<simb::MCParticle> mcp_ptr = art::Ptr<simb::MCParticle>(pid_,partCol_->size()-1,evt->productGetter(pid_));
+          tpassn_->addSingle(mct, mcp_ptr);
+          // FIXME workaround until https://cdcvs.fnal.gov/redmine/issues/12067
+          // is solved and adopted in LArSoft, after which moving will suffice
+          // to avoid dramatic memory usage spikes;
+          // for now, we immediately disposed of used particles
+          iPartPair = particleList.erase(iPartPair);
+        } // while(particleList)
+    }
+
+  }
+  
+  // evt->put(std::move(partCol));
+  //evt->put(std::move(tpassn));
   //  ahs -> endOfEventAction(currentEvent);
   
   // Every ACTION needs to write out their event data now, if they have any

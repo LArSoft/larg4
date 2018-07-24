@@ -14,13 +14,14 @@
 //#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
+#include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Framework/Core/EDProducer.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 #include "larsim/LArG4/ParticleFilters.h" // larg4::PositionInVolumeFilter
 #include "nutools/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
 // Get the base classes
 #include "artg4tk/actionBase/EventActionBase.hh"
@@ -44,9 +45,11 @@ namespace larg4 {
 
   class ParticleListActionService : public  artg4tk::EventActionBase, 
                                     public  artg4tk::TrackingActionBase,
-                                    public  artg4tk::SteppingActionBase
+                                    public  artg4tk::SteppingActionBase,
+    private art::ProductRegistryHelper
   {
   public:
+
     struct ParticleInfo_t {
       
       simb::MCParticle* particle = nullptr;  ///< simple structure representing particle
@@ -60,7 +63,7 @@ namespace larg4 {
 	keep = false;  
 	truthIndex = simb::NoGeneratedParticleIndex;
       }
-      
+ 
       /// Returns whether there is a particle
       bool hasParticle() const { return particle; }
 
@@ -74,7 +77,10 @@ namespace larg4 {
       simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
       
     }; // ParticleInfo_t
-
+    using art::ProductRegistryHelper::produces;
+    using art::ProductRegistryHelper::registerProducts;
+ 
+ 
     // Standard constructors and destructors;
     ParticleListActionService(fhicl::ParameterSet const&, 
 			      art::ActivityRegistry&);
@@ -126,7 +132,14 @@ namespace larg4 {
     // out of event processing and into closed geometry (last chance to access
     // the current event).
     void endOfEventAction(const G4Event* ) override;
-
+    //hjw
+    // Set/get the current Art event
+    void setCurrArtEvent(art::Event & e) { currentArtEvent_ = &e; }
+    art::Event  *getCurrArtEvent();
+    void  setProductID(art::ProductID pid){pid_=pid;}
+    std::unique_ptr <std::vector<simb::MCParticle>>  &GetParticleCollection(){return partCol_;}
+    std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
+    //hjw
   private:
 
     // this method will loop over the fParentIDMap to get the 
@@ -151,16 +164,19 @@ namespace larg4 {
     
     /// Map: particle track ID -> index of primary information in MC truth.
     std::map<int, simb::GeneratedParticleIndex_t> fPrimaryTruthMap;
-
-  
-
+    //hjw
+    // Hold on to the current Art event
+    art::Event * currentArtEvent_;
+    //hjw
+    std::unique_ptr<std::vector<simb::MCParticle> > partCol_;
+    std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle >> tpassn_;
+    art::ProductID pid_;
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
                                    TLorentzVector const& mom,
                                    std::string    const& process);
  
-    // Tell Art what we'll produce
-    virtual void doCallArtProduces(art::EDProducer * producer);
+
   };
 
 } // namespace larg4
