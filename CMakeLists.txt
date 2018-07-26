@@ -31,6 +31,7 @@ find_ups_product(fhiclcpp)
 find_ups_product(messagefacility)
 find_ups_product(larcoreobj)
 find_ups_product(xerces_c)
+find_ups_product(nutools)
 find_ups_geant4()
 
 # macros for dictionary and simple_plugin
