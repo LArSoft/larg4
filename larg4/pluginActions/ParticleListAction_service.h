@@ -90,9 +90,9 @@ namespace larg4 {
 
     // UserActions method that we'll override, to obtain access to
     // Geant4's particle tracks and trajectories.
-    virtual void preUserTrackingAction (const G4Track*);
-    virtual void postUserTrackingAction(const G4Track*);
-    virtual void userSteppingAction(const G4Step* );
+    virtual void preUserTrackingAction (const G4Track*) override;
+    virtual void postUserTrackingAction(const G4Track*) override;
+    virtual void userSteppingAction(const G4Step* ) override;
 
     /// Grabs a particle filter
     void ParticleFilter(std::unique_ptr<PositionInVolumeFilter>&& filter)
