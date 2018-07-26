@@ -66,7 +66,7 @@ namespace larg4 {
     mf::LogInfo logInfo_;
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
     std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
-    g4b::ConvertMCTruthToG4*   	      fConvertMCTruth;     ///< Converts MCTruth objects;
+    // unused g4b::ConvertMCTruthToG4*   	      fConvertMCTruth;     ///< Converts MCTruth objects;
 
   };
 }//namespace larg4
