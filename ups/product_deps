@@ -33,20 +33,19 @@ fcldir  product_dir     fcl
 
 product          version
 artg4tk         v08_00_00
-nutools		v2_24_01
-lardataobj      v07_00_00_rc0
+larsim          v07_00_00_rc0
 cetbuildtools   v7_03_03       -       only_for_build
 end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes".
-qualifier        artg4tk      lardataobj  nutools    notes
-e17:debug        e17:debug    e17:debug   e17:debug
-e17:prof         e17:prof     e17:prof    e17:prof
-e15:debug        e15:debug    e15:debug   e15:debug
-e15:prof         e15:prof     e15:prof    e15:prof
-c2:debug         c2:debug     c2:debug    c2:debug
-c2:prof          c2:prof      c2:prof     c2:prof
+qualifier        artg4tk      larsim    notes
+e17:debug        e17:debug    e17:debug
+e17:prof         e17:prof     e17:prof
+e15:debug        e15:debug    e15:debug
+e15:prof         e15:prof     e15:prof
+c2:debug         c2:debug     c2:debug
+c2:prof          c2:prof      c2:prof
 end_qualifier_list
 
 # Preserve tabs and formatting in emacs and vi / vim:
