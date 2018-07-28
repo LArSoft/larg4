@@ -30,6 +30,8 @@ find_ups_product(canvas)
 find_ups_product(fhiclcpp)
 find_ups_product(messagefacility)
 find_ups_product(larcoreobj)
+find_ups_product(lardataobj)
+find_ups_product(larsim)
 find_ups_product(xerces_c)
 find_ups_product(nutools)
 find_ups_geant4()
@@ -38,6 +40,13 @@ find_ups_geant4()
 include(ArtDictionary)
 include(ArtMake)
 include(BuildPlugins)
+
+# artgktk
+cet_find_library( ARTG4TK_ACTIONBASE NAMES artg4tk_actionBase PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
+cet_find_library( ARTG4TK_GEANTINIT NAMES artg4tk_geantInit PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
+cet_find_library( ARTG4TK_PLUGINDETECTORS_GDML NAMES artg4tk_pluginDetectors_gdml PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
+#cet_find_library(  NAMES  PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
+#cet_find_library(  NAMES  PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
 
 # Build these directories
 add_subdirectory(larg4)
