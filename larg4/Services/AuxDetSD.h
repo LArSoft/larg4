@@ -20,6 +20,11 @@
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
 #include "Geant4/G4VSensitiveDetector.hh"
 
+#if defined __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
+
 class G4Step;
 class G4HCofThisEvent;
 class AuxDetHitCollection;
@@ -73,5 +78,9 @@ namespace larg4 {
       //std::vector<sim::AuxDetIDE>       fAuxDetIDEs;       ///< list of IDEs in one channel
     };
 }   // namespace larg4
+#if defined __clang__
+  #pragma clang diagnostic pop
+#endif
+
 #endif
 
