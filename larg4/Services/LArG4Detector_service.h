@@ -9,7 +9,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// GDMLDetector_service.h: 
+// GDMLDetector_service.hh: 
 // GDMLDetectorService is the service that constructs the Geant 4 Geometry 
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section
@@ -33,8 +33,8 @@
 
 
 // Include guard
-#ifndef LARG4DETECTOR_SERVICE_HH
-#define LARG4DETECTOR_SERVICE_HH
+#ifndef GDMLDETECTOR_SERVICE_HH
+#define GDMLDETECTOR_SERVICE_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -58,7 +58,12 @@ namespace larg4 {
 
     class LArG4DetectorService : public artg4tk::DetectorBase {
     private:
-        std::vector<std::pair<std::string,std::string> > DetectorList;
+      std::string gdmlFileName_;  // name of the gdml file 
+      bool checkoverlaps_;        // enable/disable check of overlaps
+      bool dumpMP_;               // enable/disable dump of material properties
+      // A message logger for this action
+      mf::LogInfo logInfo_;
+      std::vector<std::pair<std::string,std::string> > DetectorList;
     public:
         LArG4DetectorService(fhicl::ParameterSet const&, art::ActivityRegistry&);
         virtual ~LArG4DetectorService();
@@ -75,10 +80,6 @@ namespace larg4 {
 
         // Actually produce
         virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
-
-        std::string gdmlFileName_;
-        // A message logger for this action
-        mf::LogInfo logInfo_;
     };
 }
 using larg4::LArG4DetectorService;

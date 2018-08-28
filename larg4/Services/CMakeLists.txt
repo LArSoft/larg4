@@ -5,6 +5,7 @@ simple_plugin(
   SOURCE
     LArG4Detector_service.cc
     SimEnergyDepositSD.cc
+    AuxDetSD.cc	
   NOP
     ${G4_LIB_LIST}
     ${XERCESCLIB}
