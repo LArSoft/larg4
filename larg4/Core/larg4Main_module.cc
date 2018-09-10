@@ -38,7 +38,7 @@
 #include "nutools/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
 
-#include "larsim/MCDumpers/MCDumpers.h"
+#include "lardataalg/MCDumpers/MCDumpers.h"
 
 // G4 includes
 #ifdef G4VIS_USE
