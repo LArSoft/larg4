@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent larg4 v07_01_01
+parent larg4 v07_01_02
 defaultqual e17
 
 # These optional lines define the installed directories where headers,
@@ -33,7 +33,7 @@ fcldir  product_dir     fcl
 
 product          version
 artg4tk         v08_01_00
-larsim          v07_02_02
+larsim          v07_03_00
 cetbuildtools   v7_04_00       -       only_for_build
 end_product_list
 
