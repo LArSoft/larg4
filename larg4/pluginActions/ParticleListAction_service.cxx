@@ -509,8 +509,7 @@ namespace larg4 {
     for(size_t m = 0; m < mclistHandle->size(); ++m){
       art::Ptr<simb::MCTruth> mct(mclistHandle, m);
       unsigned int nGeneratedParticles = 0;
-        auto iPartPair = particleList.begin();
-        while (iPartPair != particleList.end()) {
+      for (auto iPartPair = particleList.begin(); iPartPair != particleList.end(); ++iPartPair) {
           simb::MCParticle& p = *(iPartPair->second);
           ++nGeneratedParticles;         
           partCol_->push_back(std::move(p));

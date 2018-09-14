@@ -30,6 +30,7 @@
 //=============================================================================
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "cetlib/search_path.h"
  // larg4 includes: 
 #include "larg4/Services/LArG4Detector_service.h"
 // artg4tk includes: 
@@ -102,8 +103,12 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     ColorReader* fReader = new ColorReader;
     G4GDMLParser *parser = new G4GDMLParser(fReader);
     parser->SetOverlapCheck(checkoverlaps_);
-
-    parser->Read(gdmlFileName_);
+    cet::search_path sp{"FW_SEARCH_PATH"};
+    std::string fullGDMLFileName;
+    if (!sp.find_file(gdmlFileName_, fullGDMLFileName)) {
+      throw cet::exception("LArG4DetectorService") << "Cannot find file: " << gdmlFileName_;
+    }
+    parser->Read(fullGDMLFileName);
     G4VPhysicalVolume *World = parser->GetWorldVolume();
     std::cout << World->GetTranslation() << std::endl << std::endl;
     std::cout << "Found World:  " << World-> GetName() << std::endl;
