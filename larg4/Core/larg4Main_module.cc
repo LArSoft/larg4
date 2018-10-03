@@ -150,7 +150,8 @@ namespace larg4 {
 
 // Constructor - set parameters
 larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
-  : runManager_(),
+  : EDProducer{p},
+    runManager_(),
     session_(0),
     UI_(0),
 	seed_(p.get<long>("seed", -1)),
@@ -351,7 +352,7 @@ void larg4::larg4Main::produce(art::Event & e)
   actionHolder -> setCurrArtEvent(e);
   detectorHolder -> setCurrArtEvent(e);
   pla -> setCurrArtEvent(e);
-  pla -> setProductID( getProductID<std::vector<simb::MCParticle>>());
+  pla -> setProductID( e.getProductID<std::vector<simb::MCParticle>>());
 
   // Begin event
   runManager_ -> BeamOnDoOneEvent(e.id().event());
