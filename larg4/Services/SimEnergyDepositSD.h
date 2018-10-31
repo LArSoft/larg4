@@ -35,7 +35,7 @@ namespace larg4 {
 	const sim::SimEnergyDepositCollection& GetHits() const { return hitCollection; }
     private:
       sim::SimEnergyDepositCollection hitCollection;
-      G4int HCID;
+      // unused G4int HCID;
 
     };
 
