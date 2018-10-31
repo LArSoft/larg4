@@ -15,7 +15,7 @@ cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS
 WERROR
-EXTRA_FLAGS -pedantic -Wno-undefined
+EXTRA_FLAGS -pedantic -Wno-undef
 )
 
 cet_report_compiler_flags()
