@@ -1,16 +1,7 @@
-//
-//               __        __ __  __  __  
-//   ____ ______/ /_____ _/ // / / /_/ /__
-//  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
-//
-// artg4tk: art based Geant 4 Toolkit
-// 
+
 //=============================================================================
-// GDMLDetector_service.hh: 
-// GDMLDetectorService is the service that constructs the Geant 4 Geometry 
+// LArG4Detector_service.hh: 
+// LArG4DetectorService is the service that constructs the Geant 4 Geometry 
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section
 // of the fcl configuration file, like this (Just change the name of the gdml file):
@@ -19,7 +10,7 @@
 // services: { 
 //   ...
 //     ...  
-// GDMLDetector : 
+// LArG4Detector : 
 //    {
 //    category: "world"
 //    gdmlFileName_ : "ta_target.gdml"
@@ -46,6 +37,8 @@
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
 #include "larg4/Services/SimEnergyDepositSD.h"
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
+#include "larg4/Services/AuxDetSD.h"
+#include "lardataobj/Simulation/AuxDetHit.h"
 #include "artg4tk/pluginDetectors/gdml/HadInteractionSD.hh"
 #include "artg4tk/pluginDetectors/gdml/HadIntAndEdepTrkSD.hh"
 //
@@ -90,7 +83,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p,
   gdmlFileName_( p.get<std::string>("gdmlFileName_","")),
   checkoverlaps_( p.get<bool>("CheckOverlaps",false)),
   dumpMP_( p.get<bool>("DumpMaterialProperties",false)),
-  logInfo_("GDMLDetectorService") {
+  logInfo_("LArG4DetectorService") {
 
 }
 
@@ -178,6 +171,14 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
 		    SimEnergyDepositSD * aSimEnergyDepositSD = new SimEnergyDepositSD(name);
                     SDman->AddNewDetector(aSimEnergyDepositSD);
                     ((*iter).first)->SetSensitiveDetector(aSimEnergyDepositSD);
+                    std::cout << "Attaching sensitive Detector: " << (*vit).value
+                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                    DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
+		} else if ((*vit).value == "AuxDet") {
+                    G4String name = ((*iter).first)->GetName() + "_AuxDet";
+		    AuxDetSD * aAuxDetSD = new AuxDetSD(name);
+                    SDman->AddNewDetector(aAuxDetSD);
+                    ((*iter).first)->SetSensitiveDetector(aAuxDetSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
                             << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
@@ -272,6 +273,9 @@ void larg4::LArG4DetectorService::doCallArtProduces(art::EDProducer * producer) 
 	} else if ((*cii).second == "SimEnergyDeposit") {
             std::string identifier = myName() + (*cii).first;
             producer -> produces<sim::SimEnergyDepositCollection>(identifier);
+	} else if ((*cii).second == "AuxDet") {
+            std::string identifier = myName() + (*cii).first;
+            producer -> produces<sim::AuxDetHitCollection>(identifier);
         } else if ((*cii).second == "HadInteraction") {
             // std::string identifier = myName() + (*cii).first;
             producer -> produces<artg4tk::ArtG4tkVtx>(); // do NOT use product instance name (for now)
@@ -336,13 +340,22 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             std::unique_ptr<artg4tk::TrackerHitCollection> hits(new artg4tk::TrackerHitCollection(trkhits));
             std::string identifier = myName()+(*cii).first;
             e.put(std::move(hits), identifier);
-	} else if ( (*cii).second == "SimEnergyDeposit") {
+	}else if ( (*cii).second == "SimEnergyDeposit") {
 	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
 	  SimEnergyDepositSD* sedsd = dynamic_cast<SimEnergyDepositSD*>(sdman->FindSensitiveDetector(sdname));
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
 	  const sim::SimEnergyDepositCollection& sedhits = sedsd->GetHits();
 	  std::unique_ptr<sim::SimEnergyDepositCollection> hits(new sim::SimEnergyDepositCollection(sedhits)); 
+	  std::string identifier=myName()+(*cii).first;
+	  e.put(std::move(hits), identifier);
+ 	} else if ( (*cii).second == "AuxDet") {
+	  G4SDManager* sdman = G4SDManager::GetSDMpointer();
+	  AuxDetSD* auxsd = dynamic_cast<AuxDetSD*>(sdman->FindSensitiveDetector(sdname));
+	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
+	  art::Event & e = detectorHolder -> getCurrArtEvent();
+	  const sim::AuxDetHitCollection& auxhits = auxsd->GetHits();
+	  std::unique_ptr<sim::AuxDetHitCollection> hits(new sim::AuxDetHitCollection(auxhits)); 
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
         } else if ((*cii).second == "Calorimeter") {

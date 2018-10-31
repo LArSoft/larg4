@@ -53,6 +53,7 @@ services: {
 //      name: "writeGdml"
 //      gdmlFileName:"output.gdml"	
 //    }
+ParticleListAction: {service_type: "ParticleListActionService"}
 
 
     ExampleGeneralAction: {
