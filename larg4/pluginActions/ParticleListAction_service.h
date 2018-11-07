@@ -18,8 +18,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
-#include "larsim/LArG4/ParticleFilters.h" // larg4::PositionInVolumeFilter
-#include "nutools/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
+#include "larcorealg/CoreUtils/ParticleFilters.h" // util::PositionInVolumeFilter
+#include "nutools/ParticleNavigation/ParticleList.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
@@ -95,7 +95,7 @@ namespace larg4 {
     virtual void userSteppingAction(const G4Step* ) override;
 
     /// Grabs a particle filter
-    void ParticleFilter(std::unique_ptr<PositionInVolumeFilter>&& filter)
+    void ParticleFilter(std::unique_ptr<util::PositionInVolumeFilter>&& filter)
       { fFilter = std::move(filter); }
 
     // TrackID of the current particle, EveID if the particle is from an EM shower
@@ -154,7 +154,7 @@ namespace larg4 {
                                                      ///< multiple MCTruth objects.				  
     bool                     fKeepEMShowerDaughters; ///< whether to keep EM shower secondaries, tertiaries, etc     
     
-    std::unique_ptr<PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
+    std::unique_ptr<util::PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
     
     /// Map: particle track ID -> index of primary information in MC truth.
     std::map<int, simb::GeneratedParticleIndex_t> fPrimaryTruthMap;
