@@ -34,7 +34,7 @@ gdmldir product_dir 	gdml
 
 product          version
 artg4tk         v08_02_00
-larsim          v07_05_00
+larevt          v07_05_00
 cetbuildtools   v7_04_00       -       only_for_build
 end_product_list
 
