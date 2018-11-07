@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE gdml [ 
+<!ENTITY materials SYSTEM "materials.xml">
+]>
+<!-- below we insert the schema to demonstrate a simple extension of the gdml schema which allows to select visualization properties like color and visualization to gdml -->
+<gdml_simple_extension xmlns:gdml_simple_extension="http://www.example.org"
+                       xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"          
+                       xs:noNamespaceSchemaLocation="SimpleExtension.xsd"> 
+
+    <extension>
+        <color name="magenta"     R="0.0"  G="1.0"  B="0.0"  A="1.0" />
+        <color name="green"       R="0.0"  G="1.0"  B="0.0"  A="1.0" />
+        <color name="red"         R="1.0"  G="0.0"  B="0.0"  A="1.0" />
+        <color name="blue"        R="0.0"  G="0.0"  B="1.0"  A="1.0" />
+        <color name="yellow"      R="1.0"  G="1.0"  B="0.0"  A="1.0" />    
+    </extension>
+
+ <!-- the content of the materials.xml file will be included here. This file summarizes the material and optical properties of liquid Ar. -->
+ &materials; 
+
+    <solids>
+        <box name="WorldBox" lunit="cm" x="100" y="100" z="410"/>
+        <box name="CalorimeterCell"  lunit="mm" x="cellsize" y="cellsize" z="cellsize"/>
+        <tube name="Cryostat"  lunit="cm" z="100.0" rmax="40." deltaphi="TWOPI" aunit="rad" />
+        <tube name="ArgonVolume"  lunit="cm" z="99.0" rmax="39.5" deltaphi="TWOPI" aunit="rad" />
+        <box name="PhotoBox"  lunit="cm" x="10.0" y="0.03" z="90.0"/>
+        <box name="PaddleBox"  lunit="cm" x="20.0" y="5." z=".5"/>
+        <box name="TPCVolume"  lunit="cm" x="40" y="40" z="90"/>
+        <tube name="t1000"  lunit="cm" z="90.0" rmax="0.01" deltaphi="TWOPI" aunit="rad" />
+        <opticalsurface name="surf" model="glisur" finish="polished" type="dielectric_metal" value="1.0">
+            <property name="REFLECTIVITY" ref="REFLECTIVITY" />
+        </opticalsurface>
+    </solids>
+    <structure>
+<!--
+ the line 
+ <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
+declares that we want to attach a sensitive detector of type Calorimeter to the logical volume CalorimeterVolume. The volume represent one cell of the calorimeter we will be constructing later on. All physical copies (caloriometer cells will be sensitive and will produce CalorimeterHits that are added to the event. 
+The volumes will be visualized as red wireframes.  
+-->
+        <volume name="CalorimeterVolume">
+            <materialref ref="PbF2"/>
+            <solidref ref="CalorimeterCell"/>
+            <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
+            <colorref ref="red"/> 
+        </volume>
+ <!-- this are the scintilator paddles deinig the beam. We are attaching  AuxDet sensitive detectors and each paddle is shown in solid blue-->  
+        <volume name="Paddle">
+            <materialref ref="G4_PLEXIGLASS"/>
+            <solidref ref="PaddleBox"/>
+            <auxiliary auxtype="SensDet" auxvalue="AuxDet"/>
+            <auxiliary auxtype="Solid" auxvalue="True"/>
+            <colorref ref="blue"/>    
+        </volume> 
+<!-- in the following we define a Sensewire and then use loops and formula to define a plane made of senswires-->
+        <volume name="SenseWire">
+            <materialref ref="G4_W"/>
+            <solidref ref="t1000"/>
+            <colorref ref="green"/> 
+        </volume>   
+        <volume name="volTPCActiveInner">
+            <materialref ref="LAr"/>
+            <solidref ref="TPCVolume"/>
+            <loop for="i" from="0" to="num" step="1">
+                <physvol name="psenseWireVolume">
+                    <volumeref ref="SenseWire"/>
+                    <position name="posijk"  unit="mm" x="-200.0+(i+1)*5." y="-199.8" z="0"/>
+                </physvol>
+            </loop>
+<!-- In the following we declare that we want to assign a sensitive detector of type SimEnergyDeposit to the active liquid Ar TPC volume. To match 
+the Geant 4 steps to the TPC read out pitch we set the step limit in this volume to 100 microns. 
+The electric field  while set is not used later. 
+The volume will be shown as a blue wireframe.  --> 
+            <auxiliary auxtype="SensDet" auxvalue="SimEnergyDeposit"/>
+            <auxiliary auxtype="StepLimit" auxvalue="0.01"/>
+            <auxiliary auxtype="Efield" auxvalue="1000."/>
+            <colorref ref="blue"/>
+        </volume>
+<!-- In the following we declare that we want to assign a sensitive detector of type PhotonDetector to the volume. 
+The volume will be shown as a red solid.  --> 
+        <volume name="volPhotodetector">
+            <materialref ref="Silicon"/>
+            <solidref ref="PhotoBox"/>
+            <auxiliary auxtype="SensDet" auxvalue="PhotonDetector"/>
+            <auxiliary auxtype="Solid" auxvalue="True"/>
+            <colorref ref="red"/> 
+        </volume>
+        <volume name="volArgon">
+            <materialref ref="LAr"/>
+            <solidref ref="ArgonVolume"/>
+            <physvol name="pCalorimeterVolume">
+                <volumeref ref="volTPCActiveInner"/>
+                <position name="Calpos" x="0" y="0" z="0"/>
+            </physvol>
+            <physvol name="pvolPhotodetector">
+                <volumeref ref="volPhotodetector"/>
+                <position name="photondetectorpos" unit="mm" x="0" y="391." z="0"/>
+            </physvol>
+        </volume>
+        <volume name="volCryostat">
+            <materialref ref="Iron"/>
+            <solidref ref="Cryostat"/>
+            <physvol name="pArgonVolume">
+                <volumeref ref="volArgon"/>
+                <position name="Argonpos" x="0" y="0" z="0"/>
+            </physvol>
+            <colorref ref="yellow"/> 
+        </volume>
+        <volume name="TOP">
+            <materialref ref="G4_AIR"/>
+            <solidref ref="WorldBox"/>
+            <physvol name="pCryostatVolume" copynumber="0">
+                <volumeref ref="volCryostat"/>
+                <position name="Cryopos" x="0" y="0" z="0"/>
+            </physvol>
+            <physvol name="pPaddle1" copynumber="1">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos1" unit="cm" x="0" y="0" z="-70."/>
+            </physvol>
+            <physvol name="pPaddle2" copynumber="2">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos3" unit="cm" x="0" y="0" z="-71."/>
+                <rotation name="rotatebyz3" z="HALFPI"/>
+            </physvol>
+            <physvol name="pPaddle3" copynumber="3">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos2" unit="cm" x="0" y="0" z="70."/>
+            </physvol>
+            <physvol name="pPaddle4" copynumber="4">
+                <volumeref ref="Paddle"/>
+                <position name="Paddlepos4" unit="cm" x="0" y="0" z="71."/>
+                <rotation name="rotatebyz4" z="HALFPI"/>
+            </physvol>
+<!--In the following we build a crystal calorimeter consisting of cubes. We use formule to place the physical volumes and the copy number together 
+with the nameof the logical volume represents a unique ID that can be used for channel mapping-->
+            <loop for="ii" from="0" to="cell" step="1">
+                <loop for="jj" from="0" to="cell" step="1">
+                    <loop for="kk" from="0" to="cell" step="1">
+                        <physvol name="CaloCell" copynumber="ii+(jj*(cell+1))+kk*((cell+1)*(cell+1))" >
+                            <volumeref ref="CalorimeterVolume"/>
+                            <position name="posijk" unit="mm" x="spacing*(ii-cell/2)" y="spacing*(jj-cell/2)" z="1100+spacing*(kk-cell/2)"/>
+                        </physvol>
+                    </loop>
+                </loop>
+            </loop>
+        </volume>
+        <bordersurface name="bordersrf" surfaceproperty="surf" >
+            <physvolref ref="pArgonVolume"/>
+            <physvolref ref="pCryostatVolume"/>
+        </bordersurface> 
+    </structure>
+    <setup version="1.0" name="Default">
+        <world ref="TOP"/>
+    </setup>
+</gdml>

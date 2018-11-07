@@ -1,0 +1,165 @@
+    <define>
+        <constant name="TWOPI" value="2.*pi"/>
+        <constant name="HALFPI" value="pi/2."/>
+        <variable name="i" value="0"/>
+        <constant name="num" value="77"/>
+        <constant name="scale" value="2."/>
+        <matrix name="SY"  coldim="1" values="51282/MeV" />
+        <matrix name="RS"  coldim="1" values="1.0" />
+        <matrix name="FTC" coldim="1" values="7.*ns" />
+        <matrix name="STC" coldim="1" values="1400.*ns" />
+        <matrix name="YR"  coldim="1" values="0.75" /> 
+        <matrix name="ArINDEX" coldim="2" values="6.7*eV 1.5
+                                                 7.1*eV 1.5 
+                                                 7.4*eV 1.5  
+                                                 7.7*eV 1.5 
+                                                 7.9*eV 1.5 
+                                                 8.1*eV 1.5          
+                                                 8.4*eV 1.5 
+                                                 8.5*eV 1.5 
+                                                 8.6*eV 1.5 
+                                                 8.8*eV 1.5 
+                                                 9.0*eV 1.5 
+                                                 9.1*eV 1.5 
+                                                 9.4*eV 1.5 
+                                                 9.8*eV 1.5 
+                                                 10.4*eV 1.5"/>
+        <matrix name="REFLECTIVITY" coldim="2" values="6.7*eV 0.8
+                                                 7.1*eV 0.8 
+                                                 7.4*eV 0.8  
+                                                 7.7*eV 0.8 
+                                                 7.9*eV 0.8 
+                                                 8.1*eV 0.8          
+                                                 8.4*eV 0.8 
+                                                 8.5*eV 0.8 
+                                                 8.6*eV 0.8 
+                                                 8.8*eV 0.8 
+                                                 9.0*eV 0.8 
+                                                 9.1*eV 0.8 
+                                                 9.4*eV 0.8 
+                                                 9.8*eV 0.8 
+                                                 10.4*eV 0.8"/>
+        <matrix name="SCINT" coldim="2" values="6.7*eV 0.04
+                                                 7.1*eV 0.12 
+                                                 7.4*eV 0.27 
+                                                 7.7*eV 0.44 
+                                                 7.9*eV 0.62
+                                                 8.1*eV 0.80          
+                                                 8.4*eV 0.91 
+                                                 8.5*eV 0.92 
+                                                 8.6*eV 0.85 
+                                                 8.8*eV 0.70
+                                                 9.0*eV 0.50 
+                                                 9.1*eV 0.31 
+                                                 9.4*eV 0.13 
+                                                 9.8*eV 0.04 
+                                                10.4*eV 0.01"/>
+        <variable name="ii" value="0"/>
+        <variable name="jj" value="0"/>
+        <variable name="kk" value="0"/>
+        <constant name="cell" value="5"/>
+        <constant name="cellsize" value="5.0*cm"/>
+        <constant name="spacing" value="5.0*cm"/>
+        <matrix name="RINDEX" coldim="2" values="1.56258*eV 1.74822
+					       1.59515*eV 1.74941
+					       1.63606*eV 1.75
+					       1.67667*eV 1.75178
+					       1.71167*eV 1.75296
+                                               1.76698*eV 1.75474
+					       1.80023*eV 1.75593
+					       1.84655*eV 1.7583
+					       1.9016*eV  1.7583 
+					       1.95004*eV 1.76067
+					       1.99407*eV 1.76244
+					       2.03291*eV 1.76422
+					       2.07329*eV 1.76422
+					       2.12313*eV 1.766
+					       2.155*eV   1.76778
+					       2.20466*eV 1.76955
+					       2.25223*eV 1.77192
+					       2.30652*eV 1.7737
+					       2.36837*eV 1.77666
+					       2.43363*eV 1.77903
+					       2.48095*eV 1.78081
+					       2.54136*eV 1.78437
+					       2.58717*eV 1.78614
+					       2.65907*eV 1.78911
+					       2.73508*eV 1.79266
+					       2.80182*eV 1.79563
+					       2.85761*eV 1.79977
+					       2.93054*eV 1.80451
+					       2.99162*eV 1.80925
+					       3.04721*eV 1.8134
+					       3.0799*eV  1.81696
+					       3.1133*eV  1.82051
+					       3.16479*eV 1.82525
+					       3.20902*eV 1.83059
+					       3.25449*eV 1.83533
+					       3.30128*eV 1.84007
+					       3.34944*eV 1.8454
+					       3.39901*eV 1.85192
+					       3.43974*eV 1.85725
+					       3.49205*eV 1.86258
+					       3.53505*eV 1.86673
+					       3.57914*eV 1.87206
+					       3.6358*eV  1.87799
+					       3.68244*eV 1.8851
+					       3.7303*eV  1.89102
+					       3.79189*eV 1.89873
+					       3.84266*eV 1.90465
+					       3.90805*eV 1.90999
+					       3.94837*eV 1.91473
+					       3.97571*eV 1.92065
+					       4.04576*eV 1.92658
+					       4.07447*eV 1.93191
+					       4.14807*eV 1.93665
+					       4.19353*eV 1.94198
+					       4.25569*eV 1.94672
+					       4.33605*eV 1.95206
+					       4.43657*eV 1.95798
+					       4.50622*eV 1.96628
+					       4.63351*eV 1.9722
+					       4.76822*eV 1.97694
+					       4.86931*eV 1.98109"/>
+    </define>
+
+    <materials>
+        <material name="LAr" formula="LAr">
+            <property name="RINDEX" ref="ArINDEX"/>
+            <property name="SLOWCOMPONENT" ref="SCINT"/>
+            <property name="SCINTILLATIONYIELD" ref="SY" />
+            <property name="RESOLUTIONSCALE" ref="RS" />
+            <property name="SLOWTIMECONSTANT" ref="STC" />
+            <property name="YIELDRATIO" ref="YR" />
+            <D value="1.40" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Ar"/>
+        </material>
+        <material name="Iron" formula="Iron">
+            <property name="RINDEX" ref="ArINDEX"/>
+            <D value="4.0" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Fe"/>
+        </material>
+        <material name="Silicon" formula="Si">
+            <property name="RINDEX" ref="ArINDEX"/>
+            <D value="2.33" unit="g/cm3"/>
+            <fraction n="1.0000" ref="G4_Si"/>
+        </material>
+        <element name="Oxygen"   formula="O"  Z="8.">  
+            <atom value="16.0"/>   
+        </element>
+        <element name="Nitrogen" formula="N"  Z="7.">  
+            <atom value="14.01"/>  
+        </element>
+        <element name="Fluorine" formula="F"  Z="9.">  
+            <atom value="18.9984032"/>  
+        </element>
+        <element name="Lead"     formula="Pb" Z="82."> 
+            <atom value="207.20"/> 
+        </element>
+        <material name="PbF2">
+            <property name="RINDEX" ref="RINDEX"/>
+            <D value="7.77" unit="g/cm3"/>
+            <composite n="1" ref="Lead"/>
+            <composite n="2" ref="Fluorine"/>
+        </material>
+    </materials>
