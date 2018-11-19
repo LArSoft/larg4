@@ -68,11 +68,11 @@ The volumes will be visualized as red wireframes.
                 </physvol>
             </loop>
 <!-- In the following we declare that we want to assign a sensitive detector of type SimEnergyDeposit to the active liquid Ar TPC volume. To match 
-the Geant 4 steps to the TPC read out pitch we set the step limit in this volume to 100 microns. 
+the Geant 4 steps to the TPC read out pitch we set the step limit in this volume to 100 microns (0.1 mm). 
 The electric field  while set is not used later. 
 The volume will be shown as a blue wireframe.  --> 
             <auxiliary auxtype="SensDet" auxvalue="SimEnergyDeposit"/>
-            <auxiliary auxtype="StepLimit" auxvalue="0.01"/>
+            <auxiliary auxtype="StepLimit" auxvalue="0.1"/>
             <auxiliary auxtype="Efield" auxvalue="1000."/>
             <colorref ref="blue"/>
         </volume>

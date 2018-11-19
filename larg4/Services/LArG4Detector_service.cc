@@ -292,10 +292,10 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
     //            a copy (via copy ctor) will be placed directly into art::Event
     //
     std::vector<std::pair<std::string, std::string> >::const_iterator cii;
-    std::cout << "****************Detectorlist size:  " << DetectorList.size() << std::endl;
+    //    std::cout << "****************Detectorlist size:  " << DetectorList.size() << std::endl;
     for (cii = DetectorList.begin(); cii != DetectorList.end(); cii++) {
         std::string sdname = (*cii).first + "_" + (*cii).second;
-        std::cout << "****************SDNAME:" << sdname << std::endl;
+	//  std::cout << "****************SDNAME:" << sdname << std::endl;
         if ((*cii).second == "HadInteraction") {
             G4SDManager* sdman = G4SDManager::GetSDMpointer();
             artg4tk::HadInteractionSD* hisd = dynamic_cast<artg4tk::HadInteractionSD*> (sdman->FindSensitiveDetector(sdname));
