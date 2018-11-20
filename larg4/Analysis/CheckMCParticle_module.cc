@@ -31,34 +31,35 @@ _file(0) {
 }
 
 void larg4::CheckMCParticle::beginRun(const art::Run& thisRun) {
-    std::cout << "******************************Run: " << thisRun.id() << ": looking at Run Header" << std::endl;
 }
 
 void larg4::CheckMCParticle::beginJob() {
 
     art::ServiceHandle<art::TFileService> tfs;
     _directory = gDirectory;
-    std::cout << "******************************We are in the directory named: " << gDirectory->GetName() << std::endl;
     _file = gDirectory->GetFile();
     _hnParts = tfs->make<TH1F>("hnParts", "Number of generated Particles", 100, 0., 2000.);
 } // end beginJob
 
 void larg4::CheckMCParticle::analyze(const art::Event& event) {
-    std::cout << "******************************event " << event.id().event() << ": looking at GenParticles" << std::endl;
     typedef std::vector< art::Handle<std::vector<simb::MCParticle> > >  HandleVector;
     HandleVector allGens;
     event.getManyByType(allGens);
-
-    cout << "GenParticles*********************Size: " << allGens.size() << endl;
     for (HandleVector::const_iterator i = allGens.begin(); i != allGens.end(); ++i) {
         const  std::vector<simb::MCParticle> & gens(**i);
-        cout << " ********************************CheckMCParticle:  collection size:  " << gens.size() << endl;
         _hnParts->Fill(gens.size());
         for (std::vector<simb::MCParticle>::const_iterator j = gens.begin(); j != gens.end(); ++j) {
 	  
             const  simb::MCParticle & genpart = *j;
             cout << "Part id:  " << genpart.TrackId()  << endl;
 	    cout << "PDG id:  " << genpart.PdgCode()  << endl;
+	    cout << "Status Code:  " << genpart.StatusCode()  << endl;
+	    cout << "Mother:  " << genpart.Mother()  << endl;
+	    if (genpart.Mother()==0)
+	      {
+		cout << "momentum:  " <<   genpart.P() << endl;
+		cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
+	      } 
 	    // CLHEP::HepLorentzVector const& mom = genpart.PdgCode();
             //cout << "Part Energy:  " << mom.e() << endl;
             //cout << "invariant mass:  " << mom.invariantMass() << endl;
@@ -71,9 +72,7 @@ void larg4::CheckMCParticle::analyze(const art::Event& event) {
 } // end analyze
 
 void larg4::CheckMCParticle::endJob() {
-    cout << " ********************************CheckMCParticle: I am done " << endl;
 }
-
 using larg4::CheckMCParticle;
 
 DEFINE_ART_MODULE(CheckMCParticle)
