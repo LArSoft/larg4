@@ -165,7 +165,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     uiAtBeginRun_( p.get<bool>("uiAtBeginRun", false)),
     uiAtEndEvent_(false),
     afterEvent_( p.get<std::string>("afterEvent", "pass")),
-  logInfo_("ArtG4Main")
+  logInfo_("larg4Main")
 //  fSparsifyTrajectories(false),
 //  fparticleListAction(0)
   //  pla_("ParticleListAction")
@@ -356,7 +356,7 @@ void larg4::larg4Main::produce(art::Event & e)
   // Begin event
   runManager_ -> BeamOnDoOneEvent(e.id().event());
   
-  logInfo_ << "Producing event " << e.id().event() << "\n" << endl;
+  //  logInfo_ << "Producing event " << e.id().event() << "\n" << endl;
 
   // Done with the event
   runManager_ -> BeamOnEndEvent();
