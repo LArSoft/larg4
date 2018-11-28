@@ -56,7 +56,7 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event) {
     double sumPhotons=0.0;
     for (HandleVector::const_iterator i = allSims.begin(); i != allSims.end(); ++i) {
       const sim::SimEnergyDepositCollection & sims(**i);
-       cout << " SimEnergyDeposit collection size:  " << sims.size() << endl;
+      //     cout << " SimEnergyDeposit collection size:  " << sims.size() << endl;
        sumPhotons=0.0;
        sumE = 0.0;
        _hnHits->Fill(sims.size());
@@ -71,7 +71,13 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event) {
 	  _hnumPhotons->Fill( hit.NumPhotons());
 	  _hEdep->Fill( hit.Energy());
 	  //	  std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
-	  _hSteplength->Fill( hit.StepLength());      
+	  _hSteplength->Fill( hit.StepLength());
+	  /*      
+	  if (hit.StepLength()<0.0)
+	    {
+	      std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
+	    }
+	  */
 	  /*
 	    _ntuple->Fill(event.event(),
 			  hit.GetEdep(),

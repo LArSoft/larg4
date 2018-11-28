@@ -55,14 +55,14 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
       //  evt.getByLabel(fInputLabels[i],mclists[i]);
       // }
     //    evt.getManyByType(mclists);
-    std::cout << "Primary:: MCTRUTH: Size: "<<mclists.size()<<std::endl;
+    //std::cout << "Primary:: MCTRUTH: Size: "<<mclists.size()<<std::endl;
     for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
       art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
       for(size_t m = 0; m < mclistHandle->size(); ++m){
         art::Ptr<simb::MCTruth> mct(mclistHandle, m);
-	std::cout << "NParticles: "<< mct->NParticles()<<std::endl;
+	//std::cout << "NParticles: "<< mct->NParticles()<<std::endl;
 	simb::MCParticle particle = mct->GetParticle(0);
-	std::cout << "status code:  " << particle.StatusCode()<<std::endl;
+	//std::cout << "status code:  " << particle.StatusCode()<<std::endl;
 	if ( particle.StatusCode() != 1 ) continue;
 	// Get the Particle Data Group code for the particle.
 	G4int pdgCode = particle.PdgCode();

@@ -11,10 +11,10 @@ standard_singlep:
  P0:                    [ 6. ]      # central value of momentum for each particle
  SigmaP:                [ 0. ]      # variation about the central value 
  PDist:                 "Gaussian"  # 0 - uniform, 1 - gaussian distribution                               
- X0:                    [ 25. ]     # in cm in world coordinates, ie x = 0 is at the wire plane          
+ X0:                    [ 0. ]     # in cm in world coordinates, ie x = 0 is at the wire plane          
                                     # and increases away from the wire plane                             
  Y0:                    [ 0. ]      # in cm in world coordinates, ie y = 0 is at the center of the TPC   
- Z0:                    [ 20. ]     # in cm in world coordinates, ie z = 0 is at the upstream edge of    
+ Z0:                    [ -130. ]   # in cm in world coordinates, ie z = 0 is at the upstream edge of    
                                     # the TPC and increases with the beam direction                      
  T0:                    [ 0. ]      # starting time
  SigmaX:                [ 0. ]      # variation in the starting x position
@@ -24,7 +24,7 @@ standard_singlep:
  PosDist:               "uniform"   # 0 - uniform, 1 - gaussian
  TDist:                 "uniform"   # 0 - uniform, 1 - gaussian         
  Theta0XZ:              [ 0. ]      #angle in XZ plane (degrees)                                         
- Theta0YZ:              [ -3.3 ]    #angle in YZ plane (degrees)                                         
+ Theta0YZ:              [ 0. ]      #angle in YZ plane (degrees)                                         
  SigmaThetaXZ:          [ 0. ]      #in degrees                                                          
  SigmaThetaYZ:          [ 0. ]      #in degrees                                                          
  AngleDist:             "Gaussian"  # 0 - uniform, 1 - gaussian
@@ -37,7 +37,7 @@ standard_singlep:
 process_name:processA
 source: {
   module_type: EmptyEvent
-  maxEvents:  10
+  maxEvents:  100
 }
 services: {
   message : {
@@ -72,7 +72,7 @@ services: {
 	PhysicsListName: "FTFP_BERT"
 	DumpList: false	
   	enableCerenkov: false
-  	enableScintillation: true
+  	enableScintillation: false
 	ScintillationByParticleType: false
   	enableAbsorption: false   
   	enableRayleigh: false     
@@ -85,7 +85,7 @@ services: {
     LArG4Detector : 
     {
     category: "world"
-    gdmlFileName_ : "lArDet.gdml"
+    gdmlFileName_ : "lArDet_split.gdml"
     }   
 
 
@@ -125,12 +125,19 @@ physics: {
   }
   analyzers: {
    CheckSimEnergyDeposit: {   module_type: CheckSimEnergyDeposit
-		  hist_dir: "HistoDir"}
+		  hist_dir: "HistoDir"
+		  }
+   CheckMCParticle: {   module_type: CheckMCParticle
+		  hist_dir: "HistoDir2"
+		  }
+  CheckAuxDetHit: {   module_type: CheckAuxDetHit
+		  hist_dir: "HistoDir3"
+		  }
 	
 }
 
   path1: [ generator,larg4Main ]
-  stream1:  [ out1,CheckSimEnergyDeposit ]
+  stream1:  [ out1,CheckSimEnergyDeposit,CheckMCParticle,CheckAuxDetHit]
 
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
