@@ -35,7 +35,7 @@ void larg4::CheckAuxDetHit::beginRun(const art::Run& thisRun) {
 void larg4::CheckAuxDetHit::beginJob() {
     art::ServiceHandle<art::TFileService> tfs;
     _hnHits = tfs->make<TH1F>("hnHits", "Number of AuxDetHits", 30, 0,30 );
-    _hEdep = tfs->make<TH1F>("hEdep", "Energy deposition in AuxDetHits", 100,0.,2.);
+    _hEdep = tfs->make<TH1F>("hEdep", "Energy deposition in AuxDetHits", 100,0.,4.);
     _hID = tfs->make<TH1F>("hID", "Id of hit AuxDet", 100,0.,5.);
     //    _ntuple = tfs->make<TNtuple>("ntuple","Demo ntuple",
     //			  "Event:Edep:em_Edep:nonem_Edep:xpos:ypos:zpos:time");
@@ -52,10 +52,11 @@ void larg4::CheckAuxDetHit::analyze(const art::Event& event) {
        _hnHits->Fill(sims.size());
        for (sim::AuxDetHitCollection::const_iterator j = sims.begin(); j != sims.end(); ++j) {
 	 const sim::AuxDetHit& hit = *j;
-	  _hEdep->Fill(hit.GetEnergyDeposited());
 	  _hID->Fill(hit.GetID());
+	  Edeps[hit.GetID()-1]= Edeps[hit.GetID()-1]+hit.GetEnergyDeposited();
         }
     }
+   for (unsigned int ii=0;ii<4;ii++)  _hEdep->Fill(Edeps[ii]);
 } // end analyze
 
 void larg4::CheckAuxDetHit::endJob() {
