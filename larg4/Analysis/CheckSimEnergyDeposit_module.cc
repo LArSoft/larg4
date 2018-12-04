@@ -41,7 +41,7 @@ void larg4::CheckSimEnergyDeposit::beginJob() {
     _hEdep = tfs->make<TH1F>("hEdep", "Energy deposition in SimEnergyDeposits", 100,0.,0.02);
     _hnumPhotons = tfs->make<TH1F>("hnumPhotons", "number of photons per  SimEnergyDeposit", 100,0.,500.);
     _hLandauPhotons= tfs->make<TH1F>("hLandauPhotons", "number of photons/cm", 100,0.,2000000.);
-    _hLandauEdep= tfs->make<TH1F>("hLandauEdep", "Edep/0.5cm", 100,0.,40.);
+    _hLandauEdep= tfs->make<TH1F>("hLandauEdep", "Edep/cm", 100,0.,10.);
     _hSteplength= tfs->make<TH1F>("hSteplength", "geant 4 step length", 100,0.,0.05);
     _ntuple = tfs->make<TNtuple>("ntuple","Demo ntuple",
 			  "Event:Edep:em_Edep:nonem_Edep:xpos:ypos:zpos:time");
@@ -56,42 +56,32 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event) {
     double sumPhotons=0.0;
     for (HandleVector::const_iterator i = allSims.begin(); i != allSims.end(); ++i) {
       const sim::SimEnergyDepositCollection & sims(**i);
-      //     cout << " SimEnergyDeposit collection size:  " << sims.size() << endl;
-       sumPhotons=0.0;
-       sumE = 0.0;
-       _hnHits->Fill(sims.size());
-       for (sim::SimEnergyDepositCollection::const_iterator j = sims.begin(); j != sims.end(); ++j) {
-	 const sim::SimEnergyDeposit& hit = *j;
-	  _hEdep->Fill(hit.Energy());
-	  // sum up energy deposit in a 5mm slice of liquid Argon. 
-	  if (std::abs(hit.EndZ()/CLHEP::cm)<0.25) {
-	      sumPhotons= sumPhotons + hit.NumPhotons();
-	      sumE= sumE +hit.Energy();
-	    }
-	  _hnumPhotons->Fill( hit.NumPhotons());
-	  _hEdep->Fill( hit.Energy());
-	  //	  std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
-	  _hSteplength->Fill( hit.StepLength());
-	  /*      
-	  if (hit.StepLength()<0.0)
-	    {
-	      std::cout<< "length:   "<<hit.StepLength()<< "   "<<hit.StepLength()/CLHEP::cm <<std::endl;
-	    }
-	  */
-	  /*
-	    _ntuple->Fill(event.event(),
-			  hit.GetEdep(),
-			  hit.GetEdepEM(),
-			  hit.GetEdepnonEM(),
-			  hit.GetXpos(),
-			  hit.GetYpos(),
-			  hit.GetZpos(),
-			  hit.GetTime());
-	  */
-        }
-	_hLandauPhotons->Fill(sumPhotons);
-	_hLandauEdep->Fill(sumE / CLHEP::MeV);
-	
+      sumPhotons=0.0;
+      sumE = 0.0;
+      _hnHits->Fill(sims.size());
+      for (sim::SimEnergyDepositCollection::const_iterator j = sims.begin(); j != sims.end(); ++j) {
+	const sim::SimEnergyDeposit& hit = *j;
+	// sum up energy deposit in a 1cm slice of liquid Argon. 
+	if (std::abs(hit.EndZ())<0.5) {
+	  sumPhotons= sumPhotons + hit.NumPhotons();
+	  sumE= sumE +hit.Energy();
+	}
+	_hnumPhotons->Fill( hit.NumPhotons());
+	_hEdep->Fill( hit.Energy());   // energy deposit in MeV
+	_hSteplength->Fill( hit.StepLength()); // step length in cm
+	/*
+	  _ntuple->Fill(event.event(),
+	  hit.GetEdep(),
+	  hit.GetEdepEM(),
+	  hit.GetEdepnonEM(),
+	  hit.GetXpos(),
+	  hit.GetYpos(),
+	  hit.GetZpos(),
+	  hit.GetTime());
+	*/
+      }
+      _hLandauPhotons->Fill(sumPhotons);
+      _hLandauEdep->Fill(sumE);
     }
 } // end analyze
 
