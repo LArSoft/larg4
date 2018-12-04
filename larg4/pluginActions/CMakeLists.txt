@@ -10,13 +10,7 @@ simple_plugin(
 
 art_make( SERVICE_LIBRARIES ${G4_LIB_LIST}  ${XERCESCLIB} nutools_G4Base 
          LIB_LIBRARIES 
-##                        larsim_PhotonPropagation
-##                        larsim_PhotonPropagation_PhotonVisibilityService_service
-#                        lardata_Utilities
-##			larsim_Simulation nutools_ParticleNavigation
-                         lardataobj_Simulation
-#                        larcorealg_Geometry
-#                        larcore_Geometry_Geometry_service
+                        lardataobj_Simulation
                         nusimdata_SimulationBase
 			nutools_RandomUtils_NuRandomService_service
                         nutools_G4Base
