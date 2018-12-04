@@ -51,6 +51,7 @@ namespace larg4 {
        G4double edep = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
       
        if (edep == 0.) return false;
+       //std::cout << "7777777777777777:   "<< aStep->GetTotalEnergyDeposit()/CLHEP::MeV << "   " << aStep->GetTotalEnergyDeposit() <<std::endl;
        const int electronsperMeV= 10000; 
        int nrelec=(int)round(edep*electronsperMeV);
        if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() == 0) return false;
