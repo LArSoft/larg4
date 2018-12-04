@@ -9,6 +9,8 @@ simple_plugin(
   NOP
     ${G4_LIB_LIST}
     ${XERCESCLIB}
+
+
 )
 
 install_headers() 

@@ -12,7 +12,7 @@
 // artg4tk: art based Geant 4 Toolkit
 // 
 //=============================================================================
-// nobleGasTPCSD.hh: Class representing a sensitive tracking detector
+// SimEnergyDepositSD: Class representing a liquid Ar TPC
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 
@@ -35,8 +35,6 @@ namespace larg4 {
 	const sim::SimEnergyDepositCollection& GetHits() const { return hitCollection; }
     private:
       sim::SimEnergyDepositCollection hitCollection;
-      G4int HCID;
-
     };
 
     //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

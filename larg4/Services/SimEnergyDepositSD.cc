@@ -32,82 +32,66 @@ namespace larg4 {
   SimEnergyDepositSD::SimEnergyDepositSD(G4String name)
 : G4VSensitiveDetector(name) {
    hitCollection.clear();
-    G4String HCname =  name + "_HC";
-    collectionName.insert(HCname);
-        G4cout << collectionName.size() << "   SimEnergyDepositSD name:  " << name << " collection Name: " << HCname << G4endl;
-    HCID = -1;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
  SimEnergyDepositSD::~SimEnergyDepositSD() {
-//    RootIO::GetInstance()->Close();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void   SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
-   hitCollection.clear();
+  void   SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) {
+    hitCollection.clear();
+  }
+  //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-    if (HCID < 0) {
-        G4cout << "SimEnergyDepositSD::Initialize:  " << SensitiveDetectorName << "   " << collectionName[0] << G4endl;
-        HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-    }
-    //    HCE->AddHitsCollection(HCID, trackerCollection);
-}
-//nobleGasTPCHitCollection* nobleGasTPCSD::getTrackerCollection()
-//      {return trackerCollection;}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4bool   SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
+  G4bool   SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
        G4double edep = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
       
-    if (edep == 0.) return false;
-    const int electronsperMeV= 10000;
-    int nrelec=(int)round(edep*electronsperMeV);
-    if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() == 0) return false;
-    G4int photons = 0;
-    G4SteppingManager* fpSteppingManager = G4EventManager::GetEventManager()
-            ->GetTrackingManager()->GetSteppingManager();
-    G4StepStatus stepStatus = fpSteppingManager->GetfStepStatus();
-    if (stepStatus != fAtRestDoItProc) {
-        G4ProcessVector* procPost = fpSteppingManager->GetfPostStepDoItVector();
-        size_t MAXofPostStepLoops = fpSteppingManager->GetMAXofPostStepLoops();
-        for (size_t i3 = 0; i3 < MAXofPostStepLoops; i3++) {
-            /*
-            if ((*procPost)[i3]->GetProcessName() == "Cerenkov") {
-                G4Cerenkov* proc =(G4Cerenkov*) (*procPost)[i3];
-                photons+=proc->GetNumPhotons();
-            }
-             */
-            if ((*procPost)[i3]->GetProcessName() == "Scintillation") {
-                G4Scintillation* proc1 = (G4Scintillation*) (*procPost)[i3];
-                photons += proc1->GetNumPhotons();
-            }
-        }
-    } 
-    geo::Point_t start = geo::Point_t(
-			    aStep->GetPreStepPoint()->GetPosition().x()/CLHEP::cm,
-			    aStep->GetPreStepPoint()->GetPosition().y()/CLHEP::cm,
-			    aStep->GetPreStepPoint()->GetPosition().z()/CLHEP::cm);
-    geo::Point_t end = geo::Point_t(
-			    aStep->GetPostStepPoint()->GetPosition().x()/CLHEP::cm,
-			    aStep->GetPostStepPoint()->GetPosition().y()/CLHEP::cm,
-			    aStep->GetPostStepPoint()->GetPosition().z()/CLHEP::cm);
-
-
-    sim::SimEnergyDeposit  newHit =  sim::SimEnergyDeposit(photons,
-						     nrelec,
-						     edep,
-						     start,
-						     end,
-						     aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::ns,
-						     aStep->GetPostStepPoint()->GetGlobalTime() /CLHEP::ns,
-						     aStep->GetTrack()->GetTrackID(),
-						     aStep->GetTrack()->GetParticleDefinition()->GetParticleDefinitionID()  );
-
-
-    hitCollection.push_back(newHit);
+       if (edep == 0.) return false;
+       const int electronsperMeV= 10000; 
+       int nrelec=(int)round(edep*electronsperMeV);
+       if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() == 0) return false;
+       G4int photons = 0;
+       G4SteppingManager* fpSteppingManager = G4EventManager::GetEventManager()
+	 ->GetTrackingManager()->GetSteppingManager();
+       G4StepStatus stepStatus = fpSteppingManager->GetfStepStatus();
+       if (stepStatus != fAtRestDoItProc) {
+	 G4ProcessVector* procPost = fpSteppingManager->GetfPostStepDoItVector();
+	 size_t MAXofPostStepLoops = fpSteppingManager->GetMAXofPostStepLoops();
+	 for (size_t i3 = 0; i3 < MAXofPostStepLoops; i3++) {
+	   /*
+	     if ((*procPost)[i3]->GetProcessName() == "Cerenkov") {
+	     G4Cerenkov* proc =(G4Cerenkov*) (*procPost)[i3];
+	     photons+=proc->GetNumPhotons();
+	     }
+	   */
+	   if ((*procPost)[i3]->GetProcessName() == "Scintillation") {
+	     G4Scintillation* proc1 = (G4Scintillation*) (*procPost)[i3];
+	     photons += proc1->GetNumPhotons();
+	   }
+	 }
+       } 
+       geo::Point_t start = geo::Point_t(
+					 aStep->GetPreStepPoint()->GetPosition().x()/CLHEP::cm,
+					 aStep->GetPreStepPoint()->GetPosition().y()/CLHEP::cm,
+					 aStep->GetPreStepPoint()->GetPosition().z()/CLHEP::cm);
+       geo::Point_t end = geo::Point_t(
+				       aStep->GetPostStepPoint()->GetPosition().x()/CLHEP::cm,
+				       aStep->GetPostStepPoint()->GetPosition().y()/CLHEP::cm,
+				       aStep->GetPostStepPoint()->GetPosition().z()/CLHEP::cm);
+       sim::SimEnergyDeposit  newHit =  sim::SimEnergyDeposit(photons,
+							      nrelec,
+							      edep,
+							      start,
+							      end,
+							      aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::ns,
+							      aStep->GetPostStepPoint()->GetGlobalTime() /CLHEP::ns,
+							      aStep->GetTrack()->GetTrackID(),
+							      aStep->GetTrack()->GetParticleDefinition()->GetParticleDefinitionID()  );
+       hitCollection.push_back(newHit);
     return true;
-}
-}
+  }// end ProcessHits
+} // end namespace  larg4

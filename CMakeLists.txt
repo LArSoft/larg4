@@ -15,7 +15,7 @@ cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS
 WERROR
-EXTRA_FLAGS -pedantic
+EXTRA_FLAGS -pedantic -Wno-undef
 )
 
 cet_report_compiler_flags()
@@ -34,7 +34,7 @@ find_ups_product(larcorealg)
 find_ups_product(lardataobj)
 find_ups_product(lardataalg)
 find_ups_product(larcore)
-find_ups_product(larsim)
+find_ups_product(larevt)
 find_ups_product(xerces_c)
 find_ups_product(nutools)
 find_ups_geant4()
