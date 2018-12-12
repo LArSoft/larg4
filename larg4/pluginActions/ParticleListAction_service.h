@@ -16,7 +16,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include "larg4/pluginActions/thePositionInVolumeFilter.h" // larg4::thePositionInVolumeFilter
 #include "nutools/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
