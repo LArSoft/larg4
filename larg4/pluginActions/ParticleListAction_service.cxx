@@ -107,7 +107,7 @@ namespace larg4 {
     // of the first EM particle that led to this one
     std::map<int,int>::const_iterator itr = fParentIDMap.find(trackid);
     while( itr != fParentIDMap.end() ){
-      LOG_DEBUG("ParticleListActionService")
+      MF_LOG_DEBUG("ParticleListActionService")
       << "parentage for " << trackid
       << " " << (*itr).second;
       
@@ -116,7 +116,7 @@ namespace larg4 {
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
-    LOG_DEBUG("ParticleListActionService") << "final parent ID " << parentid; 
+    MF_LOG_DEBUG("ParticleListActionService") << "final parent ID " << parentid; 
 
     return parentid;
   }
@@ -231,7 +231,7 @@ namespace larg4 {
         // if we still can't find the parent in the particle navigator,
         // we have to give up
         if( !fparticleList->KnownParticle(pid) ){
-          LOG_WARNING("ParticleListActionService")
+          MF_LOG_WARNING("ParticleListActionService")
           << "can't find parent id: "
           << parentID
           << " in the particle list, or fParentIDMap."
@@ -348,7 +348,7 @@ namespace larg4 {
     G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     G4bool ignoreProcess = process.contains("LArVoxel") || process.contains("OpDetReadout"); 
 
-    LOG_DEBUG("ParticleListActionService::SteppingAction")
+    MF_LOG_DEBUG("ParticleListActionService::SteppingAction")
     << ": DEBUG - process='"
     << process << "'"
     << " ignoreProcess=" << ignoreProcess
