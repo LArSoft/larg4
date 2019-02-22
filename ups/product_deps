@@ -33,7 +33,7 @@ gdmldir product_dir 	gdml
 # Add the dependent product and version
 
 product          version
-artg4tk         v09_01_02
+artg4tk         v09_02_00
 larevt          v08_01_00_02
 cetbuildtools   v7_06_04       -       only_for_build
 end_product_list
