@@ -15,7 +15,8 @@ cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS
 WERROR
-EXTRA_FLAGS -pedantic -Wno-undef
+NO_UNDEFINED
+EXTRA_FLAGS -pedantic
 )
 
 cet_report_compiler_flags()
@@ -48,8 +49,10 @@ include(BuildPlugins)
 cet_find_library( ARTG4TK_ACTIONBASE NAMES artg4tk_actionBase PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
 cet_find_library( ARTG4TK_GEANTINIT NAMES artg4tk_geantInit PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
 cet_find_library( ARTG4TK_PLUGINDETECTORS_GDML NAMES artg4tk_pluginDetectors_gdml PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-#cet_find_library(  NAMES  PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-#cet_find_library(  NAMES  PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
+cet_find_library(ARTG4TK_DATAPRODUCTS_G4DETECTORHITS NAMES artg4tk_DataProducts_G4DetectorHits PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
+cet_find_library(ARTG4TK_SERVICES_ACTIONHOLDER_SERVICE NAMES artg4tk_services_ActionHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
+cet_find_library(ARTG4TK_SERVICES_PHYSICSLISTHOLDER_SERVICE NAMES artg4tk_services_PhysicsListHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
+cet_find_library(ARTG4TK_SERVICES_DETECTORHOLDER_SERVICE NAMES artg4tk_services_DetectorHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
 
 # Build these directories
 add_subdirectory(larg4)

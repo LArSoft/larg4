@@ -1,6 +1,12 @@
 art_make(
   MODULE_LIBRARIES
-    art_Framework_Services_Optional_TFileService_service
+    ${ART_FRAMEWORK_SERVICES_REGISTRY}
+    ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+    ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+    ${ART_PERSISTENCY_PROVENANCE}
     ${G4_LIB_LIST}
     ${XERXESCLIB}
+    nusimdata_SimulationBase
+    ${ROOT_TREE}
+    ${ROOT_HIST}
 )

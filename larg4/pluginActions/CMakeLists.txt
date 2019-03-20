@@ -1,70 +1,31 @@
-# Use the magic that is @art_make@ to construct the shared object files for
-# this whole directory. 
-simple_plugin(
-  ParticleListAction service     nutools_G4Base artg4tk_actionBase
-  SOURCE
-    ParticleListAction_service.cxx
+simple_plugin(ParticleListAction "service"
+              nusimdata_SimulationBase
+              nutools_G4Base
+              nutools_ParticleNavigation
+              artg4tk_actionBase
+              artg4tk_services_ActionHolder_service
+              ${CLHEP}
+              ${ART_FRAMEWORK_CORE}
+              ${ART_FRAMEWORK_PRINCIPAL}
+              ${ART_PERSISTENCY_PROVENANCE}
+              ${G4_LIB_LIST}
+              ${MF_MESSAGELOGGER}
+              ${ROOT_CORE}
+              ${ROOT_PHYSICS}
+              SOURCE ParticleListAction_service.cxx)
 
-)
+simple_plugin(MCTruthEventAction "service"
+              artg4tk_actionBase
+              artg4tk_services_ActionHolder_service
+              ${ART_FRAMEWORK_PRINCIPAL}
+              ${ART_PERSISTENCY_PROVENANCE}
+              ${CLHEP}
+              ${G4_LIB_LIST}
+              ${MF_MESSAGELOGGER}
+              ${XERCESCLIB}
+              ${ROOT_CORE}
+              ${ROOT_PHYSICS}
+              nusimdata_SimulationBase
+             nutools_G4Base)
 
-
-art_make( SERVICE_LIBRARIES ${G4_LIB_LIST}  ${XERCESCLIB} nutools_G4Base 
-         LIB_LIBRARIES 
-                        lardataobj_Simulation
-                        nusimdata_SimulationBase
-			nutools_RandomUtils_NuRandomService_service
-                        nutools_G4Base
-                        ${ART_FRAMEWORK_CORE}
-                        ${ART_FRAMEWORK_PRINCIPAL}
-                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
-                        art_Persistency_Common
-                        art_Persistency_Provenance
-                        art_Utilities
-                        canvas
-                        ${MF_MESSAGELOGGER}
-                        
-                        ${FHICLCPP}
-                        cetlib cetlib_except
-                        ${ROOT_GENVECTOR}
-                        ${ROOT_EG}
-                        ${ROOT_TREEPLAYER} 
-                        ${ROOT_FFTW}
-                        ${ROOT_REFLEX}
-                        ${ROOT_EGPYTHIA6}
-                        ${ROOT_GUI}
-                        ${ROOT_BASIC_LIB_LIST}
-                        ${ROOT_GEOM}
-                        ${CLHEP}
-                        ${G4_LIB_LIST}
-           MODULE_LIBRARIES 
-##larsim_LArG4
- ##                       larsim_MCCheater_ParticleInventoryService_service
-                        lardataalg_MCDumpers
-  ##                      larsim_Simulation
-                         nutools_ParticleNavigation lardataobj_Simulation
-                        larcorealg_Geometry
- #                       larcore_Geometry_Geometry_service
-                        nutools_RandomUtils_NuRandomService_service
-                        nusimdata_SimulationBase
-                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-			canvas
-                        ${MF_MESSAGELOGGER}
-                        
-                        ${FHICLCPP}
-                        cetlib cetlib_except
-                        ${ROOT_GENVECTOR}
-                        ${ROOT_BASIC_LIB_LIST}
-                        nutools_G4Base
-                        CLHEP
-                        ${G4_LIB_LIST}
-
-
-
-
-)
 install_headers()
