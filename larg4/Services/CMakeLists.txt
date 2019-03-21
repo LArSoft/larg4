@@ -4,6 +4,7 @@ simple_plugin(LArG4Detector "service"
               SimEnergyDepositSD.cc
               AuxDetSD.cc
               NOP
+              larcorealg_Geometry
               ${ART_FRAMEWORK_CORE}
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_PERSISTENCY_PROVENANCE}
