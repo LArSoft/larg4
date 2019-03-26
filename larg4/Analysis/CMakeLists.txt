@@ -1,12 +1,20 @@
 art_make(
   MODULE_LIBRARIES
-    ${ART_FRAMEWORK_SERVICES_REGISTRY}
-    ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-    ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-    ${ART_PERSISTENCY_PROVENANCE}
-    ${G4_LIB_LIST}
-    ${XERXESCLIB}
+    art_Framework_Core
+    art_Framework_Principal
+    art_Framework_Services_Optional
+    art_Framework_Services_Optional_TFileService_service
+    art_Framework_Services_Registry
+    art_Persistency_Provenance
+    art_Utilities
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    canvas
+    cetlib_except
+    fhiclcpp
+    ${G4ZLIB}
     nusimdata_SimulationBase
-    ${ROOT_TREE}
+    ${ROOT_CORE}
     ${ROOT_HIST}
+    ${ROOT_TREE}
 )

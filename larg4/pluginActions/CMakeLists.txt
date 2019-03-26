@@ -1,31 +1,52 @@
-simple_plugin(ParticleListAction "service"
-              nusimdata_SimulationBase
-              nutools_G4Base
-              nutools_ParticleNavigation
-              artg4tk_actionBase
-              artg4tk_services_ActionHolder_service
-              ${CLHEP}
-              ${ART_FRAMEWORK_CORE}
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_PERSISTENCY_PROVENANCE}
-              ${G4_LIB_LIST}
-              ${MF_MESSAGELOGGER}
-              ${ROOT_CORE}
-              ${ROOT_PHYSICS}
-              SOURCE ParticleListAction_service.cxx)
+simple_plugin(
+  MCTruthEventAction service
+NOP
+  art_Framework_Principal
+  art_Framework_Services_Registry
+  artg4tk_actionBase
+  artg4tk_services_ActionHolder_service
+  art_Persistency_Provenance
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  canvas
+  cetlib_except
+  clhep
+  fhiclcpp
+  ${G4GLOBAL}
+  ${G4PARTICLES}
+  MF_MessageLogger
+  nusimdata_SimulationBase
+  nutools_G4Base
+  ${ROOT_CORE}
+  ${ROOT_PHYSICS}
+SOURCE
+  MCTruthEventAction_service.cc
+)
 
-simple_plugin(MCTruthEventAction "service"
-              artg4tk_actionBase
-              artg4tk_services_ActionHolder_service
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_PERSISTENCY_PROVENANCE}
-              ${CLHEP}
-              ${G4_LIB_LIST}
-              ${MF_MESSAGELOGGER}
-              ${XERCESCLIB}
-              ${ROOT_CORE}
-              ${ROOT_PHYSICS}
-              nusimdata_SimulationBase
-             nutools_G4Base)
+simple_plugin(
+  ParticleListAction service
+NOP
+  art_Framework_Services_Registry
+  canvas
+  fhiclcpp
+  cetlib_except
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  art_Framework_Core
+  art_Framework_Principal
+  artg4tk_actionBase
+  artg4tk_services_ActionHolder_service
+  art_Persistency_Provenance
+  clhep
+  ${G4PARTICLES}
+  MF_MessageLogger
+  nusimdata_SimulationBase
+  nutools_G4Base
+  nutools_ParticleNavigation
+  ${ROOT_CORE}
+  ${ROOT_PHYSICS}
+SOURCE
+  ParticleListAction_service.cxx
+)
 
 install_headers()
