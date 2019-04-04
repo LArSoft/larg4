@@ -20,6 +20,7 @@ cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
 cet_report_compiler_flags()
 
 find_ups_product(art)
+find_ups_product(art_root_io)
 find_ups_product(artg4tk)
 find_ups_product(canvas)
 find_ups_product(canvas_root_io)
