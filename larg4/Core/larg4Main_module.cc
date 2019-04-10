@@ -246,18 +246,10 @@ void larg4::larg4Main::beginJob()
 void larg4::larg4Main::beginRun(art::Run & r)
 {  
   // Get the physics list and pass it to Geant and initialize the list if necessary
-  art::ServiceHandle<PhysicsListHolderService> physicsListHolder;
+  art::ServiceHandle<PhysicsListHolderService const> physicsListHolder;
   runManager_->SetUserInitialization( physicsListHolder->makePhysicsList() );
   
   // Get all of the detectors and initialize them
-  art::ServiceHandle<DetectorHolderService> detectorHolder;
-/*
-  detectorHolder->initialize();
-  //hjw:
-  //detectorHolder -> callArtProduces(this);
-  // Build the detectors' logical volumes
-  detectorHolder -> constructAllLVs();
-*/
   // Declare the detector construction to Geant
   runManager_->SetUserInitialization(new artg4tk::ArtG4DetectorConstruction);
   
@@ -369,7 +361,7 @@ void larg4::larg4Main::produce(art::Event & e)
 
   /*
   unsigned int nGeneratedParticles = 0;
-  art::ServiceHandle<larg4::ParticleListActionService> h;
+  art::ServiceHandle<larg4::ParticleListActionService const> h;
   sim::ParticleList particleList =h->YieldList();
 
   std::unique_ptr< std::vector<simb::MCParticle> >               partCol                    (new std::vector<simb::MCParticle  >);

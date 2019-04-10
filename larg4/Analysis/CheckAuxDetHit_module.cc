@@ -33,7 +33,7 @@ void larg4::CheckAuxDetHit::beginRun(const art::Run& thisRun) {
 }
 
 void larg4::CheckAuxDetHit::beginJob() {
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
     _hnHits = tfs->make<TH1F>("hnHits", "Number of AuxDetHits", 30, 0,30 );
     _hEdep = tfs->make<TH1F>("hEdep", "Energy deposition in AuxDetHits", 100,0.,4.);
     _hID = tfs->make<TH1F>("hID", "Id of hit AuxDet", 100,0.,5.);

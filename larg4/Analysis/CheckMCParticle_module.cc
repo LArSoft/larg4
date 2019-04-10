@@ -35,7 +35,7 @@ void larg4::CheckMCParticle::beginRun(const art::Run& thisRun) {
 
 void larg4::CheckMCParticle::beginJob() {
 
-    art::ServiceHandle<art::TFileService> tfs;
+    art::ServiceHandle<art::TFileService const> tfs;
     _directory = gDirectory;
     _file = gDirectory->GetFile();
     _hnParts = tfs->make<TH1F>("hnParts", "Number of generated Particles", 100, 0., 2000.);

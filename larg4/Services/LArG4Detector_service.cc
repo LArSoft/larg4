@@ -55,8 +55,6 @@
 #include "Geant4/G4StepLimiter.hh"
 #include "Geant4/G4RegionStore.hh"
 // C++ includes
-#include <vector>
-#include <map>
 
 using std::string;
 

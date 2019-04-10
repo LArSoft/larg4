@@ -47,7 +47,7 @@ void  AuxDetSD::Initialize(G4HCofThisEvent* ) {
   G4bool  AuxDetSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
   G4double edep = step->GetTotalEnergyDeposit() / CLHEP::MeV;
   if (edep == 0.) return false;
-  //art::ServiceHandle<ParticleListActionService> pla;
+  //art::ServiceHandle<ParticleListActionService const> pla;
   //const unsigned int trackID = pla->GetCurrentTrackID();
   const unsigned int trackID = step->GetTrack()->GetTrackID();
   unsigned int ID = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
