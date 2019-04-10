@@ -41,9 +41,7 @@ namespace larg4 {
   class MCTruthEventActionService 
     : public artg4tk::PrimaryGeneratorActionBase {
   public: 
-    MCTruthEventActionService(fhicl::ParameterSet const&, 
-				    art::ActivityRegistry&);
-    virtual ~MCTruthEventActionService();
+    MCTruthEventActionService(fhicl::ParameterSet const&);
     
     void addG4Particle(G4Event *event,
                        int pdgId,

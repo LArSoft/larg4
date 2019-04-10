@@ -19,20 +19,13 @@ using std::string;
 G4ParticleTable* larg4::MCTruthEventActionService::fParticleTable=nullptr; 
 
 larg4::MCTruthEventActionService::
-MCTruthEventActionService(fhicl::ParameterSet const & p,
-        art::ActivityRegistry &)
+MCTruthEventActionService(fhicl::ParameterSet const & p)
 : PrimaryGeneratorActionBase(p.get<string>("name", "MCTruthEventActionService")),
 // Initialize our message logger
 logInfo_("MCTruthEventActionService")
   //fConvertMCTruth    (nullptr)
  {
   //    fConvertMCTruth = new ConvertMCTruthToG4;
-}
-
-// Destructor
-
-larg4::MCTruthEventActionService::~MCTruthEventActionService() {
-
 }
 
 // Create a primary particle for an event!

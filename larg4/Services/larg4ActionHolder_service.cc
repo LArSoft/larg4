@@ -34,8 +34,7 @@ static std::string msgctg = "larg4ActionHolderService";
 
 // Constructor doesn't do much with the passed arguments, but does initialize
 // the logger for the service
-larg4::larg4ActionHolderService::larg4ActionHolderService(fhicl::ParameterSet const&,
-						art::ActivityRegistry&) :
+larg4::larg4ActionHolderService::larg4ActionHolderService(fhicl::ParameterSet const&) :
   runActionsMap_(),
   eventActionsMap_(),
   trackingActionsMap_(),

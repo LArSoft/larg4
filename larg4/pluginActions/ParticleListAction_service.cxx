@@ -58,8 +58,7 @@ namespace larg4 {
   
   //----------------------------------------------------------------------------
   // Constructor.
-  ParticleListActionService::ParticleListActionService(fhicl::ParameterSet const & p,
-						       art::ActivityRegistry &)
+  ParticleListActionService::ParticleListActionService(fhicl::ParameterSet const & p)
     : artg4tk::EventActionBase("PLASEventActionBase"),
       artg4tk::TrackingActionBase("PLASTrackingActionBase"),
       artg4tk::SteppingActionBase("PLASSteppingActionBase"),

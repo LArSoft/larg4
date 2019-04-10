@@ -1,4 +1,3 @@
-
 //=============================================================================
 // LArG4Detector_service.hh: 
 // LArG4DetectorService is the service that constructs the Geant 4 Geometry 
@@ -75,7 +74,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return split(s, delim, elems);
 }
 
-larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p, art::ActivityRegistry &)
+larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
 : artg4tk::DetectorBase(p,
 			p.get<string>("name", "LArG4DetectorService"),
 			p.get<string>("category", "World"),

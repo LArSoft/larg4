@@ -65,8 +65,8 @@ namespace larg4 {
       mf::LogInfo logInfo_;
       std::vector<std::pair<std::string,std::string> > DetectorList;
     public:
-        LArG4DetectorService(fhicl::ParameterSet const&, art::ActivityRegistry&);
-        virtual ~LArG4DetectorService();
+        LArG4DetectorService(fhicl::ParameterSet const&);
+        ~LArG4DetectorService();
 
     private:
 
@@ -85,4 +85,3 @@ namespace larg4 {
 using larg4::LArG4DetectorService;
 DECLARE_ART_SERVICE(LArG4DetectorService,LEGACY)
 #endif
-

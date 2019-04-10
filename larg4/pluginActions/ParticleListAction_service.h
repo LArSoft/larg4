@@ -81,12 +81,8 @@ namespace larg4 {
  
  
     // Standard constructors and destructors;
-    ParticleListActionService(fhicl::ParameterSet const&, 
-			      art::ActivityRegistry&);
-    //			      double energyCut, 
-    //			      bool storeTrajectories=false, 
-    //			      bool keepEMShowerDaughters=false);
-    virtual ~ParticleListActionService();
+    ParticleListActionService(fhicl::ParameterSet const&);
+    ~ParticleListActionService();
 
     // UserActions method that we'll override, to obtain access to
     // Geant4's particle tracks and trajectories.

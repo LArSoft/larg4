@@ -45,7 +45,7 @@ namespace larg4 {
   class larg4ActionHolderService {
   public:
     // Constructor for larg4ActionHolderService
-    larg4ActionHolderService(fhicl::ParameterSet const &, art::ActivityRegistry&);
+    larg4ActionHolderService(fhicl::ParameterSet const &);
 
     // This method registers the passed action object with the service
     void registerAction(RunActionBase * const action);
