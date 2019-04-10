@@ -302,7 +302,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             if (hisd) {
                 const artg4tk::ArtG4tkVtx& inter = hisd->Get1stInteraction();
                 if (inter.GetNumOutcoming() > 0) {
-                    std::unique_ptr<artg4tk::ArtG4tkVtx> firstint(new artg4tk::ArtG4tkVtx(inter));
+                    auto firstint = std::make_unique<artg4tk::ArtG4tkVtx>(inter);
                     art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
                     art::Event & e = detectorHolder -> getCurrArtEvent();
                     e.put(std::move(firstint)); // note that there's NO product instance name (for now, at least)
@@ -319,14 +319,14 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
                 art::Event & e = detectorHolder -> getCurrArtEvent();
                 const artg4tk::ArtG4tkVtx& inter = sd->Get1stInteraction();
                 if (inter.GetNumOutcoming() > 0) {
-                    std::unique_ptr<artg4tk::ArtG4tkVtx> firstint(new artg4tk::ArtG4tkVtx(inter));
+                    auto firstint = std::make_unique<artg4tk::ArtG4tkVtx>(inter);
                     e.put(std::move(firstint)); // note that there's NO product instance name (for now, at least)
                     // (part of) the is that the name is encoded into the "collection"
                     // which is NOT used in this specific case
                 }
                 const artg4tk::TrackerHitCollection& trkhits = sd->GetEdepTrkHits();
                 if (!trkhits.empty()) {
-                    std::unique_ptr<artg4tk::TrackerHitCollection> hits(new artg4tk::TrackerHitCollection(trkhits));
+                    auto hits = std::make_unique<artg4tk::TrackerHitCollection>(trkhits);
                     e.put(std::move(hits));
                 }
                 sd->clear(); // clear out after moving info to EDM; no need to clea out in the producer !
@@ -337,7 +337,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
             art::Event & e = detectorHolder -> getCurrArtEvent();
             const artg4tk::TrackerHitCollection& trkhits = trsd->GetHits();
-            std::unique_ptr<artg4tk::TrackerHitCollection> hits(new artg4tk::TrackerHitCollection(trkhits));
+            auto hits = std::make_unique<artg4tk::TrackerHitCollection>(trkhits);
             std::string identifier = myName()+(*cii).first;
             e.put(std::move(hits), identifier);
 	}else if ( (*cii).second == "SimEnergyDeposit") {
@@ -346,7 +346,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
 	  const sim::SimEnergyDepositCollection& sedhits = sedsd->GetHits();
-	  std::unique_ptr<sim::SimEnergyDepositCollection> hits(new sim::SimEnergyDepositCollection(sedhits)); 
+	  auto hits = std::make_unique<sim::SimEnergyDepositCollection>(sedhits);
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
  	} else if ( (*cii).second == "AuxDet") {
@@ -355,7 +355,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
 	  art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 	  art::Event & e = detectorHolder -> getCurrArtEvent();
 	  const sim::AuxDetHitCollection& auxhits = auxsd->GetHits();
-	  std::unique_ptr<sim::AuxDetHitCollection> hits(new sim::AuxDetHitCollection(auxhits)); 
+	  auto hits = std::make_unique<sim::AuxDetHitCollection>(auxhits);
 	  std::string identifier=myName()+(*cii).first;
 	  e.put(std::move(hits), identifier);
         } else if ((*cii).second == "Calorimeter") {
@@ -364,7 +364,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
             art::Event & e = detectorHolder -> getCurrArtEvent();
             const artg4tk::CalorimeterHitCollection& calhits = calsd->GetHits();
-            std::unique_ptr<artg4tk::CalorimeterHitCollection> hits(new artg4tk::CalorimeterHitCollection(calhits));
+            auto hits = std::make_unique<artg4tk::CalorimeterHitCollection>(calhits);
             std::string identifier = myName()+(*cii).first;
             e.put(std::move(hits), identifier);
         } else if ((*cii).second == "DRCalorimeter") {
@@ -373,17 +373,17 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
             art::Event & e = detectorHolder -> getCurrArtEvent();
             const artg4tk::DRCalorimeterHitCollection& drcalhits = drcalsd->GetHits();
-            std::unique_ptr<artg4tk::DRCalorimeterHitCollection> hits(new artg4tk::DRCalorimeterHitCollection(drcalhits));
+            auto hits = std::make_unique<artg4tk::DRCalorimeterHitCollection>(drcalhits);
             std::string identifier = myName()+(*cii).first;
             e.put(std::move(hits), identifier);
             //
             const artg4tk::ByParticle& edeps = drcalsd->GetEbyParticle();
-            std::unique_ptr<artg4tk::ByParticle> edepsptr(new artg4tk::ByParticle(edeps));
+            auto edepsptr = std::make_unique<artg4tk::ByParticle>(edeps);
             std::string edidentifier = myName()+(*cii).first + "Edep";
             e.put(std::move(edepsptr), edidentifier);
             //
             const artg4tk::ByParticle& nceren = drcalsd->GetNCerenbyParticle();
-            std::unique_ptr<artg4tk::ByParticle> ncerenptr(new artg4tk::ByParticle(nceren));
+            auto ncerenptr = std::make_unique<artg4tk::ByParticle>(nceren);
             std::string ncidentifier = myName()+(*cii).first + "NCeren";
             e.put(std::move(ncerenptr), ncidentifier);
         } else if ((*cii).second == "PhotonDetector") {
@@ -392,7 +392,7 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent * myHC)
             art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
             art::Event & e = detectorHolder -> getCurrArtEvent();
             const artg4tk::PhotonHitCollection& phhits = phsd->GetHits();
-            std::unique_ptr<artg4tk::PhotonHitCollection> hits(new artg4tk::PhotonHitCollection(phhits));
+            auto hits = std::make_unique<artg4tk::PhotonHitCollection>(phhits);
             std::string identifier = myName()+(*cii).first;
             e.put(std::move(hits), identifier);
         }
