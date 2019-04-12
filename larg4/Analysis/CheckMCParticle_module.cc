@@ -1,75 +1,81 @@
-//
-//               __        __ __  __  __
-//   ____ ______/ /_____ _/ // / / /_/ /__
-//  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
-//               /____/
-//
-// larg4: art based Geant 4 Toolkit
-//
-//=============================================================================
-// CheckMCParticle_module.cc: Analysis module to analyze the GenParticles
-// in the Event
-// Author: Hans Wenzel (Fermilab)
-//=============================================================================
-// larg4 includes:
-#include "larg4/Analysis/CheckMCParticle_module.h"
-// framework includes:
-#include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Event.h"
+// C++ includes.
+#include <iostream>
+#include <string>
+#include <set>
+#include <cmath>
+#include <algorithm>
 
-//using namespace std;
+// Framework includes.
+#include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Run.h"
+#include "art_root_io/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Principal/Provenance.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+// Root includes.
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TDirectory.h"
+
+// Other includes.
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace std;
+namespace larg4 {
+  class CheckMCParticle;
+}
+
+class larg4::CheckMCParticle : public art::EDAnalyzer {
+public:
+  explicit CheckMCParticle(fhicl::ParameterSet const& p);
+
+private:
+  void beginJob() override;
+  void analyze(const art::Event& event) override;
+
+  std::string const _myName;
+  TH1F* _hnParts{nullptr};
+};
 
 larg4::CheckMCParticle::CheckMCParticle(fhicl::ParameterSet const& p) :
-art::EDAnalyzer(p),
-_myName(p.get<std::string>("name", "CheckMCParticle")),
-_hnParts(0),
-_directory(0),
-_file(0) {
-}
+  art::EDAnalyzer(p),
+  _myName(p.get<std::string>("name", "CheckMCParticle"))
+{}
 
-void larg4::CheckMCParticle::beginJob() {
-
-    art::ServiceHandle<art::TFileService const> tfs;
-    _directory = gDirectory;
-    _file = gDirectory->GetFile();
-    _hnParts = tfs->make<TH1F>("hnParts", "Number of generated Particles", 100, 0., 2000.);
+void larg4::CheckMCParticle::beginJob()
+{
+  art::ServiceHandle<art::TFileService const> tfs;
+  _hnParts = tfs->make<TH1F>("hnParts", "Number of generated Particles", 100, 0., 2000.);
 } // end beginJob
 
-void larg4::CheckMCParticle::analyze(const art::Event& event) {
-    typedef std::vector< art::Handle<std::vector<simb::MCParticle> > >  HandleVector;
-    HandleVector allGens;
-    event.getManyByType(allGens);
-    for (HandleVector::const_iterator i = allGens.begin(); i != allGens.end(); ++i) {
-        const  std::vector<simb::MCParticle> & gens(**i);
-        _hnParts->Fill(gens.size());
-        for (std::vector<simb::MCParticle>::const_iterator j = gens.begin(); j != gens.end(); ++j) {
-
-            const  simb::MCParticle & genpart = *j;
-            cout << "Part id:  " << genpart.TrackId()  << endl;
-	    cout << "PDG id:  " << genpart.PdgCode()  << endl;
-	    cout << "Status Code:  " << genpart.StatusCode()  << endl;
-	    cout << "Mother:  " << genpart.Mother()  << endl;
-	    if (genpart.Mother()==0)
-	      {
-		cout << "momentum:  " <<   genpart.P() << endl;
-		cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
-	      }
-	    // CLHEP::HepLorentzVector const& mom = genpart.PdgCode();
-            //cout << "Part Energy:  " << mom.e() << endl;
-            //cout << "invariant mass:  " << mom.invariantMass() << endl;
-            //cout << "momentum:  " << mom.pz() << endl;
-            //cout <<genpart<<endl;
-
-        }
+void larg4::CheckMCParticle::analyze(const art::Event& event)
+{
+  std::vector<art::Handle<std::vector<simb::MCParticle>>> allGens;
+  event.getManyByType(allGens);
+  for (auto const& gens : allGens) {
+    _hnParts->Fill(gens->size());
+    for (auto const& genpart : *gens) {
+      cout << "Part id:  " << genpart.TrackId()  << endl;
+      cout << "PDG id:  " << genpart.PdgCode()  << endl;
+      cout << "Status Code:  " << genpart.StatusCode()  << endl;
+      cout << "Mother:  " << genpart.Mother()  << endl;
+      if (genpart.Mother()==0) {
+        cout << "momentum:  " <<   genpart.P() << endl;
+        cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
+      }
+      // CLHEP::HepLorentzVector const& mom = genpart.PdgCode();
+      // cout << "Part Energy:  " << mom.e() << endl;
+      // cout << "invariant mass:  " << mom.invariantMass() << endl;
+      // cout << "momentum:  " << mom.pz() << endl;
+      // cout <<genpart<<endl;
     }
-
+  }
 } // end analyze
 
-void larg4::CheckMCParticle::endJob() {
-}
-using larg4::CheckMCParticle;
-
-DEFINE_ART_MODULE(CheckMCParticle)
+DEFINE_ART_MODULE(larg4::CheckMCParticle)
