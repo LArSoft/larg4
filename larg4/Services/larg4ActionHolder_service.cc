@@ -49,28 +49,28 @@ larg4::larg4ActionHolderService::larg4ActionHolderService(fhicl::ParameterSet co
 
 // Register actions
 template <typename A>
-void larg4::larg4ActionHolderService::doRegisterAction(A * const action, 
-						  std::map<std::string, A *>& actionMap) 
+void larg4::larg4ActionHolderService::doRegisterAction(A * const action,
+						  std::map<std::string, A *>& actionMap)
 {
    mf::LogDebug(msgctg) << "Registering action " << action->myName();
-  
+
   // Check if the name exists in the specific action map
   if ( 0 == actionMap.count( action->myName() ) ) {
     // Add the action!
     actionMap.insert(
                      pair<string, A *>( action->myName(), action )
                      );
-    
+
 
     // Now, check whether the name exists in the overall map of all the actions
     // If so, move on (don't throw an exception, since a single action may need
     // to register in multiple maps). Otherwise, add it.
     if ( 0 == allActionsMap_.count( action->myName() ) ) {
-      allActionsMap_.insert( 
+      allActionsMap_.insert(
         pair<string, ActionBase*>( action->myName(), dynamic_cast<ActionBase*>(action) ));
     }
   }
- 
+
   else {
     // We already have this action in the specific action map - this is bad!
     throw cet::exception("larg4ActionHolderService")
@@ -82,7 +82,7 @@ void larg4::larg4ActionHolderService::doRegisterAction(A * const action,
 void larg4::larg4ActionHolderService::registerAction(RunActionBase * const action) {
   cerr<< "registering to   runActionsMap_"<<endl;
 doRegisterAction(action, runActionsMap_);
-  
+
 }
 
 void larg4::larg4ActionHolderService::registerAction(EventActionBase * const action) {
@@ -115,10 +115,10 @@ void larg4::larg4ActionHolderService::registerAction(ParticleListActionBase * co
 }
 template <typename A>
 A* larg4::larg4ActionHolderService::doGetAction(std::string name, std::map<std::string, A*>& actionMap) {
-  
+
   // Make a typedef
   typedef typename std::map<std::string, A*>::const_iterator map_const_iter;
-  
+
   // Find the action corresponding to the passed in name in the map
   map_const_iter actionIter = actionMap.find(name);
   if ( actionIter == actionMap.end() ) {
@@ -204,12 +204,12 @@ void larg4::larg4ActionHolderService::fillRunEndWithArtStuff()
 
 // h2. Action methods
 
-// I tried to be good and use @std::for_each@ but it got really messy very 
-// quickly. Oh well. 
+// I tried to be good and use @std::for_each@ but it got really messy very
+// quickly. Oh well.
 
 // h3. Run action methods
 void larg4::larg4ActionHolderService::beginOfRunAction(const G4Run* theRun) {
-  
+
   // Loop over the runActionsMap and call @beginOfRunAction@ on each
   for ( auto entry : runActionsMap_ ) {
     (entry.second)->beginOfRunAction(theRun);
@@ -242,7 +242,7 @@ void larg4::larg4ActionHolderService::preUserTrackingAction(const G4Track* theTr
   for ( auto entry : trackingActionsMap_ ) {
     (entry.second)->preUserTrackingAction(theTrack);
   }
- 
+
 }
 
 void larg4::larg4ActionHolderService::postUserTrackingAction(const G4Track* theTrack) {
@@ -260,7 +260,7 @@ void larg4::larg4ActionHolderService::userSteppingAction(const G4Step* theStep) 
 
 // h3. Stacking actions
 bool larg4::larg4ActionHolderService::killNewTrack(const G4Track* newTrack) {
-  
+
   bool killTrack = false;
 
   for (auto entry : stackingActionsMap_) {
@@ -269,10 +269,10 @@ bool larg4::larg4ActionHolderService::killNewTrack(const G4Track* newTrack) {
       break;
     }
   }
-  
+
   return killTrack;
 }
-  
+
 // h3. Primary generator actions
 void larg4::larg4ActionHolderService::generatePrimaries(G4Event* theEvent) {
   for ( auto entry : primaryGeneratorActionsMap_ ) {

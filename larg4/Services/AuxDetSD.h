@@ -27,7 +27,7 @@ namespace larg4 {
       void Initialize(G4HCofThisEvent*);
       G4bool ProcessHits(G4Step*, G4TouchableHistory*);
       const sim::AuxDetHitCollection& GetHits() const { return hitCollection; }
-        
+
     private:
       sim::AuxDetHitCollection hitCollection;
     };

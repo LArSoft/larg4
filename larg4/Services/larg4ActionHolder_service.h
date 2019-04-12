@@ -3,7 +3,7 @@
 // @ActionHolderService@ is a globally-accessible service that manages the action
 // objects for a simulation. An action object has a multitude of hooks into
 // various points during event creation and processing. All action objects
-// must be registered with this service in order to function. 
+// must be registered with this service in order to function.
 
 // Any class can @#include@ and access the @ActionHolderService@ service to get either
 // a collection of registered action objects or a specific action object given
@@ -34,7 +34,7 @@ class G4Step;
 
 // Everything for the Art G4 simulation goes in the @artg4tk@ namespace
 namespace larg4 {
-  
+
   class RunActionBase;
   class EventActionBase;
   class TrackingActionBase;
@@ -77,42 +77,42 @@ namespace larg4 {
     // Tell the run actions to dump their stuff into the Art run
     void fillRunBeginWithArtStuff();
     void fillRunEndWithArtStuff();
-    
+
     // Set/get the current Art event
     void setCurrArtEvent(art::Event & e) { currentArtEvent_ = &e; }
     art::Event & getCurrArtEvent() { return (*currentArtEvent_); }
-    
+
     // Set/get the current Art Run
     void setCurrArtRun(art::Run & r) { currentArtRun_ = &r; }
     art::Run & getCurrArtRun() { return (*currentArtRun_); }
-    
+
 
     // h3. Action methods
 
     // h4. Run Actions
-    void beginOfRunAction(const G4Run* );    
+    void beginOfRunAction(const G4Run* );
     void endOfRunAction(const G4Run* );
-    
+
     // h4. Event Actions
     void beginOfEventAction(const G4Event* );
     void endOfEventAction(const G4Event* );
-    
+
     // h4. Tracking actions
     void preUserTrackingAction(const G4Track* );
     void postUserTrackingAction(const G4Track* );
-    
+
     // h4. Stepping actions
     void userSteppingAction(const G4Step* );
-    
+
     // h4. Stacking actions
     bool killNewTrack(const G4Track* );
-    
+
     // h4. Primary Generator actions
     void generatePrimaries(G4Event*);
-    
+
 
   private:
-        
+
     // A collection of all our actions, arranged by name
     std::map<std::string, RunActionBase*> runActionsMap_;
     std::map<std::string, EventActionBase*> eventActionsMap_;
@@ -123,17 +123,17 @@ namespace larg4 {
     std::map<std::string, ParticleListActionBase*> particleListActionsMap_;
     // Hold on to the current Art event
     art::Event * currentArtEvent_;
-    
+
     // Hold on to the current Art run
     art::Run * currentArtRun_;
 
     // An uber-collection of all registered actions, arranged by name
     std::map<std::string, artg4tk::ActionBase*> allActionsMap_;
-        
-    // Register the action 
+
+    // Register the action
     template <typename A>
     void doRegisterAction(A * const action, std::map<std::string, A *>& actionMap);
-    
+
     // Get an action
     template <typename A>
     A* doGetAction(std::string name, std::map<std::string, A*>& actionMap);

@@ -1,16 +1,16 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // larg4: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// CheckMCParticle_module.cc: Analysis module to analyze the GenParticles 
-// in the Event 
+// CheckMCParticle_module.cc: Analysis module to analyze the GenParticles
+// in the Event
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 // larg4 includes:
@@ -49,7 +49,7 @@ void larg4::CheckMCParticle::analyze(const art::Event& event) {
         const  std::vector<simb::MCParticle> & gens(**i);
         _hnParts->Fill(gens.size());
         for (std::vector<simb::MCParticle>::const_iterator j = gens.begin(); j != gens.end(); ++j) {
-	  
+
             const  simb::MCParticle & genpart = *j;
             cout << "Part id:  " << genpart.TrackId()  << endl;
 	    cout << "PDG id:  " << genpart.PdgCode()  << endl;
@@ -59,13 +59,13 @@ void larg4::CheckMCParticle::analyze(const art::Event& event) {
 	      {
 		cout << "momentum:  " <<   genpart.P() << endl;
 		cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
-	      } 
+	      }
 	    // CLHEP::HepLorentzVector const& mom = genpart.PdgCode();
             //cout << "Part Energy:  " << mom.e() << endl;
             //cout << "invariant mass:  " << mom.invariantMass() << endl;
             //cout << "momentum:  " << mom.pz() << endl;
             //cout <<genpart<<endl;
-	  
+
         }
     }
 

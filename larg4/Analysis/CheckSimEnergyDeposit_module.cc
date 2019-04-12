@@ -1,25 +1,25 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // artg4tk: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// CheckSimEnergyDepositHit_module.cc: Analyzer module that demonstrates access to 
-// Calorimeter hits 
+// CheckSimEnergyDepositHit_module.cc: Analyzer module that demonstrates access to
+// Calorimeter hits
 // and makes some histograms
-// 
+//
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 #include "larg4/Analysis/CheckSimEnergyDeposit_module.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include <cmath>   
+#include <cmath>
 larg4::CheckSimEnergyDeposit::CheckSimEnergyDeposit(fhicl::ParameterSet const& p) :
 art::EDAnalyzer(p),
 _hnHits(0),
@@ -61,7 +61,7 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event) {
       _hnHits->Fill(sims.size());
       for (sim::SimEnergyDepositCollection::const_iterator j = sims.begin(); j != sims.end(); ++j) {
 	const sim::SimEnergyDeposit& hit = *j;
-	// sum up energy deposit in a 1cm slice of liquid Argon. 
+	// sum up energy deposit in a 1cm slice of liquid Argon.
 	if (std::abs(hit.EndZ())<0.5) {
 	  sumPhotons= sumPhotons + hit.NumPhotons();
 	  sumE= sumE +hit.Energy();

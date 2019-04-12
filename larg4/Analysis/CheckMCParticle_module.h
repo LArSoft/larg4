@@ -1,16 +1,16 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // larg4: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// CheckMCParticle_module.hh: Analysis module to analyze the GenParticles 
-// in the Event 
+// CheckMCParticle_module.hh: Analysis module to analyze the GenParticles
+// in the Event
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 #ifndef CHECKGENPARTICLE_MODULE_HH

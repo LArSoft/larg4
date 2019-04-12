@@ -1,7 +1,7 @@
 // larg4Main is the main producer module for Geant.
 
 // larg4Main_module.cc replicates many GEANT programs' @main()@ driver. It
-// creates and initializes the run manager, controls the beginning and end of 
+// creates and initializes the run manager, controls the beginning and end of
 // events, and controls visualization.
 
 #include "nusimdata/SimulationBase/MCParticle.h"
@@ -54,7 +54,7 @@ namespace larg4 {
 
   // Define the producer
   class larg4Main : public art::EDProducer {
-  
+
   public:
 
     // Constructor
@@ -72,7 +72,7 @@ namespace larg4 {
   private:
     // Our custom run manager
     unique_ptr<artg4tk::ArtG4RunManager> runManager_;
-  
+
     // G4 session and managers
     G4UIsession* session_;
     G4UImanager* UI_;
@@ -101,7 +101,7 @@ namespace larg4 {
     // And a tool to find files along that path
     // Initialized based on macroPath_.
     cet::search_path pathFinder_;
-  
+
     // Name of a macro file for visualization
     // 'vis.mac' by default, and can be customized by config file.
     string visMacro_;
@@ -125,25 +125,25 @@ namespace larg4 {
 	// O(log(n)), rather than O(n) for a vector, and find(...) is a heck of
 	// a lot more convenient than looping over the vector.
 	std::map<int, bool> eventsToDisplay_;
-    
+
     // Run diagnostic level (verbosity)
     int rmvlevel_;
-    
+
     // When to pop up user interface
     bool uiAtBeginRun_;
     bool uiAtEndEvent_; // set by afterEvent in FHICL
-    
+
     // What to do at the end of the event
     // Choices are
     //     pass -- do nothing
     //     pause -- Let user press return at the end of each event
     //     ui    -- show the UI at the end of the event
     std::string afterEvent_;
-    
+
     // Message logger
     mf::LogInfo logInfo_;
     //    bool fSparsifyTrajectories; ///< Sparsify MCParticle Trajectories
-    //larg4::ParticleListAction* fparticleListAction; ///< Geant4 user action to particle information. 
+    //larg4::ParticleListAction* fparticleListAction; ///< Geant4 user action to particle information.
 
   };
 }
@@ -179,13 +179,13 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
 	// pause for. They are placed in a map because it is more efficient to
 	// determine whether a given entry is present in the map than a vector.
 	if (visSpecificEvents_) {
-		std::vector<int> eventsToDisplayVec = 
+		std::vector<int> eventsToDisplayVec =
 			p.get<vector<int>>("eventsToDisplay");
 		for (size_t i = 0; i < eventsToDisplayVec.size(); i++) {
 			eventsToDisplay_[eventsToDisplayVec[i]] = true;
 		}
 		// Would be nice to have error checking here, but for now, if you
-		// do something silly, it'll probably just crash. 
+		// do something silly, it'll probably just crash.
 	}
 
   // We need all of the services to run @produces@ on the data they will store. We do this
@@ -209,17 +209,17 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   // See the documentation in RandomNumberHeader.h for
   // how this works. Note that @createEngine@ is a member function
   // of our base class (actually, a couple of base classes deep!).
-  // Note that the name @G4Engine@ is special. 
+  // Note that the name @G4Engine@ is special.
   if (seed_ == -1) {
-	  // Construct seed from time and pid. (default behavior if 
+	  // Construct seed from time and pid. (default behavior if
 	  // no seed is provided by the fcl file)
-	  // Note: According to Kevin Lynch, the two lines below are not portable. 
+	  // Note: According to Kevin Lynch, the two lines below are not portable.
 	  seed_ = time(0) + getpid();
 	  seed_ = ((seed_ & 0xFFFF0000) >> 16) | ((seed_ & 0x0000FFFF) << 16); //exchange upper and lower word
 	  seed_ = seed_ % 900000000; // ensure the seed is in the correct range for createEngine
   }
   createEngine( seed_, "G4Engine");
-  
+
   // Handle the afterEvent setting
   if ( afterEvent_ == "ui" ) {
     uiAtEndEvent_ = true;
@@ -236,7 +236,7 @@ larg4::larg4Main::~larg4Main()
 // At begin job
 void larg4::larg4Main::beginJob()
 {
- 
+
   // Set up run manager
   mf::LogDebug("Main_Run_Manager") << "In begin job";
   runManager_.reset( new artg4tk::ArtG4RunManager );
@@ -244,29 +244,29 @@ void larg4::larg4Main::beginJob()
 
 // At begin run
 void larg4::larg4Main::beginRun(art::Run & r)
-{  
+{
   // Get the physics list and pass it to Geant and initialize the list if necessary
   art::ServiceHandle<PhysicsListHolderService const> physicsListHolder;
   runManager_->SetUserInitialization( physicsListHolder->makePhysicsList() );
-  
+
   // Get all of the detectors and initialize them
   // Declare the detector construction to Geant
   runManager_->SetUserInitialization(new artg4tk::ArtG4DetectorConstruction);
-  
+
   // Get all of the actions and initialize them
   art::ServiceHandle<ActionHolderService> actionHolder;
 
 
   actionHolder->initialize();
-  
+
   // Store the run in the action holder
   actionHolder->setCurrArtRun(r);
 
   // Declare the primary generator action to Geant
   runManager_->SetUserAction(new artg4tk::ArtG4PrimaryGeneratorAction);
- 
+
   // Note that these actions (and ArtG4PrimaryGeneratorAction above) are all
-  // generic actions that really don't do much on their own. Rather, to 
+  // generic actions that really don't do much on their own. Rather, to
   // use the power of actions, one must create action objects (derived from
   // @ActionBase@) and register them with the Art @ActionHolder@ service.
   // See @ActionBase@ and/or @ActionHolderService@ for more information.
@@ -279,8 +279,8 @@ void larg4::larg4Main::beginRun(art::Run & r)
   runManager_->Initialize();
   physicsListHolder->initializePhysicsList();
 
-  //get the pointer to the User Interface manager   
-  UI_ = G4UImanager::GetUIpointer();  
+  //get the pointer to the User Interface manager
+  UI_ = G4UImanager::GetUIpointer();
 
   // Set up visualization if it's allowed by current values of env. variables
 #ifdef G4VIS_USE
@@ -296,7 +296,7 @@ void larg4::larg4Main::beginRun(art::Run & r)
     // Find the macro (or try to) along the directory path.
     string macroLocation = "";
     bool macroWasFound = pathFinder_.find_file(visMacro_, macroLocation);
-    logInfo_ << "Finding path for " << visMacro_ << "...\nSearch " 
+    logInfo_ << "Finding path for " << visMacro_ << "...\nSearch "
 	     << (macroWasFound ? "successful " : "unsuccessful ")
 	     << "and path is: \n" << macroLocation << "\n" << endl;
 
@@ -306,11 +306,11 @@ void larg4::larg4Main::beginRun(art::Run & r)
       logInfo_ << "Executing macro: " << visMacro_ << "\n" << endl;
       string commandToExecute = "/control/execute ";
       commandToExecute.append(macroLocation);
-      UI_->ApplyCommand(commandToExecute); 
+      UI_->ApplyCommand(commandToExecute);
 
     } else {
       // If it wasn't found...
-      // Leave a message for the user ... 
+      // Leave a message for the user ...
       logInfo_ << "Unable to find " << visMacro_ << " in the path(s) "
 	       << macroPath_ << endl;
       // ... and disable visualization for the future
@@ -322,7 +322,7 @@ void larg4::larg4Main::beginRun(art::Run & r)
   } // if visualization was enabled
 
 #endif // G4VIS_USE
-  
+
   // Open a UI if asked
   if ( uiAtBeginRun_ ) {
     session_ = new G4UIterminal;
@@ -348,7 +348,7 @@ void larg4::larg4Main::produce(art::Event & e)
 
   // Begin event
   runManager_ -> BeamOnDoOneEvent(e.id().event());
-  
+
   //  logInfo_ << "Producing event " << e.id().event() << "\n" << endl;
 
   // Done with the event
@@ -370,12 +370,12 @@ void larg4::larg4Main::produce(art::Event & e)
         for(auto const& partPair: particleList) {
           simb::MCParticle& p = *(partPair.second);
           ++nGeneratedParticles;
-          
+
           // if the particle has been marked as dropped, we don't save it
           // (as of LArSoft ~v5.6 this does not ever happen because
           // ParticleListAction has already taken care of deleting them)
           //if (ParticleListAction::isDropped(&p)) continue;
-          
+
           sim::GeneratedParticleInfo const truthInfo{
             fparticleListAction->GetPrimaryTruthIndex(p.TrackId())
             };
@@ -392,11 +392,11 @@ void larg4::larg4Main::produce(art::Event & e)
           }
 
 	  if(fSparsifyTrajectories) p.SparsifyTrajectory();
-          
+
           partCol->push_back(std::move(p));
-          
+
           tpassn->addSingle(mct, makeMCPartPtr(partCol->size() - 1), truthInfo);
-          
+
         } // for(particleList)
 
   */
@@ -406,7 +406,7 @@ void larg4::larg4Main::produce(art::Event & e)
   // If visualization is enabled, and we want to pause after each event, do
   // the pausing.
   if (enableVisualization_) {
-    
+
     // Flush the visualization
     //UI_->ApplyCommand("/tracking/storeTrajectory 1");
     UI_->ApplyCommand("/vis/viewer/flush");
@@ -427,13 +427,13 @@ void larg4::larg4Main::produce(art::Event & e)
 			// logInfo_ prints everything at once, so if we used that, we
 			// would find out that we should press ENTER to continue only
 			// *after* we'd actually done so!
-			cout << "Event: " << e.id().event() 
+			cout << "Event: " << e.id().event()
 				<< ", pausing so you can appreciate visualization. "
 				<< "Hit ENTER to continue." << std::endl;
 			std::cin.ignore();
 		}
 	}
-    
+
   }
 #endif
 

@@ -2,8 +2,8 @@
 // the simulation.
 // To use this action, all you need to do is put it in the services section
 // of the configuration file, like this:
-// 
-// services: { 
+//
+// services: {
 //   ...
 //     MCTruthEventAction: {}
 //     ...
@@ -38,11 +38,11 @@
 
 namespace larg4 {
 
-  class MCTruthEventActionService 
+  class MCTruthEventActionService
     : public artg4tk::PrimaryGeneratorActionBase {
-  public: 
+  public:
     MCTruthEventActionService(fhicl::ParameterSet const&);
-    
+
     void addG4Particle(G4Event *event,
                        int pdgId,
                        const G4ThreeVector& pos,
@@ -51,8 +51,8 @@ namespace larg4 {
                        const G4ThreeVector& mom);
 
     // To generate primaries, we need to overload the GeneratePrimaries
-    // method. 
-    
+    // method.
+
     virtual void generatePrimaries(G4Event * anEvent) override;
 
     // We don't add anything to the event, so we don't need callArtProduces

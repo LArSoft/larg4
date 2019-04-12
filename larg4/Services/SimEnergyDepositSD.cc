@@ -1,13 +1,13 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // artg4tk: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
 // SimEnergyDeposit.cc: Class representing a sensitive tracking detector
 // Author: Hans Wenzel (Fermilab)
@@ -49,10 +49,10 @@ namespace larg4 {
 
   G4bool   SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
        G4double edep = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
-      
+
        if (edep == 0.) return false;
        //std::cout << "7777777777777777:   "<< aStep->GetTotalEnergyDeposit()/CLHEP::MeV << "   " << aStep->GetTotalEnergyDeposit() <<std::endl;
-       const int electronsperMeV= 10000; 
+       const int electronsperMeV= 10000;
        int nrelec=(int)round(edep*electronsperMeV);
        if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() == 0) return false;
        G4int photons = 0;
@@ -74,7 +74,7 @@ namespace larg4 {
 	     photons += proc1->GetNumPhotons();
 	   }
 	 }
-       } 
+       }
        geo::Point_t start = geo::Point_t(
 					 aStep->GetPreStepPoint()->GetPosition().x()/CLHEP::cm,
 					 aStep->GetPreStepPoint()->GetPosition().y()/CLHEP::cm,

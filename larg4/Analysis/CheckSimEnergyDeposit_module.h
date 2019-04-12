@@ -1,18 +1,18 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // artg4tk: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// CheckSimEnergyDeposit_module.h: Analyzer module that demonstrates access to 
-// SimEnergyDepositHit hits 
+// CheckSimEnergyDeposit_module.h: Analyzer module that demonstrates access to
+// SimEnergyDepositHit hits
 // and makes some histograms
-// 
+//
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 #ifndef CHECKSIMENERGYDEPOSIT_MODULE_HH

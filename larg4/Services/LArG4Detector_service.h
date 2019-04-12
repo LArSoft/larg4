@@ -1,30 +1,30 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // artg4tk: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// GDMLDetector_service.hh: 
-// GDMLDetectorService is the service that constructs the Geant 4 Geometry 
+// GDMLDetector_service.hh:
+// GDMLDetectorService is the service that constructs the Geant 4 Geometry
 // as specified in a gdml file.
 // To use this service, all you need to do is put it in the services section
 // of the fcl configuration file, like this:
-// 
+//
 // <pre>
-// services: { 
+// services: {
 //   ...
 //   user: {
-//     ...  
-// GDMLDetector : 
+//     ...
+// GDMLDetector :
 //    {
 //    category: "world"
 //    gdmlFileName_ : "ta_target.gdml"
-//    }  
+//    }
 //   }
 // }
 // </pre>
@@ -58,7 +58,7 @@ namespace larg4 {
 
     class LArG4DetectorService : public artg4tk::DetectorBase {
     private:
-      std::string gdmlFileName_;  // name of the gdml file 
+      std::string gdmlFileName_;  // name of the gdml file
       bool checkoverlaps_;        // enable/disable check of overlaps
       bool dumpMP_;               // enable/disable dump of material properties
       // A message logger for this action

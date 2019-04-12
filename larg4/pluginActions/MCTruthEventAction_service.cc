@@ -15,8 +15,8 @@
 #include <cmath>
 #include <CLHEP/Vector/LorentzVector.h>
 using std::string;
-  
-G4ParticleTable* larg4::MCTruthEventActionService::fParticleTable=nullptr; 
+
+G4ParticleTable* larg4::MCTruthEventActionService::fParticleTable=nullptr;
 
 larg4::MCTruthEventActionService::
 MCTruthEventActionService(fhicl::ParameterSet const & p)
@@ -36,7 +36,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
     // index keeps track of which MCTruth object you are using
     size_t index = 0;
     std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >                  vertexMap;
-    std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi; 
+    std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi;
     art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
     art::Event & evt = actionHolder -> getCurrArtEvent();
     std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
@@ -78,7 +78,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	//	std::cout << "Origin::   Size: "<<*(mct.get()).Origin()<<std::endl;
 	// Create a CLHEP four-vector from the particle's vertex.
 	CLHEP::HepLorentzVector fourpos(x,y,z,t);
-      
+
 	// Is this vertex already in our map?
 	G4PrimaryVertex* vertex = 0;
 	std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator result = vertexMap.find( fourpos );
@@ -95,11 +95,11 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	  // Yes, it is, so use the existing vertex.
 	  vertex = (*result).second;
 	}
-      
+
 	// Get additional particle information.
 	TLorentzVector momentum = particle.Momentum(); // (px,py,pz,E)
 	TVector3 polarization = particle.Polarization();
-      
+
 	// Get the particle table if necessary.  (Note: we're
 	// doing this "late" because I'm not sure at what point
 	// the G4 particle table is initialized in the loading process.
@@ -109,7 +109,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 
 	// Get Geant4's definition of the particle.
 	G4ParticleDefinition* particleDefinition;
-      
+
 	if(pdgCode==0){
 	  particleDefinition = fParticleTable->FindParticle("opticalphoton");
 	}
@@ -140,7 +140,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	  fUnknownPDG[ pdgCode ] += 1;
 	  continue;
 	}
-      
+
 	// Create a Geant4 particle to add to the vertex.
 	G4PrimaryParticle* g4particle = new G4PrimaryParticle( particleDefinition,
 							       momentum.Px() * CLHEP::GeV,
@@ -153,7 +153,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	g4particle->SetPolarization( polarization.x(),
 				     polarization.y(),
 				     polarization.z() );
-      
+
 	// Add the particle to the vertex.
 	vertex->SetPrimary( g4particle );
 
@@ -163,7 +163,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
 	// information during Geant4's tracking.
 	g4b::PrimaryParticleInformation* primaryParticleInfo = new g4b::PrimaryParticleInformation;
 	primaryParticleInfo->SetMCTruth( mct.get(), index );
-	  
+
 	// Save the PrimaryParticleInformation in the
 	// G4PrimaryParticle for access during tracking.
 	g4particle->SetUserInformation( primaryParticleInfo );

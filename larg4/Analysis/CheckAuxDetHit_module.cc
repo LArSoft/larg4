@@ -1,25 +1,25 @@
 //
-//               __        __ __  __  __  
+//               __        __ __  __  __
 //   ____ ______/ /_____ _/ // / / /_/ /__
 //  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<   
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|  
-//               /____/                  
+// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
+// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
+//               /____/
 //
 // artg4tk: art based Geant 4 Toolkit
-// 
+//
 //=============================================================================
-// CheckAuxDetHitHit_module.cc: Analyzer module that demonstrates access to 
-// Calorimeter hits 
+// CheckAuxDetHitHit_module.cc: Analyzer module that demonstrates access to
+// Calorimeter hits
 // and makes some histograms
-// 
+//
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 #include "larg4/Analysis/CheckAuxDetHit_module.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include <cmath>   
+#include <cmath>
 larg4::CheckAuxDetHit::CheckAuxDetHit(fhicl::ParameterSet const& p) :
 art::EDAnalyzer(p),
 _hnHits(0),
