@@ -54,22 +54,16 @@ namespace larg4 {
 
   // Define the producer
   class larg4Main : public art::EDProducer {
-
   public:
 
-    // Constructor
     explicit larg4Main(fhicl::ParameterSet const & p);
 
-    // Destructor
-    virtual ~larg4Main();
-
-    // Overriding producer members
+  private:
     virtual void produce(art::Event & e) override;
     virtual void beginJob() override;
     virtual void beginRun(art::Run &r) override;
     virtual void endRun(art::Run &) override;
 
-  private:
     // Our custom run manager
     unique_ptr<artg4tk::ArtG4RunManager> runManager_;
 
@@ -228,10 +222,6 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     pauseAfterEvent_ = true;
   }
 }
-
-// Destructor
-larg4::larg4Main::~larg4Main()
-{}
 
 // At begin job
 void larg4::larg4Main::beginJob()

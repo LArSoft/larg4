@@ -48,7 +48,6 @@ public:
 
     explicit CheckSimEnergyDeposit(fhicl::ParameterSet const& p);
     virtual void beginJob();
-    virtual void beginRun(const art::Run& Run);
     virtual void endJob();
     virtual void analyze(const art::Event& event);
 
@@ -65,4 +64,3 @@ private:
 };
 
 #endif	/* CHECKSIMENERGYDEPOSIT_MODULE_HH */
-

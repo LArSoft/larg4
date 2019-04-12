@@ -31,10 +31,6 @@ _hSteplength(0),
 _ntuple(0) {
 }
 
-void larg4::CheckSimEnergyDeposit::beginRun(const art::Run& thisRun) {
-
-}
-
 void larg4::CheckSimEnergyDeposit::beginJob() {
     art::ServiceHandle<art::TFileService const> tfs;
     _hnHits = tfs->make<TH1F>("hnHits", "Number of SimEnergyDeposits", 300, 0, 0);

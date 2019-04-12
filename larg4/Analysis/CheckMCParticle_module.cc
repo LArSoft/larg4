@@ -30,9 +30,6 @@ _directory(0),
 _file(0) {
 }
 
-void larg4::CheckMCParticle::beginRun(const art::Run& thisRun) {
-}
-
 void larg4::CheckMCParticle::beginJob() {
 
     art::ServiceHandle<art::TFileService const> tfs;

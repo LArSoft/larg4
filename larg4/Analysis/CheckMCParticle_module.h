@@ -51,7 +51,6 @@ public:
 
  explicit CheckMCParticle(fhicl::ParameterSet const& p);
     virtual void beginJob();
-    virtual void beginRun(const art::Run& Run);
     virtual void endJob();
     virtual void analyze(const art::Event& event);
 
@@ -64,4 +63,3 @@ private:
 };
 
 #endif	/* CHECKGENPARTICLE_MODULE_HH */
-
