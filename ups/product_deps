@@ -31,7 +31,7 @@ gdmldir product_dir     gdml
 product          version
 artg4tk         v09_04_03
 larevt          v08_05_01
-nutools         v3_00_00
+nutools         v3_00_01
 cetbuildtools   v7_12_01       -       only_for_build
 end_product_list
 
