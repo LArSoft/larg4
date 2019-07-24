@@ -30,7 +30,7 @@
 #include "Geant4/G4ParticleTable.hh"
 #include "Geant4/globals.hh"
 // nutools includes
-#include "nutools/G4Base/ConvertMCTruthToG4.h"
+#include "nug4/G4Base/ConvertMCTruthToG4.h"
 
 // Get the base class
 #include "artg4tk/actionBase/PrimaryGeneratorActionBase.hh"
