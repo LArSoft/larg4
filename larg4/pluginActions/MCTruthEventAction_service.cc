@@ -8,6 +8,7 @@
 #include "Geant4/G4PrimaryVertex.hh"
 #include "Geant4/G4ParticleDefinition.hh"
 //
+#include "art/Framework/Principal/Event.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nug4/G4Base/PrimaryParticleInformation.h"
