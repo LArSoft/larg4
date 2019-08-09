@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent larg4 v08_03_11
+parent larg4 v08_03_12
 defaultqual e17
 
 # These optional lines define the installed directories where headers,
@@ -30,19 +30,23 @@ gdmldir product_dir     gdml
 
 product          version
 artg4tk         v09_04_04
-larevt          v08_06_04
-nutools         v3_02_00
-nug4            v1_00_00
+larevt          v08_06_05
+nutools         v3_02_01
+nug4            v1_00_01
 cetbuildtools   v7_12_01       -       only_for_build
 end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes".
-qualifier  artg4tk    larevt     nutools    nug4    notes
-e17:debug  e17:debug  e17:debug  e17:debug  e17:debug
-e17:prof   e17:prof   e17:prof   e17:prof   e17:prof
-c2:debug   c2:debug   c2:debug   c2:debug   c2:debug
-c2:prof    c2:prof    c2:prof    c2:prof    c2:prof
+qualifier      artg4tk        larevt         nutools        nug4
+e17:py3:debug  e17:py3:debug  e17:py3:debug  e17:py3:debug  e17:py3:debug
+e17:py3:prof   e17:py3:prof   e17:py3:prof   e17:py3:prof   e17:py3:prof
+c2:py3:debug   c2:py3:debug   c2:py3:debug   c2:py3:debug   c2:py3:debug
+c2:py3:prof    c2:py3:prof    c2:py3:prof    c2:py3:prof    c2:py3:prof
+e17:debug      e17:debug      e17:debug      e17:debug      e17:debug
+e17:prof       e17:prof       e17:prof       e17:prof       e17:prof
+c2:debug       c2:debug       c2:debug       c2:debug       c2:debug
+c2:prof        c2:prof        c2:prof        c2:prof        c2:prof
 end_qualifier_list
 
 # Preserve tabs and formatting in emacs and vi / vim:
