@@ -63,6 +63,7 @@ namespace larg4 {
       artg4tk::TrackingActionBase("PLASTrackingActionBase"),
       artg4tk::SteppingActionBase("PLASSteppingActionBase"),
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
+      fparticleList(0),
       fstoreTrajectories( p.get<bool>("storeTrajectories",true)),
       fKeepEMShowerDaughters(p.get<bool>("keepEMShowerDaughters",true))
   {
@@ -517,6 +518,7 @@ namespace larg4 {
         } // while(particleList)
     }
   }
+  ResetTrackIDOffset();
     // Every ACTION needs to write out their event data now
   ahs -> fillEventWithArtStuff();
 }
