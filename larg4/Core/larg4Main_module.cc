@@ -35,7 +35,7 @@
 #include "artg4tk/services/PhysicsListHolder_service.hh"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
-#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
 
 #include "lardataalg/MCDumpers/MCDumpers.h"

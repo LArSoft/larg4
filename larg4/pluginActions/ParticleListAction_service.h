@@ -18,7 +18,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include "larg4/pluginActions/thePositionInVolumeFilter.h" // larg4::thePositionInVolumeFilter
-#include "nutools/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
+#include "nug4/ParticleNavigation/ParticleList.h" // larg4::PositionInVolumeFilter
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t

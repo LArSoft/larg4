@@ -10,7 +10,7 @@
 //
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/G4Base/PrimaryParticleInformation.h"
+#include "nug4/G4Base/PrimaryParticleInformation.h"
 #include <iostream>
 #include <cmath>
 #include <CLHEP/Vector/LorentzVector.h>

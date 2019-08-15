@@ -6,9 +6,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "larg4/pluginActions/ParticleListAction_service.h"
-#include "nutools/G4Base/PrimaryParticleInformation.h"
+#include "nug4/G4Base/PrimaryParticleInformation.h"
 #include "lardataobj/Simulation/sim.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

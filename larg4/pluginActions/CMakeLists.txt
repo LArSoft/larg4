@@ -16,7 +16,7 @@ NOP
   ${G4PARTICLES}
   MF_MessageLogger
   nusimdata_SimulationBase
-  nutools_G4Base
+  nug4_G4Base
   ${ROOT_CORE}
   ${ROOT_PHYSICS}
 SOURCE
@@ -41,8 +41,8 @@ NOP
   ${G4PARTICLES}
   MF_MessageLogger
   nusimdata_SimulationBase
-  nutools_G4Base
-  nutools_ParticleNavigation
+  nug4_G4Base
+  nug4_ParticleNavigation
   ${ROOT_CORE}
   ${ROOT_PHYSICS}
 SOURCE
