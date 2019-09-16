@@ -26,8 +26,7 @@
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/TrackingActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
-#
-#
+
 #include "Geant4/globals.hh"
 #include <map>
 
@@ -58,8 +57,8 @@ namespace larg4 {
       /// Resets the information (does not release memory it does not own)
       void clear()
       { particle = nullptr;
-	keep = false;
-	truthIndex = simb::NoGeneratedParticleIndex;
+        keep = false;
+        truthIndex = simb::NoGeneratedParticleIndex;
       }
 
       /// Returns whether there is a particle
@@ -133,7 +132,7 @@ namespace larg4 {
 
     // this method will loop over the fParentIDMap to get the
     // parentage of the provided trackid
-    int               	     GetParentage(int trackid) const;
+    int                      GetParentage(int trackid) const;
 
     G4double                 fenergyCut;             ///< The minimum energy for a particle to
                                                      ///< be included in the list.
