@@ -13,6 +13,8 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // Framework includes
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ProducingService.h"
 // framework includes:
 #include "art/Framework/Services/Registry/ServiceMacros.h"
