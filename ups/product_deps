@@ -29,10 +29,10 @@ gdmldir product_dir     gdml
 # Add the dependent product and version
 
 product          version
-artg4tk         v09_04_04
+artg4tk         v09_05_01
 larevt          v08_06_09
-nutools         v3_03_01
-nug4            v1_00_03
+nutools         v3_04_02
+nug4            v1_01_01
 cetbuildtools   v7_12_01       -       only_for_build
 end_product_list
 
