@@ -34,7 +34,6 @@ find_ups_product(lardataalg)
 find_ups_product(lardataobj)
 find_ups_product(messagefacility)
 find_ups_product(nusimdata)
-find_ups_product(nutools)
 find_ups_product(nug4)
 
 include(ArtDictionary)

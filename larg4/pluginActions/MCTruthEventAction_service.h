@@ -29,7 +29,7 @@
 #include "Geant4/G4VUserPrimaryGeneratorAction.hh"
 #include "Geant4/G4ParticleTable.hh"
 #include "Geant4/globals.hh"
-// nutools includes
+// nug4 includes
 #include "nug4/G4Base/ConvertMCTruthToG4.h"
 
 // Get the base class
