@@ -129,6 +129,8 @@ namespace larg4 {
     std::unique_ptr <std::vector<simb::MCParticle>>  &GetParticleCollection(){return partCol_;}
     std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
   private:
+    // A message logger for this action object
+    mf::LogInfo logInfo_;
 
     // this method will loop over the fParentIDMap to get the
     // parentage of the provided trackid

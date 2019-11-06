@@ -10,8 +10,6 @@
 #include "lardataobj/Simulation/sim.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
 // Framework includes
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
@@ -64,6 +62,8 @@ namespace larg4 {
     : artg4tk::EventActionBase("PLASEventActionBase"),
       artg4tk::TrackingActionBase("PLASTrackingActionBase"),
       artg4tk::SteppingActionBase("PLASSteppingActionBase"),
+      // Initialize our message logger
+      logInfo_("ParticleListActionService"),
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
       fparticleList(0),
       fstoreTrajectories( p.get<bool>("storeTrajectories",true)),
@@ -109,7 +109,7 @@ namespace larg4 {
     // of the first EM particle that led to this one
     std::map<int,int>::const_iterator itr = fParentIDMap.find(trackid);
     while( itr != fParentIDMap.end() ){
-      MF_LOG_DEBUG("ParticleListActionService")
+      mf::LogDebug("ParticleListActionService::GetParentage")
       << "parentage for " << trackid
       << " " << (*itr).second;
 
@@ -118,7 +118,7 @@ namespace larg4 {
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
-    MF_LOG_DEBUG("ParticleListActionService") << "final parent ID " << parentid;
+    mf::LogDebug("ParticleListActionService::GetParentage") << "final parent ID " << parentid;
 
     return parentid;
   }
@@ -350,12 +350,14 @@ namespace larg4 {
     G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     G4bool ignoreProcess = process.contains("LArVoxel") || process.contains("OpDetReadout");
 
-    MF_LOG_DEBUG("ParticleListActionService::SteppingAction")
+    /*
+    mf::LogDebug("ParticleListActionService::SteppingAction")
     << ": DEBUG - process='"
     << process << "'"
     << " ignoreProcess=" << ignoreProcess
     << " fstoreTrajectories="
     << fstoreTrajectories;
+    */
 
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
@@ -506,6 +508,8 @@ namespace larg4 {
   art::Event * evt= getCurrArtEvent();
   std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
   evt->getManyByType(mclists);
+
+  MF_LOG_INFO("endOfEventAction") << "MCTruth Handles Size: " << mclists.size();
   for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
     art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
     for(size_t m = 0; m < mclistHandle->size(); ++m){
