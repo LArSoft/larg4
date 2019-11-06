@@ -29,8 +29,6 @@
 #include "Geant4/G4VUserPrimaryGeneratorAction.hh"
 #include "Geant4/G4ParticleTable.hh"
 #include "Geant4/globals.hh"
-// nutools includes
-#include "nug4/G4Base/ConvertMCTruthToG4.h"
 
 // Get the base class
 #include "artg4tk/actionBase/PrimaryGeneratorActionBase.hh"
@@ -63,7 +61,6 @@ namespace larg4 {
     mf::LogInfo logInfo_;
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
     std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
-    // unused g4b::ConvertMCTruthToG4*   	      fConvertMCTruth;     ///< Converts MCTruth objects;
 
   };
 }//namespace larg4

@@ -30,27 +30,49 @@ MCTruthEventActionService(fhicl::ParameterSet const & p)
 // Create a primary particle for an event!
 // (Standard Art G4 simulation)
 void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
-    // For each MCTruth (probably only one, but you never know):
-    // index keeps track of which MCTruth object you are using
-    size_t index = 0;
-    std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >                  vertexMap;
-    std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi;
-    art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
-    art::Event & evt = actionHolder -> getCurrArtEvent();
-    std::vector< art::Handle< std::vector<simb::MCTruth> > > mcHandles;
-    evt.getManyByType(mcHandles);
+  // For each MCTruth (probably only one, but you never know):
+  // index keeps track of which MCTruth object you are using
+  size_t index = 0;
+  std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >                  vertexMap;
+  std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi;
+  art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
+  art::Event & evt = actionHolder -> getCurrArtEvent();
+  std::vector< art::Handle< std::vector<simb::MCTruth> > > mclistHandles;
+  evt.getManyByType(mclistHandles);
 
-    mf::LogDebug("generatePrimaries") << "MCTruth Handles Size: " << mcHandles.size();
-    // Loop over MCTruth Objects
-    for(size_t mcl = 0; mcl < mcHandles.size(); ++mcl){
-      art::Handle< std::vector<simb::MCTruth> > mcHandle = mcHandles[mcl];
-      art::Ptr<simb::MCTruth> mct(mcHandle,mcl);
-      MF_LOG_INFO("generatePrimaries") << "Generating " << mct->NParticles() << " particles" ;
-      // Loop over all particles in MCTruth Object
-      for(int m = 0; m != (mct->NParticles()); ++m){
-        simb::MCParticle particle = mct->GetParticle(m);
+  size_t mclSize = mclistHandles.size(); // -- should match the number of generators
+  mf::LogDebug("generatePrimaries") << "MCTruth Handles Size: " << mclSize;
+  //MF_LOG_INFO("generatePrimaries") << "MCTruth Handles Size: " << mclSize;
+  // -- Loop over MCTruth Handle List
+  for(size_t mcl = 0; mcl < mclSize; ++mcl)
+  {
+    mf::LogDebug("generatePrimaries") << "MCTruth Handle Number: " << (mcl+1) << " of " << mclSize;
+    art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclistHandles[mcl];
+    // -- Loop over all MCTruth handle entries for a given generator, usually only one, but you never know
+    for(size_t i = 0; i < mclistHandle->size(); ++i)
+    {
+      art::Ptr<simb::MCTruth> mclist(mclistHandle, i);
 
-        //mf::LogDebug("generatePrimaries") << "status code:  " << particle.StatusCode();
+      mf::LogDebug("generatePrimaries") << "art::Ptr number " << (i+1) << " of "
+                                        << mclistHandle->size() << ", Ptr: " << mclist;
+      int nPart = mclist->NParticles();
+      MF_LOG_INFO("generatePrimaries") << "Generating " << nPart << " particles" ;
+
+      // -- Loop over all particles in MCTruth Object
+      for(int m = 0; m != nPart; ++m)
+      {
+        simb::MCParticle const& particle = mclist->GetParticle(m);
+
+        if( ((m+1)%nPart) < 2 ) // -- only first and last will satisfy this
+        {
+          mf::LogDebug("generatePrimaries") << "Particle Number:  " << (m+1) << " of " << nPart;
+        }
+        /*if(index>0){
+          mf::LogDebug("generatePrimaries") << "index = " << index;
+          mf::LogDebug("generatePrimaries") << "particle = " << particle;
+          mf::LogDebug("generatePrimaries") << "status code:  " << particle.StatusCode();
+        }*/
+
         if ( particle.StatusCode() != 1 ) continue;
         // Get the Particle Data Group code for the particle.
         G4int pdgCode = particle.PdgCode();
@@ -62,14 +84,17 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
         //        <<"  y: "<<y
         //        <<"  z: "<<z
         //        <<"  t: "<<t
-        //mf::LogDebug("generatePrimaries") << "Primary:: m  Size: "<<*(mct.get());
-        //simb::MCTruth GHFJ =(simb::MCTruth) *(mct.get());
+        //mf::LogDebug("generatePrimaries") << "Primary:: m  Size: "<<*(mclist.get());
+        //simb::MCTruth GHFJ =(simb::MCTruth) *(mclist.get());
         //simb::MCParticle pp = GHFJ.GetParticle(1);
         //mf::LogDebug("generatePrimaries") << "pdgid  "<<pp.PdgCode();
+        /*if (index > 0){
+          mf::LogDebug("generatePrimaries") << "pdg:  " << pdgCode;
+        }*/
 
         //mf::LogDebug("generatePrimaries") << "Origin::  " << GHFJ.Origin();
         //mf::LogDebug("generatePrimaries") << "number::  " << GHFJ.NParticles();
-        //mf::LogDebug("generatePrimaries") << "Origin::   Size: "<<*(mct.get()).Origin();
+        //mf::LogDebug("generatePrimaries") << "Origin::   Size: "<<*(mclist.get()).Origin();
         // Create a CLHEP four-vector from the particle's vertex.
         CLHEP::HepLorentzVector fourpos(x,y,z,t);
 
@@ -155,8 +180,9 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
         // the MCTruth pointer in it.  This will allow the
         // ParticleActionList class to access MCTruth
         // information during Geant4's tracking.
+
         g4b::PrimaryParticleInformation* primaryParticleInfo = new g4b::PrimaryParticleInformation;
-        primaryParticleInfo->SetMCTruth( mct.get(), index, m );
+        primaryParticleInfo->SetMCTruth( mclist.get(), index, m );
 
         // Save the PrimaryParticleInformation in the
         // G4PrimaryParticle for access during tracking.
@@ -170,19 +196,20 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
         //                                    << " P=" << momentum.P()
         //                                    << ", E=" << momentum.E();
 
-      } // for each particle in MCTruth
-      ++index;
-    }
-
-}
+      } // -- for each particle in MCTruth
+    } // -- for each MCTruth entry
+    ++index;
+  }// -- for each MCTruth handle
+}// -- generatePrimaries()
 
 void larg4::MCTruthEventActionService::addG4Particle(G4Event *event,
         int pdgId,
         const G4ThreeVector& pos,
         double time,
         double energy,
-        //           double properTime,
-        const G4ThreeVector& mom) {
+        //double properTime,
+        const G4ThreeVector& mom)
+  {
     // Create a new vertex
     //     properTime=0.0;
     G4PrimaryVertex* vertex = new G4PrimaryVertex(pos, time);
