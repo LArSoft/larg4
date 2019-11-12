@@ -188,13 +188,11 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   art::ServiceHandle<DetectorHolderService> detectorHolder;
 
     detectorHolder->initialize();
-    //hjw:
-    //detectorHolder -> callArtProduces(this);
     // Build the detectors' logical volumes
     detectorHolder -> constructAllLVs();
     // And running @callArtProduces@ on each
-    actionHolder -> callArtProduces(this);
-    detectorHolder -> callArtProduces(this);
+    actionHolder -> callArtProduces(producesCollector());
+    detectorHolder -> callArtProduces(producesCollector());
 
     //    ((artg4tk::SteppingActionBase*)&*pla)-> callArtProduces(this);
     // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);

@@ -38,10 +38,7 @@
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
-
-//#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Framework/Core/EDProducer.h"
-
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <vector>
@@ -52,6 +49,7 @@
 // Get the base class
 #include "artg4tk/Core/DetectorBase.hh"
 
+namespace art { class ProducesCollector; }
 
 namespace larg4 {
 
@@ -75,12 +73,13 @@ namespace larg4 {
         // We need to add something to the art event, so we need these two methods:
 
         // Tell Art what we'll produce
-        virtual void doCallArtProduces(art::EDProducer * producer) override;
+        virtual void doCallArtProduces(art::ProducesCollector& collector) override;
 
         // Actually produce
         virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
     };
 }
-using larg4::LArG4DetectorService;
-DECLARE_ART_SERVICE(LArG4DetectorService,LEGACY)
+
+DECLARE_ART_SERVICE(larg4::LArG4DetectorService, LEGACY)
+
 #endif
