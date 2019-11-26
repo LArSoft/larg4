@@ -147,12 +147,39 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                << G4endl;
         for (G4GDMLAuxListType::const_iterator vit = (*iter).second.begin();
             vit != (*iter).second.end(); vit++) {
-            std::cout << "--> Type: " << (*vit).type
-                      << " Value: " << (*vit).value << std::endl;
+            G4cout << "--> Type: " << (*vit).type
+                   << " Value: " << (*vit).value << std::endl;
+
+            G4double value = atof((*vit).value);
+            G4double val_unit = 1; //--no unit
+            G4String provided_category = "NONE";
+            if( ((*vit).unit) && ((*vit).unit != "") ) { // -- if provided and non-NULL
+              mf::LogInfo("AuxUnit") << " Unit parsed = " << (*vit).unit; 
+              val_unit = G4UnitDefinition::GetValueOf( (*vit).unit );
+              value *= val_unit; //-- Now do something with the value, making sure that the unit is appropriate
+              provided_category = G4UnitDefinition::GetCategory((*vit).unit);
+            }
+
             if ((*vit).type == "StepLimit") {
-                G4UserLimits *fStepLimit = new G4UserLimits(atof((*vit).value));
-                fStepLimit->SetType((*vit).type);
-                std::cout << "fStepLimit:  " << atof((*vit).value) << "  " << atof((*vit).value) / CLHEP::cm << " cm" << std::endl;
+                G4UserLimits *fStepLimit = NULL;
+
+                //-- check that steplimit has valid length unit category
+                G4String steplimit_category = "Length";
+                if(provided_category == steplimit_category) {
+                  G4cout << "Valid steplimit category obtained: " << provided_category << std::endl;
+                  fStepLimit = new G4UserLimits(value);
+                  G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
+                } else if (provided_category == "NONE"){ //--no unit category provided, use the default CLHEP::mm
+                  MF_LOG_WARNING("StepLimitUnit") << "StepLimit in geometry file does not have a unit!"
+                                                  << " Defaulting to mm...";
+                  value *= CLHEP::mm;
+                  fStepLimit = new G4UserLimits(value);
+                  G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
+                } else { //--wrong unit category provided
+                  throw cet::exception("StepLimitUnit") << "StepLimit does not have a valid length unit!\n"
+                                                        << " Category of unit provided = " << provided_category << ".\n";
+                }
+
                 ((*iter).first)->SetUserLimits(fStepLimit);
                 // -- D.R. insert into map <volName,stepLimit> to cross-check later
                 MF_LOG_DEBUG("LArG4DetectorService::") << "Set stepLimit for volume: " << ((*iter).first)->GetName()
