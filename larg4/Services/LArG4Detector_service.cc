@@ -78,11 +78,11 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
                         p.get<string>("name", "LArG4DetectorService"),
                         p.get<string>("category", "World"),
                         p.get<string>("mother_category", "")),
-  gdmlFileName_( p.get<std::string>("gdmlFileName_","") ),
-  checkoverlaps_( p.get<bool>("CheckOverlaps",false) ),
+  gdmlFileName_( p.get<std::string>("gdmlFileName_","")),
+  checkoverlaps_( p.get<bool>("CheckOverlaps",false)),
   volumeNames_( p.get<std::vector<std::string>>("volumeNames",{}) ),
   stepLimits_( p.get<std::vector<float>>("stepLimits",{}) ),
-  dumpMP_( p.get<bool>("DumpMaterialProperties",false) ),
+  dumpMP_( p.get<bool>("DumpMaterialProperties",false)),
   logInfo_( "LArG4DetectorService" )
 {
   // -- D.R. : Check for valid volume, steplimit pairs
@@ -92,6 +92,9 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
   }
 
   inputVolumes_ = volumeNames_.size();
+
+  //-- define commonly used units, that we might need
+  new G4UnitDefinition("volt/cm","V/cm","Electric field",CLHEP::volt/CLHEP::cm);
 
   if (inputVolumes_ > 0) { mf::LogInfo("LArG4DetectorService::Ctr") << "Reading stepLimit(s) from the configuration file, for volume(s):"; }
   for(size_t i=0; i<inputVolumes_; ++i){
@@ -154,10 +157,10 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
             G4double val_unit = 1; //--no unit
             G4String provided_category = "NONE";
             if( ((*vit).unit) && ((*vit).unit != "") ) { // -- if provided and non-NULL
-              mf::LogInfo("AuxUnit") << " Unit parsed = " << (*vit).unit; 
               val_unit = G4UnitDefinition::GetValueOf( (*vit).unit );
-              value *= val_unit; //-- Now do something with the value, making sure that the unit is appropriate
               provided_category = G4UnitDefinition::GetCategory((*vit).unit);
+              mf::LogInfo("AuxUnit") << " Unit parsed = " << (*vit).unit << " from unit category: " << provided_category.c_str();
+              value *= val_unit; //-- Now do something with the value, making sure that the unit is appropriate
             }
 
             if ((*vit).type == "StepLimit") {
@@ -166,7 +169,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                 //-- check that steplimit has valid length unit category
                 G4String steplimit_category = "Length";
                 if(provided_category == steplimit_category) {
-                  G4cout << "Valid steplimit category obtained: " << provided_category << std::endl;
+                  mf::LogInfo("AuxUnit") << "Valid StepLimit unit category obtained: " << provided_category.c_str();
                   fStepLimit = new G4UserLimits(value);
                   G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
                 } else if (provided_category == "NONE"){ //--no unit category provided, use the default CLHEP::mm
