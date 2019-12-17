@@ -77,6 +77,7 @@ namespace larg4 {
     // of the Geant4 simulation.
     fparticleList = new sim::ParticleList;
     fParentIDMap.clear();
+    fMCTIndexMap.clear();
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
@@ -96,6 +97,7 @@ namespace larg4 {
     fCurrentParticle.clear();
     fparticleList->clear();
     fParentIDMap.clear();
+    fMCTIndexMap.clear();
     fCurrentTrackID = sim::NoParticleId;
    }
 
@@ -151,11 +153,14 @@ namespace larg4 {
     const G4DynamicParticle* dynamicParticle = track->GetDynamicParticle();
     const G4PrimaryParticle* primaryParticle = dynamicParticle->GetPrimaryParticle();
     simb::GeneratedParticleIndex_t primaryIndex = simb::NoGeneratedParticleIndex;
+    size_t primarymctIndex = 0;
     if ( primaryParticle != 0 ){
       const G4VUserPrimaryParticleInformation* gppi = primaryParticle->GetUserInformation();
       const g4b::PrimaryParticleInformation* ppi = dynamic_cast<const g4b::PrimaryParticleInformation*>(gppi);
       if ( ppi != 0 ){
         primaryIndex = ppi->MCParticleIndex();
+        primarymctIndex = ppi->MCTruthIndex();
+        MF_LOG_INFO("PrimaryMCTIndex") << "Primary MCTIndex = " << primarymctIndex;
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
@@ -196,8 +201,8 @@ namespace larg4 {
 
         // check that fCurrentTrackID is in the particle list - it is possible
         // that this particle's parent is a particle that did not get tracked.
-        // An example is a partent that was made due to muMinusCaptureAtRest
-        // and the daughter was made by the phot process.  The parent likely
+        // An example is a parent that was made due to muMinusCaptureAtRest
+        // and the daughter was made by the phot process. The parent likely
         // isn't saved in the particle list because it is below the energy cut
         // which will put a bogus track id value into the sim::IDE object for
         // the sim::SimChannel if we don't check it.
@@ -250,6 +255,13 @@ namespace larg4 {
           parentID = pid;
       }
 
+      // Once the parentID is secured, inherit the MCTruth Index
+      // which should have been set already
+      primarymctIndex = fMCTIndexMap[parentID];
+      //int eveid = GetParentage(trackID);
+      // MF_LOG_INFO("SecondaryMCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
+      //                                  << ", " << parentID << ", " << primarymctIndex;
+
     }// end if not a primary particle
 
       // This is probably the PDG mass, but just in case:
@@ -260,8 +272,13 @@ namespace larg4 {
     fCurrentParticle.particle    = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
     fCurrentParticle.truthIndex = primaryIndex;
 
-      // if we are not filtering, we have a decision already
+    fMCTIndexMap[trackID] = primarymctIndex; 
+    MF_LOG_INFO("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
+                                       << ", " << parentID << ", " << primarymctIndex;
+
+    // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
+
 
       // Polarization.
     const G4ThreeVector& polarization = track->GetPolarization();
@@ -463,7 +480,11 @@ namespace larg4 {
       if( (*pn).first > highestID ) highestID = (*pn).first;
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
-    if( (fparticleList->size())!=0){ fTrackIDOffset = highestID + 1; }
+    if( (fparticleList->size())!=0){
+      fTrackIDOffset = highestID + 1; 
+      mf::LogDebug("GetList:fTrackIDOffset") << "highestID = " << highestID
+                                     << "\nfTrackIDOffset= " << fTrackIDOffset;
+    }
 
     return fparticleList;
   }
@@ -490,7 +511,11 @@ namespace larg4 {
       if( (*pn).first > highestID ) highestID = (*pn).first;
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
-    if( (fparticleList->size())!=0 ){ fTrackIDOffset = highestID + 1; }
+    if( (fparticleList->size())!=0 ){
+      fTrackIDOffset = highestID + 1; 
+      mf::LogDebug("YieldList:fTrackIDOffset") << "highestID = " << highestID
+                                     << "\nfTrackIDOffset= " << fTrackIDOffset;
+    }
 
     return std::move(*fparticleList);
   } // ParticleList&& ParticleListActionService::YieldList()
@@ -540,31 +565,44 @@ namespace larg4 {
   sim::ParticleList particleList = YieldList();
   for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
     art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
+    MF_LOG_INFO("endOfEventAction") << "mclistHandle Size: " << mclistHandle->size();
     for(size_t m = 0; m < mclistHandle->size(); ++m){
       art::Ptr<simb::MCTruth> mct(mclistHandle, m);
 
-      for (auto iPartPair = particleList.begin(); iPartPair != particleList.end(); ++iPartPair) {
-          simb::MCParticle& p = *(iPartPair->second);
-          ++nGeneratedParticles;
+      MF_LOG_INFO("endOfEventAction") << "Found " << mct->NParticles() << " particles" ;
 
-          sim::GeneratedParticleInfo const truthInfo {
-            GetPrimaryTruthIndex(p.TrackId())
-          };
-          if (!truthInfo.hasGeneratedParticleIndex() && (p.Mother() == 0)) {
-            //mf::LogDebug("Offset") << "No GeneratedParticleIndex()!";
-            // this means it's primary but with no information; logic error!!
-            art::Exception error(art::errors::LogicError);
-            error << "Failed to match primary particle:\n";
-            //sim::dump::DumpMCParticle(error, p, "  ");
-            error << "\nwith particles from the truth record '"
-              << mclistHandle.provenance()->inputTag() << "':\n";
-            //sim::dump::DumpMCTruth(error, *mct, 2U, "  "); // 2 points per line
-            error << "\n";
-            throw error;
+      unsigned int HowMany=0;
+      //for (auto iPartPair = particleList.begin(); iPartPair != particleList.end(); ++iPartPair) {
+      for(auto const& iPartPair: particleList) {
+          simb::MCParticle& p = *(iPartPair.second);
+          auto gen_index = fMCTIndexMap[ p.TrackId() ];
+          //mf::LogDebug("endOfEventAction") << "PrimaryTruthIndex: " << gen_index;
+          if (gen_index == mcl) {
+            ++nGeneratedParticles;
+            ++HowMany;
+
+            MF_LOG_INFO("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
+                                            << "TrackID = " << p.TrackId()
+                                            << "\nPrimaryTruthIndex: " << gen_index;
+            sim::GeneratedParticleInfo const truthInfo {
+              GetPrimaryTruthIndex(p.TrackId())
+            };
+            if (!truthInfo.hasGeneratedParticleIndex() && (p.Mother() == 0)) {
+              //mf::LogDebug("Offset") << "No GeneratedParticleIndex()!";
+              // this means it's primary but with no information; logic error!!
+              art::Exception error(art::errors::LogicError);
+              error << "Failed to match primary particle:\n";
+              //sim::dump::DumpMCParticle(error, p, "  ");
+              error << "\nwith particles from the truth record '"
+                << mclistHandle.provenance()->inputTag() << "':\n";
+              //sim::dump::DumpMCTruth(error, *mct, 2U, "  "); // 2 points per line
+              error << "\n";
+              throw error;
+            }
+            partCol_->push_back(std::move(p));
+            art::Ptr<simb::MCParticle> mcp_ptr = art::Ptr<simb::MCParticle>(pid_,partCol_->size()-1,evt->productGetter(pid_));
+            tpassn_->addSingle(mct, mcp_ptr, truthInfo);
           }
-          partCol_->push_back(std::move(p));
-          art::Ptr<simb::MCParticle> mcp_ptr = art::Ptr<simb::MCParticle>(pid_,partCol_->size()-1,evt->productGetter(pid_));
-          tpassn_->addSingle(mct, mcp_ptr, truthInfo);
         } // while(particleList)
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
     }

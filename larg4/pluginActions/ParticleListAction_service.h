@@ -158,6 +158,9 @@ namespace larg4 {
     /// Map: particle track ID -> index of primary information in MC truth.
     std::map<int, simb::GeneratedParticleIndex_t> fPrimaryTruthMap;
 
+    /// Map: particle track ID -> index of primary parent in std::vector<simb::MCTruth> object
+    std::map<int, size_t> fMCTIndexMap;
+
     // Hold on to the current Art event
     art::Event * currentArtEvent_;
 
