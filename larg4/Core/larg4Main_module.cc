@@ -18,7 +18,6 @@
 #include "artg4tk/geantInit/ArtG4RunManager.hh"
 #include "artg4tk/geantInit/ArtG4DetectorConstruction.hh"
 
-
 // The actions
 #include "artg4tk/geantInit/ArtG4EventAction.hh"
 #include "artg4tk/geantInit/ArtG4PrimaryGeneratorAction.hh"
@@ -27,6 +26,7 @@
 #include "artg4tk/geantInit/ArtG4StackingAction.hh"
 #include "artg4tk/geantInit/ArtG4TrackingAction.hh"
 #include "larg4/pluginActions/ParticleListAction_service.h" // combined actions.
+
 // Services
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
@@ -163,11 +163,12 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   logInfo_("larg4Main")
 //  fSparsifyTrajectories(false),
 //  fparticleListAction(0)
-  //  pla_("ParticleListAction")
+//  pla_("ParticleListAction")
 
 {
   produces< std::vector<simb::MCParticle> >();
-  produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
+  //<--produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
+  produces< art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo> >();
 	// If we're in "visualize specific events" mode (essentially only pause
 	// after given events), then extract the list of events we need to
 	// pause for. They are placed in a map because it is more efficient to
@@ -347,7 +348,7 @@ void larg4::larg4Main::produce(art::Event & e)
   e.put(std::move(partCol));
   e.put(std::move(tpassn));
 
-  /*
+/*
   unsigned int nGeneratedParticles = 0;
   art::ServiceHandle<larg4::ParticleListActionService const> h;
   sim::ParticleList particleList =h->YieldList();

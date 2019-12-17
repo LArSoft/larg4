@@ -63,9 +63,17 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
       {
         simb::MCParticle const& particle = mclist->GetParticle(m);
 
+        if ( particle.StatusCode() != 1 ){ 
+          MF_LOG_WARNING("generatePrimaries") << "Status code != 1, skipping particle number with MCTruth index = " << index
+                                              << " and particle index = " << i;
+          continue;
+        }
+
         if( ((m+1)%nPart) < 2 ) // -- only first and last will satisfy this
         {
           mf::LogDebug("generatePrimaries") << "Particle Number:  " << (m+1) << " of " << nPart;
+          mf::LogDebug("generatePrimaries") << "TrackID: " << particle.TrackId();
+          mf::LogDebug("generatePrimaries") << "index: " << index;
         }
         /*if(index>0){
           mf::LogDebug("generatePrimaries") << "index = " << index;
@@ -73,7 +81,6 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
           mf::LogDebug("generatePrimaries") << "status code:  " << particle.StatusCode();
         }*/
 
-        if ( particle.StatusCode() != 1 ) continue;
         // Get the Particle Data Group code for the particle.
         G4int pdgCode = particle.PdgCode();
         G4double x = particle.Vx() * CLHEP::cm;

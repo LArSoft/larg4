@@ -27,6 +27,8 @@
 #include "artg4tk/actionBase/TrackingActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
 
+#include "lardataobj/Simulation/GeneratedParticleInfo.h"
+
 #include "Geant4/globals.hh"
 #include <map>
 
@@ -127,7 +129,8 @@ namespace larg4 {
     art::Event  *getCurrArtEvent();
     void  setProductID(art::ProductID pid){pid_=pid;}
     std::unique_ptr <std::vector<simb::MCParticle>>  &GetParticleCollection(){return partCol_;}
-    std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
+    //std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
+    std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
   private:
     // A message logger for this action object
     mf::LogInfo logInfo_;
@@ -159,7 +162,8 @@ namespace larg4 {
     art::Event * currentArtEvent_;
 
     std::unique_ptr<std::vector<simb::MCParticle> > partCol_;
-    std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle >> tpassn_;
+    //std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle >> tpassn_;
+    std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >> tpassn_;
     art::ProductID pid_;
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
