@@ -160,7 +160,7 @@ namespace larg4 {
       if ( ppi != 0 ){
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
-        MF_LOG_INFO("PrimaryMCTIndex") << "Primary MCTIndex = " << primarymctIndex;
+        mf::LogDebug("PrimaryMCTIndex") << "Primary MCTIndex = " << primarymctIndex;
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
@@ -258,7 +258,6 @@ namespace larg4 {
       // Once the parentID is secured, inherit the MCTruth Index
       // which should have been set already
       primarymctIndex = fMCTIndexMap[parentID];
-      //int eveid = GetParentage(trackID);
       // MF_LOG_INFO("SecondaryMCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
       //                                  << ", " << parentID << ", " << primarymctIndex;
 
@@ -269,18 +268,17 @@ namespace larg4 {
 
       // Create the sim::Particle object.
     fCurrentParticle.clear();
-    fCurrentParticle.particle    = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
+    fCurrentParticle.particle   = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
     fCurrentParticle.truthIndex = primaryIndex;
 
     fMCTIndexMap[trackID] = primarymctIndex; 
-    MF_LOG_INFO("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
+    mf::LogDebug("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
                                        << ", " << parentID << ", " << primarymctIndex;
 
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
 
-
-      // Polarization.
+    // Polarization.
     const G4ThreeVector& polarization = track->GetPolarization();
     fCurrentParticle.particle->SetPolarization( TVector3( polarization.x(),
                                                          polarization.y(),
@@ -581,14 +579,14 @@ namespace larg4 {
             ++nGeneratedParticles;
             ++HowMany;
 
-            MF_LOG_INFO("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
+            mf::LogDebug("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
                                             << "TrackID = " << p.TrackId()
                                             << "\nPrimaryTruthIndex: " << gen_index;
             sim::GeneratedParticleInfo const truthInfo {
               GetPrimaryTruthIndex(p.TrackId())
             };
             if (!truthInfo.hasGeneratedParticleIndex() && (p.Mother() == 0)) {
-              //mf::LogDebug("Offset") << "No GeneratedParticleIndex()!";
+              MF_LOG_WARNING("endOfEvenAction") << "No GeneratedParticleIndex()!";
               // this means it's primary but with no information; logic error!!
               art::Exception error(art::errors::LogicError);
               error << "Failed to match primary particle:\n";
