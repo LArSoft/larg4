@@ -57,42 +57,42 @@ namespace larg4 {
        if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() == 0) return false;
        G4int photons = 0;
        G4SteppingManager* fpSteppingManager = G4EventManager::GetEventManager()
-	 ->GetTrackingManager()->GetSteppingManager();
+         ->GetTrackingManager()->GetSteppingManager();
        G4StepStatus stepStatus = fpSteppingManager->GetfStepStatus();
        if (stepStatus != fAtRestDoItProc) {
-	 G4ProcessVector* procPost = fpSteppingManager->GetfPostStepDoItVector();
-	 size_t MAXofPostStepLoops = fpSteppingManager->GetMAXofPostStepLoops();
-	 for (size_t i3 = 0; i3 < MAXofPostStepLoops; i3++) {
-	   /*
-	     if ((*procPost)[i3]->GetProcessName() == "Cerenkov") {
-	     G4Cerenkov* proc =(G4Cerenkov*) (*procPost)[i3];
-	     photons+=proc->GetNumPhotons();
-	     }
-	   */
-	   if ((*procPost)[i3]->GetProcessName() == "Scintillation") {
-	     G4Scintillation* proc1 = (G4Scintillation*) (*procPost)[i3];
-	     photons += proc1->GetNumPhotons();
-	   }
-	 }
+         G4ProcessVector* procPost = fpSteppingManager->GetfPostStepDoItVector();
+         size_t MAXofPostStepLoops = fpSteppingManager->GetMAXofPostStepLoops();
+         for (size_t i3 = 0; i3 < MAXofPostStepLoops; i3++) {
+           /*
+             if ((*procPost)[i3]->GetProcessName() == "Cerenkov") {
+             G4Cerenkov* proc =(G4Cerenkov*) (*procPost)[i3];
+             photons+=proc->GetNumPhotons();
+             }
+           */
+           if ((*procPost)[i3]->GetProcessName() == "Scintillation") {
+             G4Scintillation* proc1 = (G4Scintillation*) (*procPost)[i3];
+             photons += proc1->GetNumPhotons();
+           }
+         }
        }
        geo::Point_t start = geo::Point_t(
-					 aStep->GetPreStepPoint()->GetPosition().x()/CLHEP::cm,
-					 aStep->GetPreStepPoint()->GetPosition().y()/CLHEP::cm,
-					 aStep->GetPreStepPoint()->GetPosition().z()/CLHEP::cm);
+                                         aStep->GetPreStepPoint()->GetPosition().x()/CLHEP::cm,
+                                         aStep->GetPreStepPoint()->GetPosition().y()/CLHEP::cm,
+                                         aStep->GetPreStepPoint()->GetPosition().z()/CLHEP::cm);
        geo::Point_t end = geo::Point_t(
-				       aStep->GetPostStepPoint()->GetPosition().x()/CLHEP::cm,
-				       aStep->GetPostStepPoint()->GetPosition().y()/CLHEP::cm,
-				       aStep->GetPostStepPoint()->GetPosition().z()/CLHEP::cm);
+                                       aStep->GetPostStepPoint()->GetPosition().x()/CLHEP::cm,
+                                       aStep->GetPostStepPoint()->GetPosition().y()/CLHEP::cm,
+                                       aStep->GetPostStepPoint()->GetPosition().z()/CLHEP::cm);
        sim::SimEnergyDeposit  newHit =  sim::SimEnergyDeposit(photons,
-							      nrelec,
-							      1.0,
-							      edep,
-							      start,
-							      end,
-							      aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::ns,
-							      aStep->GetPostStepPoint()->GetGlobalTime() /CLHEP::ns,
-							      aStep->GetTrack()->GetTrackID(),
-							      aStep->GetTrack()->GetParticleDefinition()->GetParticleDefinitionID()  );
+                                                              nrelec,
+                                                              1.0,
+                                                              edep,
+                                                              start,
+                                                              end,
+                                                              aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::ns,
+                                                              aStep->GetPostStepPoint()->GetGlobalTime() /CLHEP::ns,
+                                                              aStep->GetTrack()->GetTrackID(),
+                                                              aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding()  );
        hitCollection.push_back(newHit);
     return true;
   }// end ProcessHits
