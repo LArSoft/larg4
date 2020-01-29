@@ -25,7 +25,7 @@
 
 // Other includes.
 #include "CLHEP/Units/SystemOfUnits.h"
-
+//#define _verbose_ 1
 using namespace std;
 namespace larg4 {
   class CheckMCParticle;
@@ -60,6 +60,7 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
   event.getManyByType(allGens);
   for (auto const& gens : allGens) {
     _hnParts->Fill(gens->size());
+#if defined _verbose_
     for (auto const& genpart : *gens) {
       cout << "Part id:  " << genpart.TrackId()  << endl;
       cout << "PDG id:  " << genpart.PdgCode()  << endl;
@@ -69,12 +70,8 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
         cout << "momentum:  " <<   genpart.P() << endl;
         cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
       }
-      // CLHEP::HepLorentzVector const& mom = genpart.PdgCode();
-      // cout << "Part Energy:  " << mom.e() << endl;
-      // cout << "invariant mass:  " << mom.invariantMass() << endl;
-      // cout << "momentum:  " << mom.pz() << endl;
-      // cout <<genpart<<endl;
     }
+#endif
   }
 } // end analyze
 
