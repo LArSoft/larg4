@@ -69,8 +69,9 @@ namespace larg4 {
       logInfo_("ParticleListActionService"),
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
       fparticleList(0),
-      fstoreTrajectories( p.get<bool>("storeTrajectories",true)),
-      fKeepEMShowerDaughters(p.get<bool>("keepEMShowerDaughters",true))
+      fstoreTrajectories( p.get<bool>("storeTrajectories",true) ),
+      fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
+      fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{}))
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -78,6 +79,16 @@ namespace larg4 {
     fparticleList = new sim::ParticleList;
     fParentIDMap.clear();
     fMCTIndexMap.clear();
+
+    // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
+    //    use the default list. This preserves the behavior of the keepEmShowerDaughters
+    //    parameter
+    bool customNotStored = (bool)(fNotStoredPhysics.size());
+    if( !customNotStored )
+    { // -- default list of not stored physics
+      fNotStoredPhysics = {"conv","LowEnConversion","Pair","compt","Compt","Brem","phot","Photo","Ion","annihil"};
+    }
+
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
@@ -180,40 +191,42 @@ namespace larg4 {
       // bremstrahlung, annihilation, any ionization - who wants to save
       // a buttload of electrons that arent from a CC interaction?
       process_name = track->GetCreatorProcess()->GetProcessName();
-      if( !fKeepEMShowerDaughters
-         && (process_name.find("conv")               != std::string::npos
-             || process_name.find("LowEnConversion") != std::string::npos
-             || process_name.find("Pair")            != std::string::npos
-             || process_name.find("compt")           != std::string::npos
-             || process_name.find("Compt")           != std::string::npos
-             || process_name.find("Brem")            != std::string::npos
-             || process_name.find("phot")            != std::string::npos
-             || process_name.find("Photo")           != std::string::npos
-             || process_name.find("Ion")             != std::string::npos
-             || process_name.find("annihil")         != std::string::npos)
-         ){
+      if( !fKeepEMShowerDaughters )
+      {
+        bool notstore = false;
+        for (auto p : fNotStoredPhysics){
+          if (process_name.find(p) != std::string::npos)
+          {
+            notstore = true;
+            mf::LogDebug("NotStoredPhysics") << "Found process : " << p;
+            break;
+          }
+        }
 
-        // figure out the ultimate parentage of this particle
-        // first add this track id and its parent to the fParentIDMap
-        fParentIDMap[trackID] = parentID;
+        if (notstore)
+        {
 
-        fCurrentTrackID = -1*this->GetParentage(trackID);
+          // figure out the ultimate parentage of this particle
+          // first add this track id and its parent to the fParentIDMap
+          fParentIDMap[trackID] = parentID;
 
-        // check that fCurrentTrackID is in the particle list - it is possible
-        // that this particle's parent is a particle that did not get tracked.
-        // An example is a parent that was made due to muMinusCaptureAtRest
-        // and the daughter was made by the phot process. The parent likely
-        // isn't saved in the particle list because it is below the energy cut
-        // which will put a bogus track id value into the sim::IDE object for
-        // the sim::SimChannel if we don't check it.
-        if(!fparticleList->KnownParticle(fCurrentTrackID))
-          fCurrentTrackID = sim::NoParticleId;
+          fCurrentTrackID = -1*this->GetParentage(trackID);
 
-        // clear current particle as we are not stepping this particle and
-        // adding trajectory points to it
-        fCurrentParticle.clear();
-        return;
+          // check that fCurrentTrackID is in the particle list - it is possible
+          // that this particle's parent is a particle that did not get tracked.
+          // An example is a parent that was made due to muMinusCaptureAtRest
+          // and the daughter was made by the phot process. The parent likely
+          // isn't saved in the particle list because it is below the energy cut
+          // which will put a bogus track id value into the sim::IDE object for
+          // the sim::SimChannel if we don't check it.
+          if(!fparticleList->KnownParticle(fCurrentTrackID))
+            fCurrentTrackID = sim::NoParticleId;
 
+          // clear current particle as we are not stepping this particle and
+          // adding trajectory points to it
+          fCurrentParticle.clear();
+          return;
+        } // end if process matches an undesired process
       } // end if keeping EM shower daughters
 
       // Check the energy of the particle.  If it falls below the energy
