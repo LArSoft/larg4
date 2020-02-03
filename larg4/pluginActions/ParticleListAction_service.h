@@ -162,6 +162,9 @@ namespace larg4 {
     /// Map: particle track ID -> index of primary parent in std::vector<simb::MCTruth> object
     std::map<int, size_t> fMCTIndexMap;
 
+    /// Map: not stored process and counter
+    std::unordered_map<std::string, int> fNotStoredCounterUMap;
+
     // Hold on to the current Art event
     art::Event * currentArtEvent_;
 

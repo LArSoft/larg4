@@ -80,13 +80,14 @@ namespace larg4 {
     fparticleList = new sim::ParticleList;
     fParentIDMap.clear();
     fMCTIndexMap.clear();
+    fNotStoredCounterUMap.clear();
 
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
+    bool customNotStored = (bool)(fNotStoredPhysics.size());
     if (!fKeepEMShowerDaughters)
     { // -- Don't keep all processes
-      bool customNotStored = (bool)(fNotStoredPhysics.size());
       if( !customNotStored ) // -- Don't keep but haven't provided a list
       { // -- default list of not stored physics
         fNotStoredPhysics = {"conv","LowEnConversion","Pair","compt","Compt","Brem","phot","Photo","Ion","annihil"};
@@ -97,11 +98,17 @@ namespace larg4 {
               << " resulting from the following processes: \n{ ";
       for (auto i : fNotStoredPhysics) {
         sstored << "\"" << i << "\" ";
+        fNotStoredCounterUMap.insert( std::make_pair(i, 0) ); // -- initialize counter
       }
       logInfo_ << sstored.str() << "}\n";
 
     } else { // -- Keep all processes
       logInfo_ << "Storing full tracking information for all processes. \n";
+      if (customNotStored) // -- custom list will be ignored
+      {
+        mf::LogWarning("StoredPhysics") << "NotStoredPhysics provided, but will be ignored."
+          << " To use NotStoredPhysics, set keepEMShowerDaughters to false";
+      }
     }
   }
 
@@ -139,16 +146,20 @@ namespace larg4 {
     // of the first EM particle that led to this one
     std::map<int,int>::const_iterator itr = fParentIDMap.find(trackid);
     while( itr != fParentIDMap.end() ){
-      mf::LogDebug("ParticleListActionService::GetParentage")
-      << "parentage for " << trackid
-      << " " << (*itr).second;
+      /*
+       * mf::LogDebug("ParticleListActionService::GetParentage")
+       * << "parentage for " << trackid
+       * << " " << (*itr).second;
+       */
 
       // set the parentid to the current parent ID, when the loop ends
       // this id will be the first EM particle
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
-    mf::LogDebug("ParticleListActionService::GetParentage") << "final parent ID " << parentid;
+    /*
+     * mf::LogDebug("ParticleListActionService::GetParentage") << "final parent ID " << parentid;
+     */
 
     return parentid;
   }
@@ -212,7 +223,15 @@ namespace larg4 {
           if (process_name.find(p) != std::string::npos)
           {
             notstore = true;
-            mf::LogDebug("NotStoredPhysics") << "Found process : " << p;
+            mf::LogDebug("NotStoredPhysics") << "Found process : " << process_name;
+
+            int old = 0;
+            auto search = fNotStoredCounterUMap.find(p);
+            if ( search != fNotStoredCounterUMap.end() ){
+              old = search->second;
+            }
+            fNotStoredCounterUMap.insert_or_assign(p, (old+1) );
+
             break;
           }
         }
@@ -299,8 +318,10 @@ namespace larg4 {
     fCurrentParticle.truthIndex = primaryIndex;
 
     fMCTIndexMap[trackID] = primarymctIndex; 
-    mf::LogDebug("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
-                                       << ", " << parentID << ", " << primarymctIndex;
+    /*
+     * mf::LogDebug("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
+     *                                   << ", " << parentID << ", " << primarymctIndex;
+     */
 
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
@@ -564,6 +585,14 @@ namespace larg4 {
 // event and pass the call on to the action objects.
   void ParticleListActionService::endOfEventAction(const G4Event*)
 {
+  // -- End of Run Report
+  std::stringstream sscounter;
+  sscounter << "Not Stored Process summary:";
+  for( auto c : fNotStoredCounterUMap ){
+    sscounter << "\n\t" << c.first << " : " << c.second;
+  }
+  logInfo_ << sscounter.str();
+
   partCol_ = std::make_unique<std::vector<simb::MCParticle > >();
   //tpassn_ = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle >>();
   tpassn_ = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >>();
@@ -597,18 +626,21 @@ namespace larg4 {
       MF_LOG_INFO("endOfEventAction") << "Found " << mct->NParticles() << " particles" ;
 
       unsigned int HowMany=0;
-      //for (auto iPartPair = particleList.begin(); iPartPair != particleList.end(); ++iPartPair) {
       for(auto const& iPartPair: particleList) {
           simb::MCParticle& p = *(iPartPair.second);
           auto gen_index = fMCTIndexMap[ p.TrackId() ];
-          //mf::LogDebug("endOfEventAction") << "PrimaryTruthIndex: " << gen_index;
+          /*
+           * mf::LogDebug("endOfEventAction") << "PrimaryTruthIndex: " << gen_index;
+           */
           if (gen_index == mcl) {
             ++nGeneratedParticles;
             ++HowMany;
+            /*
+             * mf::LogDebug("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
+             *                                  << "TrackID = " << p.TrackId()
+             *                                  << "\nPrimaryTruthIndex: " << gen_index;
+             */
 
-            mf::LogDebug("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
-                                            << "TrackID = " << p.TrackId()
-                                            << "\nPrimaryTruthIndex: " << gen_index;
             sim::GeneratedParticleInfo const truthInfo {
               GetPrimaryTruthIndex(p.TrackId())
             };
