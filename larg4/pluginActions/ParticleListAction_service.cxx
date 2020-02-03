@@ -37,6 +37,7 @@
 
 
 #include <algorithm>
+#include <string>
 
 // unused const G4bool debug = false;
 
@@ -83,12 +84,25 @@ namespace larg4 {
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
-    bool customNotStored = (bool)(fNotStoredPhysics.size());
-    if( !customNotStored )
-    { // -- default list of not stored physics
-      fNotStoredPhysics = {"conv","LowEnConversion","Pair","compt","Compt","Brem","phot","Photo","Ion","annihil"};
-    }
+    if (!fKeepEMShowerDaughters)
+    { // -- Don't keep all processes
+      bool customNotStored = (bool)(fNotStoredPhysics.size());
+      if( !customNotStored ) // -- Don't keep but haven't provided a list
+      { // -- default list of not stored physics
+        fNotStoredPhysics = {"conv","LowEnConversion","Pair","compt","Compt","Brem","phot","Photo","Ion","annihil"};
+      }
 
+      std::stringstream sstored;
+      sstored << "The full tracking information will not be stored for particles"
+              << " resulting from the following processes: \n{ ";
+      for (auto i : fNotStoredPhysics) {
+        sstored << "\"" << i << "\" ";
+      }
+      logInfo_ << sstored.str() << "}\n";
+
+    } else { // -- Keep all processes
+      logInfo_ << "Storing full tracking information for all processes. \n";
+    }
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
