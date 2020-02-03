@@ -38,7 +38,7 @@ private:
   TH1F* _hEdep{nullptr};  // average energy deposition in AuxDetHitHits
   TH1F* _hID{nullptr};    // AuxDet ID's
   TH1F* _hexit{nullptr};    // exit points in z
-  TH1F* _hentry{nullptr};    // entry points in z 
+  TH1F* _hentry{nullptr};    // entry points in z
   // TNtuple* _ntuple;
 };
 

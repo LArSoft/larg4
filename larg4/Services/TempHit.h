@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   TempHit.h
  * Author: wenzel
  *
@@ -12,7 +12,7 @@
 
 class TempHit {
 private:
-    int ID; ///< Geant4 copy ID 
+    int ID; ///< Geant4 copy ID
     int trackID; ///< Geant4 supplied track ID
     int ParentID; //  Geant4 supplied Parent track ID
     bool isfirstinVolume; // Geant4  is first in Volume
@@ -37,7 +37,7 @@ public:
     }
     bool operator<(const TempHit& other) const;
     bool operator==(const TempHit& other) const;
-    // Hide the following from Root    
+    // Hide the following from Root
 #ifndef __GCCXML__
 
     TempHit(int iID,

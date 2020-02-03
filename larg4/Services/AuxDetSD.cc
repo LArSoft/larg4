@@ -101,7 +101,7 @@ void AuxDetSD::EndOfEvent(G4HCofThisEvent*) {
 #if defined _verbose_
     std::cout << " EndOfEvent number of temp hits: " << temphitCollection.size() << std::endl;
     std::cout << " EndOfEvent number of aux hits: " << hitCollection.size() << std::endl;
-#endif  
+#endif
     std::sort(temphitCollection.begin(), temphitCollection.end());
     int geoId = -1;
     int trackId = -1;
@@ -113,13 +113,13 @@ void AuxDetSD::EndOfEvent(G4HCofThisEvent*) {
         std::cout << "geoID: " << it->GetID() << " track ID: " << it->GetTrackID() << " Edep: " << it->GetEnergyDeposited()
                 << " Parent Id: " << it->GetParentID() << " exit Time:  " << it->GetExitT()
                 << " is first: " << it->IsIsfirstinVolume() << " is last:  " << it->IsIslastinVolume();
-#endif 
+#endif
         if (it->GetID() == geoId && trackId == it->GetTrackID()) // trackid and detector didn't change
         {
 #if defined _verbose_
             std::cout << " A" << std::endl;
 #endif
-            if (it->GetExitT()) // change exit vector and add to total charge  
+            if (it->GetExitT()) // change exit vector and add to total charge
             {
                 hitCollection[counter - 1].SetEnergyDeposited(hitCollection[counter - 1].GetEnergyDeposited() + it->GetEnergyDeposited());
                 hitCollection[counter - 1].SetExitX(it->GetExitX());
@@ -136,7 +136,7 @@ void AuxDetSD::EndOfEvent(G4HCofThisEvent*) {
             std::cout << " A" << std::endl;
 #endif
             hitCollection[counter - 1].SetEnergyDeposited(hitCollection[counter - 1].GetEnergyDeposited() + it->GetEnergyDeposited());
-        } else if (it->GetID() != geoId) // new Detector 
+        } else if (it->GetID() != geoId) // new Detector
         {
             geoId = it->GetID();
             trackId = it->GetTrackID();

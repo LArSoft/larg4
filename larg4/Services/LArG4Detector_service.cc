@@ -355,7 +355,7 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
     mf::LogInfo("LArG4DetectorService::setStepLimits") << "fStepLimitOverride:  "
               << selectedVolumes_[i].second << "  "
               << (selectedVolumes_[i].second * CLHEP::mm) / CLHEP::cm << " cm"
-              << " for volume: " << selectedVolumes_[i].first; 
+              << " for volume: " << selectedVolumes_[i].first;
     setVol->SetUserLimits(fStepLimitOverride);
   }//--loop over input volumes
 }//--end of setStepLimit()
