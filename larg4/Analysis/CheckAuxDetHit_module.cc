@@ -37,6 +37,8 @@ private:
   TH1F* _hnHits{nullptr}; // number of AuxDetHitHits
   TH1F* _hEdep{nullptr};  // average energy deposition in AuxDetHitHits
   TH1F* _hID{nullptr};    // AuxDet ID's
+  TH1F* _hexit{nullptr};    // exit points in z
+  TH1F* _hentry{nullptr};    // entry points in z
   // TNtuple* _ntuple;
 };
 
@@ -50,6 +52,8 @@ void larg4::CheckAuxDetHit::beginJob()
   _hnHits = tfs->make<TH1F>("hnHits", "Number of AuxDetHits", 30, 0,30 );
   _hEdep = tfs->make<TH1F>("hEdep", "Energy deposition in AuxDetHits", 100,0.,4.);
   _hID = tfs->make<TH1F>("hID", "Id of hit AuxDet", 100,0.,5.);
+  _hexit = tfs->make<TH1F>("hexit", "exit points in z", 100,-100.,100.);
+  _hentry = tfs->make<TH1F>("hentry", "entry points in z", 100,-100.,100.);
   // _ntuple = tfs->make<TNtuple>("ntuple","Demo ntuple",
   //                              "Event:Edep:em_Edep:nonem_Edep:xpos:ypos:zpos:time");
 } // end beginJob
@@ -58,15 +62,15 @@ void larg4::CheckAuxDetHit::analyze(const art::Event& event)
 {
   std::vector<art::Handle<sim::AuxDetHitCollection>> allSims;
   event.getManyByType(allSims);
-  std::array<double, 4> Edeps{{}};
   for (auto const& sims : allSims) {
     _hnHits->Fill(sims->size());
     for (auto const& hit : *sims) {
+      _hEdep->Fill(hit.GetEnergyDeposited());
+      _hexit->Fill(hit.GetExitZ());
+      _hentry->Fill(hit.GetEntryZ());
       _hID->Fill(hit.GetID());
-      Edeps[hit.GetID()-1]= Edeps[hit.GetID()-1]+hit.GetEnergyDeposited();
     }
   }
-  for (unsigned int ii=0;ii<4;ii++)  _hEdep->Fill(Edeps[ii]);
 } // end analyze
 
 DEFINE_ART_MODULE(larg4::CheckAuxDetHit)
