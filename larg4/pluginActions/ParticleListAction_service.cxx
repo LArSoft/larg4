@@ -317,7 +317,7 @@ namespace larg4 {
     fCurrentParticle.particle   = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
     fCurrentParticle.truthIndex = primaryIndex;
 
-    fMCTIndexMap[trackID] = primarymctIndex; 
+    fMCTIndexMap[trackID] = primarymctIndex;
     /*
      * mf::LogDebug("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
      *                                   << ", " << parentID << ", " << primarymctIndex;
@@ -527,7 +527,7 @@ namespace larg4 {
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
     if( (fparticleList->size())!=0){
-      fTrackIDOffset = highestID + 1; 
+      fTrackIDOffset = highestID + 1;
       mf::LogDebug("GetList:fTrackIDOffset") << "highestID = " << highestID
                                      << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
@@ -558,7 +558,7 @@ namespace larg4 {
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
     if( (fparticleList->size())!=0 ){
-      fTrackIDOffset = highestID + 1; 
+      fTrackIDOffset = highestID + 1;
       mf::LogDebug("YieldList:fTrackIDOffset") << "highestID = " << highestID
                                      << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
