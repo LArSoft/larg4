@@ -37,6 +37,7 @@
 
 
 #include <algorithm>
+#include <string>
 
 // unused const G4bool debug = false;
 
@@ -69,15 +70,43 @@ namespace larg4 {
       logInfo_("ParticleListActionService"),
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
       fparticleList(0),
-      fstoreTrajectories( p.get<bool>("storeTrajectories",true)),
-      fKeepEMShowerDaughters(p.get<bool>("keepEMShowerDaughters",true))
+      fstoreTrajectories( p.get<bool>("storeTrajectories",true) ),
+      fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
+      fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{}))
   {
 
     // Create the particle list that we'll (re-)use during the course
     // of the Geant4 simulation.
     fparticleList = new sim::ParticleList;
-    fParentIDMap.clear();
-    fMCTIndexMap.clear();
+
+    // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
+    //    use the default list. This preserves the behavior of the keepEmShowerDaughters
+    //    parameter
+    bool customNotStored = not fNotStoredPhysics.empty();
+    if (!fKeepEMShowerDaughters)
+    { // -- Don't keep all processes
+      if( !customNotStored ) // -- Don't keep but haven't provided a list
+      { // -- default list of not stored physics
+        fNotStoredPhysics = {"conv","LowEnConversion","Pair","compt","Compt","Brem","phot","Photo","Ion","annihil"};
+      }
+
+      std::stringstream sstored;
+      sstored << "The full tracking information will not be stored for particles"
+              << " resulting from the following processes: \n{ ";
+      for (auto const & i : fNotStoredPhysics) {
+        sstored << "\"" << i << "\" ";
+        fNotStoredCounterUMap.emplace(i, 0); // -- initialize counter
+      }
+      logInfo_ << sstored.str() << "}\n";
+
+    } else { // -- Keep all processes
+      logInfo_ << "Storing full tracking information for all processes. \n";
+      if (customNotStored) // -- custom list will be ignored
+      {
+        mf::LogWarning("StoredPhysics") << "NotStoredPhysics provided, but will be ignored."
+          << " To use NotStoredPhysics, set keepEMShowerDaughters to false";
+      }
+    }
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
@@ -114,16 +143,12 @@ namespace larg4 {
     // of the first EM particle that led to this one
     std::map<int,int>::const_iterator itr = fParentIDMap.find(trackid);
     while( itr != fParentIDMap.end() ){
-      mf::LogDebug("ParticleListActionService::GetParentage")
-      << "parentage for " << trackid
-      << " " << (*itr).second;
 
       // set the parentid to the current parent ID, when the loop ends
       // this id will be the first EM particle
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
-    mf::LogDebug("ParticleListActionService::GetParentage") << "final parent ID " << parentid;
 
     return parentid;
   }
@@ -180,40 +205,50 @@ namespace larg4 {
       // bremstrahlung, annihilation, any ionization - who wants to save
       // a buttload of electrons that arent from a CC interaction?
       process_name = track->GetCreatorProcess()->GetProcessName();
-      if( !fKeepEMShowerDaughters
-         && (process_name.find("conv")               != std::string::npos
-             || process_name.find("LowEnConversion") != std::string::npos
-             || process_name.find("Pair")            != std::string::npos
-             || process_name.find("compt")           != std::string::npos
-             || process_name.find("Compt")           != std::string::npos
-             || process_name.find("Brem")            != std::string::npos
-             || process_name.find("phot")            != std::string::npos
-             || process_name.find("Photo")           != std::string::npos
-             || process_name.find("Ion")             != std::string::npos
-             || process_name.find("annihil")         != std::string::npos)
-         ){
+      if( !fKeepEMShowerDaughters )
+      {
+        bool notstore = false;
+        for (auto const& p : fNotStoredPhysics){
+          if (process_name.find(p) != std::string::npos)
+          {
+            notstore = true;
+            mf::LogDebug("NotStoredPhysics") << "Found process : " << process_name;
 
-        // figure out the ultimate parentage of this particle
-        // first add this track id and its parent to the fParentIDMap
-        fParentIDMap[trackID] = parentID;
+            int old = 0;
+            auto search = fNotStoredCounterUMap.find(p);
+            if ( search != fNotStoredCounterUMap.end() ){
+              old = search->second;
+            }
+            fNotStoredCounterUMap.insert_or_assign(p, (old+1) );
 
-        fCurrentTrackID = -1*this->GetParentage(trackID);
+            break;
+          }
+        }
 
-        // check that fCurrentTrackID is in the particle list - it is possible
-        // that this particle's parent is a particle that did not get tracked.
-        // An example is a parent that was made due to muMinusCaptureAtRest
-        // and the daughter was made by the phot process. The parent likely
-        // isn't saved in the particle list because it is below the energy cut
-        // which will put a bogus track id value into the sim::IDE object for
-        // the sim::SimChannel if we don't check it.
-        if(!fparticleList->KnownParticle(fCurrentTrackID))
-          fCurrentTrackID = sim::NoParticleId;
+        if (notstore)
+        {
 
-        // clear current particle as we are not stepping this particle and
-        // adding trajectory points to it
-        fCurrentParticle.clear();
-        return;
+          // figure out the ultimate parentage of this particle
+          // first add this track id and its parent to the fParentIDMap
+          fParentIDMap[trackID] = parentID;
 
+          fCurrentTrackID = -1*this->GetParentage(trackID);
+
+          // check that fCurrentTrackID is in the particle list - it is possible
+          // that this particle's parent is a particle that did not get tracked.
+          // An example is a parent that was made due to muMinusCaptureAtRest
+          // and the daughter was made by the phot process. The parent likely
+          // isn't saved in the particle list because it is below the energy cut
+          // which will put a bogus track id value into the sim::IDE object for
+          // the sim::SimChannel if we don't check it.
+          if(!fparticleList->KnownParticle(fCurrentTrackID))
+            fCurrentTrackID = sim::NoParticleId;
+
+          // clear current particle as we are not stepping this particle and
+          // adding trajectory points to it
+          fCurrentParticle.clear();
+          return;
+        } // end if process matches an undesired process
       } // end if keeping EM shower daughters
 
       // Check the energy of the particle.  If it falls below the energy
@@ -271,9 +306,7 @@ namespace larg4 {
     fCurrentParticle.particle   = new simb::MCParticle( trackID, pdgCode, process_name, parentID, mass);
     fCurrentParticle.truthIndex = primaryIndex;
 
-    fMCTIndexMap[trackID] = primarymctIndex; 
-    mf::LogDebug("MCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
-                                       << ", " << parentID << ", " << primarymctIndex;
+    fMCTIndexMap[trackID] = primarymctIndex;
 
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
@@ -479,7 +512,7 @@ namespace larg4 {
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
     if( (fparticleList->size())!=0){
-      fTrackIDOffset = highestID + 1; 
+      fTrackIDOffset = highestID + 1;
       mf::LogDebug("GetList:fTrackIDOffset") << "highestID = " << highestID
                                      << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
@@ -510,7 +543,7 @@ namespace larg4 {
 
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
     if( (fparticleList->size())!=0 ){
-      fTrackIDOffset = highestID + 1; 
+      fTrackIDOffset = highestID + 1;
       mf::LogDebug("YieldList:fTrackIDOffset") << "highestID = " << highestID
                                      << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
@@ -537,8 +570,17 @@ namespace larg4 {
 // event and pass the call on to the action objects.
   void ParticleListActionService::endOfEventAction(const G4Event*)
 {
+  // -- End of Run Report
+  if (!fNotStoredCounterUMap.empty()){ // -- Only if there is something to report
+    std::stringstream sscounter;
+    sscounter << "Not Stored Process summary:";
+    for( auto const& [process, count] : fNotStoredCounterUMap ){
+      sscounter << "\n\t" << process << " : " << count;
+    }
+  logInfo_ << sscounter.str();
+  }
+
   partCol_ = std::make_unique<std::vector<simb::MCParticle > >();
-  //tpassn_ = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle >>();
   tpassn_ = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >>();
   // Set up the utility class for the "for_each" algorithm.  (We only
   // need a separate set-up for the utility class because we need to
@@ -570,18 +612,13 @@ namespace larg4 {
       MF_LOG_INFO("endOfEventAction") << "Found " << mct->NParticles() << " particles" ;
 
       unsigned int HowMany=0;
-      //for (auto iPartPair = particleList.begin(); iPartPair != particleList.end(); ++iPartPair) {
       for(auto const& iPartPair: particleList) {
           simb::MCParticle& p = *(iPartPair.second);
           auto gen_index = fMCTIndexMap[ p.TrackId() ];
-          //mf::LogDebug("endOfEventAction") << "PrimaryTruthIndex: " << gen_index;
           if (gen_index == mcl) {
             ++nGeneratedParticles;
             ++HowMany;
 
-            mf::LogDebug("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag() << "':\n"
-                                            << "TrackID = " << p.TrackId()
-                                            << "\nPrimaryTruthIndex: " << gen_index;
             sim::GeneratedParticleInfo const truthInfo {
               GetPrimaryTruthIndex(p.TrackId())
             };
@@ -590,10 +627,8 @@ namespace larg4 {
               // this means it's primary but with no information; logic error!!
               art::Exception error(art::errors::LogicError);
               error << "Failed to match primary particle:\n";
-              //sim::dump::DumpMCParticle(error, p, "  ");
               error << "\nwith particles from the truth record '"
                 << mclistHandle.provenance()->inputTag() << "':\n";
-              //sim::dump::DumpMCTruth(error, *mct, 2U, "  "); // 2 points per line
               error << "\n";
               throw error;
             }

@@ -152,6 +152,7 @@ namespace larg4 {
     static int               fTrackIDOffset;         ///< offset added to track ids when running over
                                                      ///< multiple MCTruth objects.
     bool                     fKeepEMShowerDaughters; ///< whether to keep EM shower secondaries, tertiaries, etc
+    std::vector<std::string> fNotStoredPhysics;      ///< Physics processes that will not be stored
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 
@@ -160,6 +161,9 @@ namespace larg4 {
 
     /// Map: particle track ID -> index of primary parent in std::vector<simb::MCTruth> object
     std::map<int, size_t> fMCTIndexMap;
+
+    /// Map: not stored process and counter
+    std::unordered_map<std::string, int> fNotStoredCounterUMap;
 
     // Hold on to the current Art event
     art::Event * currentArtEvent_;
