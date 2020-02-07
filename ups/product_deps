@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent larg4 v08_11_01
+parent larg4 v08_12_00
 defaultqual e19
 
 # These optional lines define the installed directories where headers,
@@ -30,7 +30,7 @@ gdmldir product_dir     gdml
 
 product          version
 artg4tk         v09_07_00
-larevt          v08_10_01
+larevt          v08_10_02
 nug4            v1_04_00
 cetbuildtools   v7_15_01       -       only_for_build
 end_product_list
