@@ -10,6 +10,8 @@
 #include "lardataobj/Simulation/sim.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCGeneratorInfo.h"
 
 // Framework includes
 #include "art/Framework/Principal/Event.h"
@@ -71,6 +73,7 @@ namespace larg4 {
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
       fparticleList(0),
       fstoreTrajectories( p.get<bool>("storeTrajectories",true) ),
+      fdropGenTrajectories( p.get<std::vector<std::string>>("dropGenTrajectories",{})),
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{}))
   {
@@ -78,6 +81,16 @@ namespace larg4 {
     // Create the particle list that we'll (re-)use during the course
     // of the Geant4 simulation.
     fparticleList = new sim::ParticleList;
+
+    // -- D.R. If a custom list of dropGenTrajectories is provided, use it, otherwise
+    //    drop all trajectories. This preserves the behavior of the storeTrajectories fhicl param
+    bool customDropTraj = not fdropGenTrajectories.empty(); 
+    if (!fstoreTrajectories)
+    { // -- Don't store trajectories
+      if(!customDropTraj)
+      { // -- Don't store but havent provided a list
+      }
+    }
 
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
@@ -172,6 +185,13 @@ namespace larg4 {
     G4int parentID = track->GetParentID() + fTrackIDOffset;
 
     std::string process_name = "unknown";
+    std::string generator_name = "unknown";
+
+    // -- Test
+    art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
+    art::Event & evt = actionHolder->getCurrArtEvent();
+    std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
+    evt.getManyByType(mclists);
 
     // Is there an MCTruth object associated with this G4Track?  We
     // have to go up a "chain" of information to find out:
@@ -186,6 +206,12 @@ namespace larg4 {
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
         mf::LogDebug("PrimaryMCTIndex") << "Primary MCTIndex = " << primarymctIndex;
+        
+        // -- Test of getting the generator for a particle:
+        art::Handle<std::vector<simb::MCTruth>> mclistHandle = mclists.at(primarymctIndex);
+        generator_name = mclistHandle.provenance()->inputTag().label();
+        mf::LogDebug("Generator") << "Provenance = " << generator_name << "\n";
+
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
@@ -317,7 +343,7 @@ namespace larg4 {
                                                          polarization.y(),
                                                          polarization.z() ) );
 
-      // Save the particle in the ParticleList.
+    // Save the particle in the ParticleList.
     fparticleList->Add( fCurrentParticle.particle );
   }
 
@@ -618,6 +644,10 @@ namespace larg4 {
           if (gen_index == mcl) {
             ++nGeneratedParticles;
             ++HowMany;
+
+            mf::LogDebug("endOfEventAction") << "Provenance = " << mclistHandle.provenance()->inputTag().label() << "\n"
+                                            << "TrackID = " << p.TrackId()                          
+                                            << "\nPrimaryTruthIndex: " << gen_index;
 
             sim::GeneratedParticleInfo const truthInfo {
               GetPrimaryTruthIndex(p.TrackId())
