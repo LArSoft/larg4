@@ -262,12 +262,12 @@ namespace larg4 {
     } // Is there a G4PrimaryParticle?
     // If this is not a primary particle...
     else{
-      // check if this particle was made in an EM shower, don't put it in the particle
-      // list as we don't care about secondaries, tertiaries, etc for these showers
+      // check if this particle was made in an undesirable process. For example:
+      // if one is not interested in EM shower particles, don't put it in the particle
+      // list as one wouldn't care about secondaries, tertiaries, etc. For these showers
       // figure out what process is making this track - skip it if it is
       // one of pair production, compton scattering, photoelectric effect
-      // bremstrahlung, annihilation, any ionization - who wants to save
-      // a buttload of electrons that arent from a CC interaction?
+      // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
       if( !fKeepEMShowerDaughters )
       {
