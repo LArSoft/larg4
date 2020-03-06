@@ -249,7 +249,7 @@ namespace larg4 {
       if ( ppi != 0 ){
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
-        
+
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
