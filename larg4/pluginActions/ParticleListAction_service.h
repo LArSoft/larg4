@@ -146,6 +146,11 @@ namespace larg4 {
     sim::ParticleList*       fparticleList;          ///< The accumulated particle information for
                                                      ///< all particles in the event.
     G4bool                   fstoreTrajectories;     ///< Whether to store particle trajectories with each particle.
+    std::vector<std::string> fkeepGenTrajectories;   ///< List of generators for which fstoreTrejactories applies.
+                                                     ///  if not provided and storeTrajectories is true, then all
+                                                     ///  trajectories for all generators will be stored. If
+                                                     ///  storeTrajectories is set to false, this list is ignored
+                                                     ///  and all additional trajectory points are not stored.
     std::map<int, int>       fParentIDMap;           ///< key is current track ID, value is parent ID
     static int               fCurrentTrackID;        ///< track ID of the current particle, set to eve ID
                                                      ///< for EM shower particles
@@ -161,6 +166,9 @@ namespace larg4 {
 
     /// Map: particle track ID -> index of primary parent in std::vector<simb::MCTruth> object
     std::map<int, size_t> fMCTIndexMap;
+
+    /// Map: MCTruthIndex -> generator, input label of generator and keepGenerator decision
+    std::map<size_t, std::pair<std::string, G4bool>> fMCTIndexToGeneratorMap;
 
     /// Map: not stored process and counter
     std::unordered_map<std::string, int> fNotStoredCounterUMap;

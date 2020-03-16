@@ -10,6 +10,8 @@
 #include "lardataobj/Simulation/sim.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCGeneratorInfo.h"
 
 // Framework includes
 #include "art/Framework/Principal/Event.h"
@@ -71,6 +73,7 @@ namespace larg4 {
       fenergyCut(p.get<double>("EnergyCut",0.0*CLHEP::GeV)),
       fparticleList(0),
       fstoreTrajectories( p.get<bool>("storeTrajectories",true) ),
+      fkeepGenTrajectories( p.get<std::vector<std::string>>("keepGenTrajectories",{})),
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{}))
   {
@@ -128,6 +131,67 @@ namespace larg4 {
     fParentIDMap.clear();
     fMCTIndexMap.clear();
     fCurrentTrackID = sim::NoParticleId;
+
+    // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
+    //    keep or drop decision made based storeTrajectories parameter. This preserves
+    //    the behavior of the storeTrajectories fhicl param
+    bool customKeepTraj = not fkeepGenTrajectories.empty();
+    if (!fstoreTrajectories){ // -- fstoreTrajectories : false
+      mf::LogDebug("beginOfEventAction::Generator") << "Trajectory points will not be stored.";
+    } else if (!customKeepTraj){ // -- fstoretrajectories : true and empty keepGenTrajectories list
+      mf::LogDebug("beginOfEventAction::Generator") << "keepGenTrajectories list is empty. Will"
+        << " store trajectory points for all generators";
+    }
+
+    // -- D.R. determine mapping between MCTruthIndex(s) and generator(s) for later reference
+    art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
+    art::Event & evt = actionHolder->getCurrArtEvent();
+    std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
+    evt.getManyByType(mclists);
+
+    size_t nKeep = 0;
+    std::string generator_name = "unknown";
+    for (size_t mcti=0; mcti<mclists.size(); mcti++)
+    {
+
+      std::stringstream sskeepgen;
+      sskeepgen << "MCTruth object summary :";
+      sskeepgen << "\n\tPrimary MCTIndex : " << mcti;
+
+      // -- Obtain the generator (provenance) corresponding to the mctruth index:
+      art::Handle<std::vector<simb::MCTruth>> mclistHandle = mclists.at(mcti);
+      generator_name = mclistHandle.provenance()->inputTag().label();
+      sskeepgen << "\n\tProvenance/Generator : " << generator_name;
+
+      G4bool keepGen = false;
+      if (fstoreTrajectories) // -- storeTrajectories set to true; check which
+      {
+        if (!customKeepTraj){ // -- no custom list, so keep all
+          keepGen = true;
+          nKeep++;
+        } else { // -- custom list, so check the ones in the event against provided keep list
+          for(auto keepableGen : fkeepGenTrajectories){
+            if(generator_name == keepableGen){ // -- exit upon finding match; false by default
+              keepGen = true;
+              nKeep++;
+              break;
+            }
+          }
+        }
+      }
+      fMCTIndexToGeneratorMap.emplace(mcti, std::make_pair(generator_name, keepGen));
+      sskeepgen << "\n\tTrajectory points storable : " << (keepGen ? "true" : "false") << "\n";
+      mf::LogDebug("beginOfEventAction::Generator") << sskeepgen.str();
+    }
+
+    if (nKeep == 0 && customKeepTraj && fstoreTrajectories){
+      mf::LogWarning("beginOfEventAction::keepableGenerators") << "storeTrajectories"
+        << " set to true and a non-empty keepGenTrajectories list provided in configuration file, but"
+        << " none of the generators in this list are present in the event! Double check list or don't"
+        << " provide keepGenTrajectories in the configuration to keep all trajectories from all"
+        << " generator labels. This may be expected for generators that have a nonzero probability of"
+        << " producing no particles (e.g. some radiologicals)";
+    }
    }
 
   //-------------------------------------------------------------
@@ -185,7 +249,7 @@ namespace larg4 {
       if ( ppi != 0 ){
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
-        mf::LogDebug("PrimaryMCTIndex") << "Primary MCTIndex = " << primarymctIndex;
+
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
@@ -198,12 +262,12 @@ namespace larg4 {
     } // Is there a G4PrimaryParticle?
     // If this is not a primary particle...
     else{
-      // check if this particle was made in an EM shower, don't put it in the particle
-      // list as we don't care about secondaries, tertiaries, etc for these showers
+      // check if this particle was made in an undesirable process. For example:
+      // if one is not interested in EM shower particles, don't put it in the particle
+      // list as one wouldn't care about secondaries, tertiaries, etc. For these showers
       // figure out what process is making this track - skip it if it is
       // one of pair production, compton scattering, photoelectric effect
-      // bremstrahlung, annihilation, any ionization - who wants to save
-      // a buttload of electrons that arent from a CC interaction?
+      // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
       if( !fKeepEMShowerDaughters )
       {
@@ -317,7 +381,7 @@ namespace larg4 {
                                                          polarization.y(),
                                                          polarization.z() ) );
 
-      // Save the particle in the ParticleList.
+    // Save the particle in the ParticleList.
     fparticleList->Add( fCurrentParticle.particle );
   }
 
@@ -421,11 +485,15 @@ namespace larg4 {
     << fstoreTrajectories;
     */
 
+    // -- D.R. Store additional trajectory points only for desired generators
+    G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
+
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
     // what, but whether we store the rest of the trajectory depends
     // on the process, and on a user switch.
-    if ( fstoreTrajectories  &&  !ignoreProcess ){
+    if ( fstoreTrajectories  &&  !ignoreProcess && keepGenerator ){
+
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = step->GetPostStepPoint();
 
