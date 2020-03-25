@@ -201,6 +201,13 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);
   // ((artg4tk::TrackingActionBase*)&*pla) -> callArtProduces(this);
 
+  // -- Check for invalid seed value
+  if (seed_ > 900000000) {
+    //mf::LogError("SeedCheck") << "Bad seed provided, max seed value is 9E8.
+    throw cet::exception("largeant:BadSeedValue")
+          << "The provided largeant seed value: " << seed_
+          << " is invalid! Maximum seed value is 9E8.";
+  }
   // Set up the random number engine.
   // -- D.R.: Use the NuRandomService engine for additional control over the seed generation policy
   (void)art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,"G4Engine",p,"seed");
