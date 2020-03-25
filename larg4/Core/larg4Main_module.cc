@@ -31,9 +31,11 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 #include "artg4tk/services/DetectorHolder_service.hh"
-
 #include "artg4tk/services/PhysicsListHolder_service.hh"
+
+// art extensions
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
@@ -198,20 +200,10 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   // ((artg4tk::SteppingActionBase*)&*pla)-> callArtProduces(this);
   // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);
   // ((artg4tk::TrackingActionBase*)&*pla) -> callArtProduces(this);
+
   // Set up the random number engine.
-  // See the documentation in RandomNumberHeader.h for
-  // how this works. Note that @createEngine@ is a member function
-  // of our base class (actually, a couple of base classes deep!).
-  // Note that the name @G4Engine@ is special.
-  if (seed_ == -1) {
-    // Construct seed from time and pid. (default behavior if
-    // no seed is provided by the fcl file)
-    // Note: According to Kevin Lynch, the two lines below are not portable.
-    seed_ = time(0) + getpid();
-    seed_ = ((seed_ & 0xFFFF0000) >> 16) | ((seed_ & 0x0000FFFF) << 16); //exchange upper and lower word
-    seed_ = seed_ % 900000000; // ensure the seed is in the correct range for createEngine
-  }
-  createEngine( seed_, "G4Engine");
+  // -- D.R.: Use the NuRandomService engine for additional control over the seed generation policy
+  (void)art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,"G4Engine",p,"seed");
 
   // Handle the afterEvent setting
   if ( afterEvent_ == "ui" ) {
