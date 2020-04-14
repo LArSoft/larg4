@@ -31,9 +31,11 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 #include "artg4tk/services/DetectorHolder_service.hh"
-
 #include "artg4tk/services/PhysicsListHolder_service.hh"
+
+// art extensions
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
@@ -76,11 +78,11 @@ namespace larg4 {
     G4VisManager* visManager_;
 #endif
 
-	// Pseudorandom engine seed (originally hardcoded to 12345),
-	// obtained from the configuration file.
-	// Note: the maximum seed value is 9e8, which is potentially larger
-	// than a long can hold.
-	long seed_;
+    // Pseudorandom engine seed (originally hardcoded to 12345),
+    // obtained from the configuration file.
+    // Note: the maximum seed value is 9e8, which is potentially larger
+    // than a long can hold.
+    long seed_;
 
     // Determine whether we should use visualization
     // False by default, can be set by config file
@@ -106,19 +108,19 @@ namespace larg4 {
     // False by default, can be changed by afterEvent in FHICL
     bool pauseAfterEvent_;
 
-	// Boolean to determine whether we're in "visualize only certain
-	// events" mode. If so, we pause and show the visualization only after
-	// the given events. Turning this on only works if visualization is
-	// also enabled, and it will pause, pass, or bring up a UI at the end
-	// of the given events, as specified by afterEvent.
-	bool visSpecificEvents_;
+    // Boolean to determine whether we're in "visualize only certain
+    // events" mode. If so, we pause and show the visualization only after
+    // the given events. Turning this on only works if visualization is
+    // also enabled, and it will pause, pass, or bring up a UI at the end
+    // of the given events, as specified by afterEvent.
+    bool visSpecificEvents_;
 
-	// If we're in "visualize only certain events" mode, this vector
-	// contains the events for which the visualization should be displayed.
-	// This is a map because determining whether an event is in there is
-	// O(log(n)), rather than O(n) for a vector, and find(...) is a heck of
-	// a lot more convenient than looping over the vector.
-	std::map<int, bool> eventsToDisplay_;
+    // If we're in "visualize only certain events" mode, this vector
+    // contains the events for which the visualization should be displayed.
+    // This is a map because determining whether an event is in there is
+    // O(log(n)), rather than O(n) for a vector, and find(...) is a heck of
+    // a lot more convenient than looping over the vector.
+    std::map<int, bool> eventsToDisplay_;
 
     // Run diagnostic level (verbosity)
     int rmvlevel_;
@@ -148,70 +150,67 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
     runManager_(),
     session_(0),
     UI_(0),
-	seed_(p.get<long>("seed", -1)),
+    seed_(p.get<long>("seed", -1)),
     enableVisualization_( p.get<bool>("enableVisualization",false)),
     macroPath_( p.get<std::string>("macroPath",".")),
     pathFinder_( macroPath_),
     visMacro_( p.get<std::string>("visMacro", "vis.mac")),
     pauseAfterEvent_(false),
-	visSpecificEvents_(p.get<bool>("visualizeSpecificEvents",false)),
-	eventsToDisplay_(),
+    visSpecificEvents_(p.get<bool>("visualizeSpecificEvents",false)),
+    eventsToDisplay_(),
     rmvlevel_( p.get<int>("rmvlevel",0)),
     uiAtBeginRun_( p.get<bool>("uiAtBeginRun", false)),
     uiAtEndEvent_(false),
     afterEvent_( p.get<std::string>("afterEvent", "pass")),
-  logInfo_("larg4Main")
-//  fSparsifyTrajectories(false),
-//  fparticleListAction(0)
-//  pla_("ParticleListAction")
+    logInfo_("larg4Main")
+    //  fSparsifyTrajectories(false),
+    //  fparticleListAction(0)
+    //  pla_("ParticleListAction")
 
 {
   produces< std::vector<simb::MCParticle> >();
   //<--produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
   produces< art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo> >();
-	// If we're in "visualize specific events" mode (essentially only pause
-	// after given events), then extract the list of events we need to
-	// pause for. They are placed in a map because it is more efficient to
-	// determine whether a given entry is present in the map than a vector.
-	if (visSpecificEvents_) {
-		std::vector<int> eventsToDisplayVec =
-			p.get<vector<int>>("eventsToDisplay");
-		for (size_t i = 0; i < eventsToDisplayVec.size(); i++) {
-			eventsToDisplay_[eventsToDisplayVec[i]] = true;
-		}
-		// Would be nice to have error checking here, but for now, if you
-		// do something silly, it'll probably just crash.
-	}
+  // If we're in "visualize specific events" mode (essentially only pause
+  // after given events), then extract the list of events we need to
+  // pause for. They are placed in a map because it is more efficient to
+  // determine whether a given entry is present in the map than a vector.
+  if (visSpecificEvents_) {
+    std::vector<int> eventsToDisplayVec =
+            p.get<vector<int>>("eventsToDisplay");
+    for (size_t i = 0; i < eventsToDisplayVec.size(); i++) {
+      eventsToDisplay_[eventsToDisplayVec[i]] = true;
+    }
+    // Would be nice to have error checking here, but for now, if you
+    // do something silly, it'll probably just crash.
+  }
 
   // We need all of the services to run @produces@ on the data they will store. We do this
   // by retrieving the holder services.
   art::ServiceHandle<ActionHolderService> actionHolder;
   art::ServiceHandle<DetectorHolderService> detectorHolder;
 
-    detectorHolder->initialize();
-    // Build the detectors' logical volumes
-    detectorHolder -> constructAllLVs();
-    // And running @callArtProduces@ on each
-    actionHolder -> callArtProduces(producesCollector());
-    detectorHolder -> callArtProduces(producesCollector());
+  detectorHolder->initialize();
+  // Build the detectors' logical volumes
+  detectorHolder -> constructAllLVs();
+  // And running @callArtProduces@ on each
+  actionHolder -> callArtProduces(producesCollector());
+  detectorHolder -> callArtProduces(producesCollector());
 
-    //    ((artg4tk::SteppingActionBase*)&*pla)-> callArtProduces(this);
-    // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);
-    // ((artg4tk::TrackingActionBase*)&*pla) -> callArtProduces(this);
-  // Set up the random number engine.
-  // See the documentation in RandomNumberHeader.h for
-  // how this works. Note that @createEngine@ is a member function
-  // of our base class (actually, a couple of base classes deep!).
-  // Note that the name @G4Engine@ is special.
-  if (seed_ == -1) {
-	  // Construct seed from time and pid. (default behavior if
-	  // no seed is provided by the fcl file)
-	  // Note: According to Kevin Lynch, the two lines below are not portable.
-	  seed_ = time(0) + getpid();
-	  seed_ = ((seed_ & 0xFFFF0000) >> 16) | ((seed_ & 0x0000FFFF) << 16); //exchange upper and lower word
-	  seed_ = seed_ % 900000000; // ensure the seed is in the correct range for createEngine
+  // ((artg4tk::SteppingActionBase*)&*pla)-> callArtProduces(this);
+  // ((artg4tk::EventActionBase*)&*pla) -> callArtProduces(this);
+  // ((artg4tk::TrackingActionBase*)&*pla) -> callArtProduces(this);
+
+  // -- Check for invalid seed value
+  if (seed_ > 900000000) {
+    //mf::LogError("SeedCheck") << "Bad seed provided, max seed value is 9E8.
+    throw cet::exception("largeant:BadSeedValue")
+          << "The provided largeant seed value: " << seed_
+          << " is invalid! Maximum seed value is 9E8.";
   }
-  createEngine( seed_, "G4Engine");
+  // Set up the random number engine.
+  // -- D.R.: Use the NuRandomService engine for additional control over the seed generation policy
+  (void)art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,"G4Engine",p,"seed");
 
   // Handle the afterEvent setting
   if ( afterEvent_ == "ui" ) {
@@ -244,8 +243,6 @@ void larg4::larg4Main::beginRun(art::Run & r)
 
   // Get all of the actions and initialize them
   art::ServiceHandle<ActionHolderService> actionHolder;
-
-
   actionHolder->initialize();
 
   // Store the run in the action holder
@@ -286,8 +283,8 @@ void larg4::larg4Main::beginRun(art::Run & r)
     string macroLocation = "";
     bool macroWasFound = pathFinder_.find_file(visMacro_, macroLocation);
     logInfo_ << "Finding path for " << visMacro_ << "...\nSearch "
-	     << (macroWasFound ? "successful " : "unsuccessful ")
-	     << "and path is: \n" << macroLocation << "\n" << endl;
+             << (macroWasFound ? "successful " : "unsuccessful ")
+             << "and path is: \n" << macroLocation << "\n" << endl;
 
     // Execute the macro if we were able to find it
     if (macroWasFound) {
@@ -301,7 +298,7 @@ void larg4::larg4Main::beginRun(art::Run & r)
       // If it wasn't found...
       // Leave a message for the user ...
       logInfo_ << "Unable to find " << visMacro_ << " in the path(s) "
-	       << macroPath_ << endl;
+               << macroPath_ << endl;
       // ... and disable visualization for the future
       enableVisualization_ = false;
       delete visManager_;
@@ -348,48 +345,6 @@ void larg4::larg4Main::produce(art::Event & e)
   e.put(std::move(partCol));
   e.put(std::move(tpassn));
 
-/*
-  unsigned int nGeneratedParticles = 0;
-  art::ServiceHandle<larg4::ParticleListActionService const> h;
-  sim::ParticleList particleList =h->YieldList();
-
-  std::unique_ptr< std::vector<simb::MCParticle> >               partCol                    (new std::vector<simb::MCParticle  >);
-
-  auto tpassn = std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
-        for(auto const& partPair: particleList) {
-          simb::MCParticle& p = *(partPair.second);
-          ++nGeneratedParticles;
-
-          // if the particle has been marked as dropped, we don't save it
-          // (as of LArSoft ~v5.6 this does not ever happen because
-          // ParticleListAction has already taken care of deleting them)
-          //if (ParticleListAction::isDropped(&p)) continue;
-
-          sim::GeneratedParticleInfo const truthInfo{
-            fparticleListAction->GetPrimaryTruthIndex(p.TrackId())
-            };
-          if (!truthInfo.hasGeneratedParticleIndex() && (p.Mother() == 0)) {
-            // this means it's primary but with no information; logic error!!
-            art::Exception error(art::errors::LogicError);
-            error << "Failed to match primary particle:\n";
-            sim::dump::DumpMCParticle(error, p, "  ");
-	    //            error << "\nwith particles from the truth record '"
-            //  << mclistHandle.provenance()->inputTag() << "':\n";
-	    //            sim::dump::DumpMCTruth(error, *mct, 2U, "  "); // 2 points per line
-            //error << "\n";
-            throw error;
-          }
-
-	  if(fSparsifyTrajectories) p.SparsifyTrajectory();
-
-          partCol->push_back(std::move(p));
-
-          tpassn->addSingle(mct, makeMCPartPtr(partCol->size() - 1), truthInfo);
-
-        } // for(particleList)
-
-  */
-
 
 #ifdef G4VIS_USE
   // If visualization is enabled, and we want to pause after each event, do
@@ -401,28 +356,27 @@ void larg4::larg4Main::produce(art::Event & e)
     UI_->ApplyCommand("/vis/viewer/flush");
 
     // Only pause or bring up a UI if
-	//  a) we're doing so for all events (!visSpecificEvents_)
-	//  b) the current event was specified as one to pause for
-	//     (eventsToDisplay_.count(e.id().event()) > 0)
-	if ( !visSpecificEvents_ || eventsToDisplay_.count(e.id().event()) > 0 ) {
-		if ( uiAtEndEvent_ ) {
-			session_ = new G4UIterminal;
-			session_->SessionStart();
-			delete session_;
-		}
+    //  a) we're doing so for all events (!visSpecificEvents_)
+    //  b) the current event was specified as one to pause for
+    //     (eventsToDisplay_.count(e.id().event()) > 0)
+    if ( !visSpecificEvents_ || eventsToDisplay_.count(e.id().event()) > 0 ) {
+      if ( uiAtEndEvent_ ) {
+        session_ = new G4UIterminal;
+        session_->SessionStart();
+        delete session_;
+      }
 
-		if ( pauseAfterEvent_) {
-			// Use cout so that it is printed to console immediately.
-			// logInfo_ prints everything at once, so if we used that, we
-			// would find out that we should press ENTER to continue only
-			// *after* we'd actually done so!
-			cout << "Event: " << e.id().event()
-				<< ", pausing so you can appreciate visualization. "
-				<< "Hit ENTER to continue." << std::endl;
-			std::cin.ignore();
-		}
-	}
-
+      if ( pauseAfterEvent_) {
+        // Use cout so that it is printed to console immediately.
+        // logInfo_ prints everything at once, so if we used that, we
+        // would find out that we should press ENTER to continue only
+        // *after* we'd actually done so!
+        cout << "Event: " << e.id().event()
+             << ", pausing so you can appreciate visualization. "
+             << "Hit ENTER to continue." << std::endl;
+        std::cin.ignore();
+      }
+    }
   }
 #endif
 

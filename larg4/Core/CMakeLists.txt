@@ -22,6 +22,7 @@ art_make(
     ${G4RUN}
     ${G4TRACKING}
     larg4_pluginActions_ParticleListAction_service
+    nurandom_RandomUtils_NuRandomService_service
     MF_MessageLogger
     ${ROOT_CORE}
     ${ROOT_PHYSICS}
