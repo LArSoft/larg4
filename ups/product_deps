@@ -32,20 +32,21 @@ product          version
 artg4tk         v09_08_00
 larevt          v08_11_02
 nug4            v1_04_02
+nurandom        v1_04_02
 cetbuildtools   v7_15_01       -       only_for_build
 end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes".
-qualifier      artg4tk        larevt         nug4
-e19:py2:debug  e19:py2:debug  e19:py2:debug  e19:py2:debug
-e19:py2:prof   e19:py2:prof   e19:py2:prof   e19:py2:prof
-e19:debug      e19:debug      e19:debug      e19:debug
-e19:prof       e19:prof       e19:prof       e19:prof
-c7:py2:debug   c7:py2:debug   c7:py2:debug   c7:py2:debug
-c7:py2:prof    c7:py2:prof    c7:py2:prof    c7:py2:prof
-c7:debug       c7:debug       c7:debug       c7:debug
-c7:prof        c7:prof        c7:prof        c7:prof
+qualifier      artg4tk        larevt         nug4          nurandom
+e19:py2:debug  e19:py2:debug  e19:py2:debug  e19:py2:debug e19:py2:debug
+e19:py2:prof   e19:py2:prof   e19:py2:prof   e19:py2:prof  e19:py2:prof
+e19:debug      e19:debug      e19:debug      e19:debug     e19:debug
+e19:prof       e19:prof       e19:prof       e19:prof      e19:prof
+c7:py2:debug   c7:py2:debug   c7:py2:debug   c7:py2:debug  c7:py2:debug
+c7:py2:prof    c7:py2:prof    c7:py2:prof    c7:py2:prof   c7:py2:prof
+c7:debug       c7:debug       c7:debug       c7:debug      c7:debug
+c7:prof        c7:prof        c7:prof        c7:prof       c7:prof
 end_qualifier_list
 
 # Preserve tabs and formatting in emacs and vi / vim:
