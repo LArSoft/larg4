@@ -401,8 +401,39 @@ namespace larg4 {
 
     if(aTrack){
       fCurrentParticle.particle->SetWeight(aTrack->GetWeight());
-      G4String process = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+
+      // Get the post-step information from the G4Step.
+      const G4StepPoint* postStepPoint = aTrack->GetStep()->GetPostStepPoint();
+
+      G4String process = postStepPoint->GetProcessDefinedStep()->GetProcessName();
       fCurrentParticle.particle->SetEndProcess(process);
+
+
+      // -- D.R. Store the final point only for particles that have not had intermediate trajectory
+      //    points saved. This avoids double counting the final trajectory points for particles from
+      //    generators with storable trajectory points.
+      G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
+
+      if (!keepGenerator) {
+        const G4ThreeVector position = postStepPoint->GetPosition();
+        G4double time = postStepPoint->GetGlobalTime();
+
+        // Remember that LArSoft uses cm, ns, GeV.
+        TLorentzVector fourPos( position.x() / CLHEP::cm,
+                               position.y() / CLHEP::cm,
+                               position.z() / CLHEP::cm,
+                               time / CLHEP::ns );
+
+        const G4ThreeVector momentum = postStepPoint->GetMomentum();
+        const G4double energy = postStepPoint->GetTotalEnergy();
+        TLorentzVector fourMom( momentum.x() / CLHEP::GeV,
+                               momentum.y() / CLHEP::GeV,
+                               momentum.z() / CLHEP::GeV,
+                               energy / CLHEP::GeV );
+
+        // Add another point in the trajectory.
+        AddPointToCurrentParticle( fourPos, fourMom, std::string(process) );
+      }
     }
 
     // store truth record pointer, only if it is available
