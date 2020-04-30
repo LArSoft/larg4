@@ -130,6 +130,7 @@ namespace larg4 {
     fparticleList->clear();
     fParentIDMap.clear();
     fMCTIndexMap.clear();
+    fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
 
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
@@ -236,6 +237,8 @@ namespace larg4 {
     G4int parentID = track->GetParentID() + fTrackIDOffset;
 
     std::string process_name = "unknown";
+    std::string mct_primary_process = "unknown";
+    bool isFromMCTProcessPrimary = false;
 
     // Is there an MCTruth object associated with this G4Track?  We
     // have to go up a "chain" of information to find out:
@@ -250,10 +253,39 @@ namespace larg4 {
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
 
+        mct_primary_process = ppi->GetMCParticle()->Process();
+
         // If we've made it this far, a PrimaryParticleInformation
         // object exists and we are using a primary particle, set the
         // process name accordingly
-        process_name = "primary";
+
+        // -- D.R. : if process == "primary" exactly (this will most likely be the case), mark it as
+        //    a primary with keepable trajectory for itself and its descendants.
+        // -- elsif it simply starts with "primary", accept it but mark it as non-keep
+        // -- else force it to be primary because we have determined that it is a primary particle
+        //    This was the original behavior of the code i.e. process was _set_ to "primary"
+        //    regardless of what the process name was in the generator MCTruth object.
+        //
+        // -- NOTE: This enforces a convention for process names assigned in the gen stage.
+        if ( (mct_primary_process.compare("primary") == 0) ) {
+          process_name = "primary";
+          isFromMCTProcessPrimary = true;
+        } else if (mct_primary_process.find("primary") == 0) {
+          process_name = mct_primary_process;
+          isFromMCTProcessPrimary = false;
+          mf::LogDebug("PrimaryParticle") << "MCTruth primary process name contains \"primary\" "
+                                          << " but is not solely \"primary\" : " << process_name
+                                          << ".\nWill not store full set of trajectory points.";
+        } else { // -- override it
+          process_name = "primary";
+          isFromMCTProcessPrimary = true;
+          mf::LogWarning("PrimaryParticle") << "MCTruth primary process does not beging with string"
+                                            << " literal \"primary\" : " << process_name
+                                            << "\nOVERRIDING it to \"primary\"";
+        }
+        // -- The process_name check is simply to allow an additional way to reduce memory usage,
+        //    namely, by creating MCTruth input particles with multiple process labels (e.g. "primary"
+        //    and "primaryBackground") that can be used to veto storage of trajectory points.
 
         // primary particles should have parentID = 0, even if there
         // are multiple MCTruths for this event
@@ -357,6 +389,10 @@ namespace larg4 {
       // Once the parentID is secured, inherit the MCTruth Index
       // which should have been set already
       primarymctIndex = fMCTIndexMap[parentID];
+
+      // Inherit whether the parent is from a primary with MCTruth process_name == "primary"
+      isFromMCTProcessPrimary = fMCTPrimProcessKeepMap[parentID];
+
       // MF_LOG_INFO("SecondaryMCTIndex") << "(trackID, parentID, MCTIndex) = " << trackID
       //                                  << ", " << parentID << ", " << primarymctIndex;
 
@@ -371,6 +407,12 @@ namespace larg4 {
     fCurrentParticle.truthIndex = primaryIndex;
 
     fMCTIndexMap[trackID] = primarymctIndex;
+
+    fMCTPrimProcessKeepMap[trackID] = isFromMCTProcessPrimary;
+
+    // -- filter by generator and processname:
+    fCurrentParticle.keepFullTrajectory = fMCTIndexToGeneratorMap[primarymctIndex].second /*allowable gen label lookup*/
+                                          && isFromMCTProcessPrimary;
 
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
@@ -410,11 +452,10 @@ namespace larg4 {
 
 
       // -- D.R. Store the final point only for particles that have not had intermediate trajectory
-      //    points saved. This avoids double counting the final trajectory points for particles from
+      //    points saved. This avoids double counting the final trajectory point for particles from
       //    generators with storable trajectory points.
-      G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
 
-      if (!keepGenerator) {
+      if (!fCurrentParticle.keepFullTrajectory) {
         const G4ThreeVector position = postStepPoint->GetPosition();
         G4double time = postStepPoint->GetGlobalTime();
 
@@ -516,14 +557,14 @@ namespace larg4 {
     << fstoreTrajectories;
     */
 
-    // -- D.R. Store additional trajectory points only for desired generators
-    G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
+    //G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
 
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
     // what, but whether we store the rest of the trajectory depends
     // on the process, and on a user switch.
-    if ( fstoreTrajectories  &&  !ignoreProcess && keepGenerator ){
+    // -- D.R. Store additional trajectory points only for desired generators and processes
+    if ( fstoreTrajectories  &&  !ignoreProcess && fCurrentParticle.keepFullTrajectory ){
 
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = step->GetPostStepPoint();
