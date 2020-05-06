@@ -160,6 +160,8 @@ namespace larg4 {
                                                      ///< multiple MCTruth objects.
     bool                     fKeepEMShowerDaughters; ///< whether to keep EM shower secondaries, tertiaries, etc
     std::vector<std::string> fNotStoredPhysics;      ///< Physics processes that will not be stored
+    bool                     fkeepOnlyPrimaryFullTraj; ///< Whether to store trajectories only for primaries and
+                                                       ///  their descendants with MCTruth process = "primary"
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 
