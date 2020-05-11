@@ -75,7 +75,8 @@ namespace larg4 {
       fstoreTrajectories( p.get<bool>("storeTrajectories",true) ),
       fkeepGenTrajectories( p.get<std::vector<std::string>>("keepGenTrajectories",{})),
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
-      fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{}))
+      fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
+      fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -410,9 +411,13 @@ namespace larg4 {
 
     fMCTPrimProcessKeepMap[trackID] = isFromMCTProcessPrimary;
 
-    // -- filter by generator and processname:
-    fCurrentParticle.keepFullTrajectory = fMCTIndexToGeneratorMap[primarymctIndex].second /*allowable gen label lookup*/
-                                          && isFromMCTProcessPrimary;
+
+    // -- determine whether full set of trajectorie points should be stored or only the start and end points
+    fCurrentParticle.keepFullTrajectory = ( !fstoreTrajectories ) ? false :       /*don't want trajectory points at all, bail*/
+                                          ( !(fMCTIndexToGeneratorMap[primarymctIndex].second) ) ? false : /*particle is not from a storable generator*/
+                                          ( !fkeepOnlyPrimaryFullTraj ) ? true :  /*want all primaries tracked for a storable generator*/
+                                          ( isFromMCTProcessPrimary ) ? true :    /*only descendants from primaries with MCTruth process == "primary"*/
+                                          false ;                                 /*not from MCTruth process "primary"*/
 
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.keep = true;
@@ -557,14 +562,12 @@ namespace larg4 {
     << fstoreTrajectories;
     */
 
-    //G4bool keepGenerator = (fMCTIndexToGeneratorMap[fMCTIndexMap[fCurrentParticle.particle->TrackId()]].second);
-
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
     // what, but whether we store the rest of the trajectory depends
     // on the process, and on a user switch.
     // -- D.R. Store additional trajectory points only for desired generators and processes
-    if ( fstoreTrajectories  &&  !ignoreProcess && fCurrentParticle.keepFullTrajectory ){
+    if ( !ignoreProcess && fCurrentParticle.keepFullTrajectory ){
 
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = step->GetPostStepPoint();
