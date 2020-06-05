@@ -134,6 +134,10 @@ namespace larg4 {
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
 
+    fPrimaryTruthMap.clear();
+    fMCTIndexToGeneratorMap.clear();
+    fNotStoredCounterUMap.clear();
+
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -231,11 +235,13 @@ namespace larg4 {
     // ID number that we'll use in the ParticleList.
     // It is offset by the number of tracks accumulated from the previous Geant4
     // runs (if any)
-    G4int trackID = track->GetTrackID() + fTrackIDOffset;
+    int trackID = sim::NoParticleId; // -- init
+    trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
 
     // And the particle's parent (same offset as above):
-    G4int parentID = track->GetParentID() + fTrackIDOffset;
+    int parentID = sim::NoParticleId; // -- init
+    parentID = track->GetParentID() + fTrackIDOffset;
 
     std::string process_name = "unknown";
     std::string mct_primary_process = "unknown";
@@ -757,6 +763,9 @@ namespace larg4 {
       unsigned int HowMany=0;
       for(auto const& iPartPair: particleList) {
           simb::MCParticle& p = *(iPartPair.second);
+
+          //if (this->isDropped(&p)) continue;
+
           auto gen_index = fMCTIndexMap[ p.TrackId() ];
           if (gen_index == mcl) {
             ++nGeneratedParticles;

@@ -143,8 +143,10 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
               << " volume(s) with auxiliary information."
               << std::endl << std::endl;
     std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+
     for (G4GDMLAuxMapType::const_iterator iter = auxmap->begin();
-        iter != auxmap->end(); iter++) {
+        iter != auxmap->end(); iter++)
+    {
         G4cout << "Volume " << ((*iter).first)->GetName()
                << " has the following list of auxiliary information: "
                << G4endl;
@@ -264,25 +266,6 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     if (dumpMP_)
     {
       G4cout << *(G4Material::GetMaterialTable());
-      /*
-        G4Region* region = G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld", false);
-        std::vector<G4Material*>::const_iterator mItr = region->GetMaterialIterator();
-        size_t nMaterial = region->GetNumberOfMaterials();
-        G4cout << nMaterial << G4endl;
-        for (size_t iMate = 0; iMate < nMaterial; iMate++) {
-          G4cout << (*mItr)->GetName() << G4endl;
-          G4MaterialPropertiesTable* mt = (*mItr)->GetMaterialPropertiesTable();
-          if (mt != nullptr) {
-            mt->DumpTable();
-            //            if (mt->GetProperty("SLOWCOMPONENT", true) != nullptr) {
-            //  mt->GetProperty("SLOWCOMPONENT", true)->SetSpline(true);
-            //    std::cout << "Scint " << mt->GetProperty("SLOWCOMPONENT", true)->GetVectorLength()<< std::endl;
-            //}
-        }
-        mItr++;
-      }
-      G4cout << G4endl;
-      */
     }
     if (inputVolumes_ > 0) {
       setStepLimits(parser);
@@ -299,6 +282,15 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     std::vector<G4LogicalVolume *> myLVvec;
     myLVvec.push_back(pLVStore->at(0)); // only need to return the LV of the world
     std::cout << "nr of LV ======================:  " << myLVvec.size() << std::endl;
+    delete parser;
+    delete fReader;
+    //delete fStepLimit;
+    //delete World;
+    /*
+    delete pLVStore;
+    delete pPVStore;
+    delete SDman;
+    */
     return myLVvec;
 }
 
@@ -323,10 +315,13 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
   std::string volumeName  = "";
   float previousStepLimit = 0.;
   float newStepLimit      = 0.;
+  G4UserLimits* fStepLimitOverride = nullptr;
+  G4LogicalVolume* setVol = nullptr;
   for(size_t i=0; i<inputVolumes_; ++i)
   {
     // -- Check whether the volumeName provided corresponds to a valid volumeName in the geometry
-    G4LogicalVolume* setVol = parser->GetVolume(selectedVolumes_[i].first);
+    //G4LogicalVolume* setVol = parser->GetVolume(selectedVolumes_[i].first);
+    setVol = parser->GetVolume(selectedVolumes_[i].first);
 
     // -- get the G4LogicalVolume corresponding to the selectedVolume
     volumeName = setVol->GetName();
@@ -351,13 +346,16 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
       }
     }//--check if new steplimit differs from a previously set value
 
-    G4UserLimits *fStepLimitOverride = new G4UserLimits(selectedVolumes_[i].second);
+    fStepLimitOverride = new G4UserLimits(selectedVolumes_[i].second);
     mf::LogInfo("LArG4DetectorService::setStepLimits") << "fStepLimitOverride:  "
               << selectedVolumes_[i].second << "  "
               << (selectedVolumes_[i].second * CLHEP::mm) / CLHEP::cm << " cm"
               << " for volume: " << selectedVolumes_[i].first;
     setVol->SetUserLimits(fStepLimitOverride);
+    //delete fStepLimitOverride;
   }//--loop over input volumes
+  //delete fStepLimitOverride;
+  //delete setVol;
 }//--end of setStepLimit()
 
 void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector) {
