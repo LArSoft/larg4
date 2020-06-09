@@ -55,6 +55,9 @@
 #include "Geant4/G4UnitsTable.hh"
 #include "Geant4/G4StepLimiter.hh"
 #include "Geant4/G4RegionStore.hh"
+#include "Geant4/G4Types.hh"
+#include "Geant4/G4AutoDelete.hh"
+
 // C++ includes
 #include <unordered_map>
 using std::string;
@@ -82,9 +85,14 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
   checkoverlaps_( p.get<bool>("CheckOverlaps",false)),
   volumeNames_( p.get<std::vector<std::string>>("volumeNames",{}) ),
   stepLimits_( p.get<std::vector<float>>("stepLimits",{}) ),
+  inputVolumes_(0),
   dumpMP_( p.get<bool>("DumpMaterialProperties",false)),
-  logInfo_( "LArG4DetectorService" )
+  logInfo_( "LArG4DetectorService" ),
+  DetectorList(0)
 {
+  setGDMLVolumes_.clear();
+  overrideGDMLStepLimit_Map.clear();
+
   // -- D.R. : Check for valid volume, steplimit pairs
   if(volumeNames_.size() != stepLimits_.size()) {
     throw cet::exception("LArG4DetectorService") << "Configuration error: volumeNames:[] and"
@@ -103,7 +111,9 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
                       << " positive! Bad value : stepLimits[" << i << "] = " << stepLimits_.at(i)
                       << " [mm]\n";
     } else {
-      selectedVolumes_.push_back( std::make_pair( volumeNames_.at(i), stepLimits_.at(i) ) );
+      G4double sL_ = (G4double)( stepLimits_.at(i) * CLHEP::mm);
+      overrideGDMLStepLimit_Map.emplace( volumeNames_.at(i), sL_ );
+      //ind++;
       mf::LogInfo("LArG4DetectorService::Ctr") << "Volume: " << volumeNames_.at(i)
                                                << ", stepLimit: " << stepLimits_.at(i);
     }//--check for negative
@@ -166,19 +176,24 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
             }
 
             if ((*vit).type == "StepLimit") {
-                G4UserLimits *fStepLimit = NULL;
+                G4UserLimits *fStepLimit = new G4UserLimits();
+                G4AutoDelete::Register(fStepLimit);
 
                 //-- check that steplimit has valid length unit category
                 G4String steplimit_category = "Length";
                 if(provided_category == steplimit_category) {
                   mf::LogInfo("AuxUnit") << "Valid StepLimit unit category obtained: " << provided_category.c_str();
-                  fStepLimit = new G4UserLimits(value);
+                  // -- convert length to mm
+                  value = (value/CLHEP::mm) * CLHEP::mm;
+                  //<--fStepLimit = new G4UserLimits(value);
+                  fStepLimit->SetMaxAllowedStep(value); // -- !
                   G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
                 } else if (provided_category == "NONE"){ //--no unit category provided, use the default CLHEP::mm
                   MF_LOG_WARNING("StepLimitUnit") << "StepLimit in geometry file does not have a unit!"
                                                   << " Defaulting to mm...";
                   value *= CLHEP::mm;
-                  fStepLimit = new G4UserLimits(value);
+                  //<--fStepLimit = new G4UserLimits(value);
+                  fStepLimit->SetMaxAllowedStep(value); // -- !
                   G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
                 } else { //--wrong unit category provided
                   throw cet::exception("StepLimitUnit") << "StepLimit does not have a valid length unit!\n"
@@ -189,7 +204,8 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                 // -- D.R. insert into map <volName,stepLimit> to cross-check later
                 MF_LOG_DEBUG("LArG4DetectorService::") << "Set stepLimit for volume: " << ((*iter).first)->GetName()
                         << " from the GDML file.";
-                setGDMLVolumes_.insert(std::make_pair( ((*iter).first)->GetName(), atof((*vit).value) ));
+                //setGDMLVolumes_.insert(std::make_pair( ((*iter).first)->GetName(), atof((*vit).value) ));
+                setGDMLVolumes_.insert(std::make_pair( ((*iter).first)->GetName(), (float)(value/CLHEP::mm) ));
             }
             if ((*vit).type == "SensDet") {
                 if ((*vit).value == "DRCalorimeter") {
@@ -268,7 +284,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
       G4cout << *(G4Material::GetMaterialTable());
     }
     if (inputVolumes_ > 0) {
-      setStepLimits(parser);
+      setStepLimits(pLVStore);
     }
     std::cout << "List SD Tree: " << std::endl;
     SDman->ListTree();
@@ -284,13 +300,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     std::cout << "nr of LV ======================:  " << myLVvec.size() << std::endl;
     delete parser;
     delete fReader;
-    //delete fStepLimit;
-    //delete World;
-    /*
-    delete pLVStore;
-    delete pPVStore;
-    delete SDman;
-    */
+
     return myLVvec;
 }
 
@@ -302,7 +312,7 @@ std::vector<G4VPhysicalVolume *> larg4::LArG4DetectorService::doPlaceToPVs(std::
     return myPVvec;
 }
 
-void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
+void larg4::LArG4DetectorService::setStepLimits(G4LogicalVolumeStore *volStore){
   // -- D. Rivera : This function sets step limits for volumes provided in the configuration file
   //                and overrides the step limit (if any) set for the same volumes but from the GMDL
   //                geometry file. The GDML step limit (if provided in the gdml file) is set first
@@ -313,27 +323,34 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
                   << " appropriate parameter.";
 
   std::string volumeName  = "";
-  float previousStepLimit = 0.;
-  float newStepLimit      = 0.;
-  G4UserLimits* fStepLimitOverride = nullptr;
-  G4LogicalVolume* setVol = nullptr;
-  for(size_t i=0; i<inputVolumes_; ++i)
+  G4LogicalVolume* setVol = 0;
+  for(auto const& [name, newStepLimit] : overrideGDMLStepLimit_Map )
   {
+    G4double previousStepLimit = 0.;
+
     // -- Check whether the volumeName provided corresponds to a valid volumeName in the geometry
-    //G4LogicalVolume* setVol = parser->GetVolume(selectedVolumes_[i].first);
-    setVol = parser->GetVolume(selectedVolumes_[i].first);
+    try {
+      setVol = volStore->GetVolume(name);
+    } catch (...)
+    {
+      throw cet::exception("invalidInputVolumeName") << "Provided volume name : "
+                                                     << name << " not found!\n";
+      continue;
+    }
 
     // -- get the G4LogicalVolume corresponding to the selectedVolume
     volumeName = setVol->GetName();
-    newStepLimit = selectedVolumes_[i].second;
     MF_LOG_DEBUG("LArG4DetectorService::setStepLimits") << "Got logical volume with name: "
                                                         << volumeName;
+
+    G4UserLimits* fStepLimitOverride = new G4UserLimits();
+    G4AutoDelete::Register(fStepLimitOverride);
 
     // -- check if a stepLimit for this volume has been set before:
     auto search = setGDMLVolumes_.find(volumeName);
     if(search != setGDMLVolumes_.end())
-    {
-      previousStepLimit = search->second;
+    { // -- volume name found in override list
+      previousStepLimit = (G4double)(search->second);
       if (newStepLimit != previousStepLimit) {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits") << "OVERRIDING PREVIOUSLY SET"
                     << " STEPLIMIT FOR VOLUME : " << volumeName
@@ -346,16 +363,13 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
       }
     }//--check if new steplimit differs from a previously set value
 
-    fStepLimitOverride = new G4UserLimits(selectedVolumes_[i].second);
+    fStepLimitOverride->SetMaxAllowedStep(newStepLimit); // -- !
     mf::LogInfo("LArG4DetectorService::setStepLimits") << "fStepLimitOverride:  "
-              << selectedVolumes_[i].second << "  "
-              << (selectedVolumes_[i].second * CLHEP::mm) / CLHEP::cm << " cm"
-              << " for volume: " << selectedVolumes_[i].first;
+              << newStepLimit / CLHEP::mm << " mm "
+              << newStepLimit / CLHEP::cm << " cm "
+              << "for volume: " << volumeName;
     setVol->SetUserLimits(fStepLimitOverride);
-    //delete fStepLimitOverride;
   }//--loop over input volumes
-  //delete fStepLimitOverride;
-  //delete setVol;
 }//--end of setStepLimit()
 
 void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector) {
