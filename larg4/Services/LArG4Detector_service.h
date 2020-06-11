@@ -84,7 +84,7 @@ namespace larg4 {
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs(std::vector<G4LogicalVolume*>) override;
 
     // -- D.R. Set the step limits for specific volumes from the configuration file
-    void setStepLimits(G4LogicalVolumeStore *volStore);
+    void setStepLimits();
 
     // We need to add something to the art event, so we need these two methods:
 

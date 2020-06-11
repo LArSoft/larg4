@@ -235,13 +235,11 @@ namespace larg4 {
     // ID number that we'll use in the ParticleList.
     // It is offset by the number of tracks accumulated from the previous Geant4
     // runs (if any)
-    int trackID = sim::NoParticleId; // -- init
-    trackID = track->GetTrackID() + fTrackIDOffset;
+    int const trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
 
     // And the particle's parent (same offset as above):
-    int parentID = sim::NoParticleId; // -- init
-    parentID = track->GetParentID() + fTrackIDOffset;
+    int parentID = track->GetParentID() + fTrackIDOffset;
 
     std::string process_name = "unknown";
     std::string mct_primary_process = "unknown";

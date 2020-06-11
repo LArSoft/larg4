@@ -125,16 +125,16 @@ larg4::LArG4DetectorService::~LArG4DetectorService() {
 }
 
 std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
-    ColorReader* fReader = new ColorReader;
-    G4GDMLParser *parser = new G4GDMLParser(fReader);
-    parser->SetOverlapCheck(checkoverlaps_);
+    ColorReader reader;
+    G4GDMLParser parser(&reader);
+    parser.SetOverlapCheck(checkoverlaps_);
     cet::search_path sp{"FW_SEARCH_PATH"};
     std::string fullGDMLFileName;
     if (!sp.find_file(gdmlFileName_, fullGDMLFileName)) {
       throw cet::exception("LArG4DetectorService") << "Cannot find file: " << gdmlFileName_;
     }
-    parser->Read(fullGDMLFileName);
-    G4VPhysicalVolume *World = parser->GetWorldVolume();
+    parser.Read(fullGDMLFileName);
+    G4VPhysicalVolume *World = parser.GetWorldVolume();
 
     std::stringstream ss;
     ss << World->GetTranslation() << "\n\n";
@@ -149,7 +149,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
        << " physical volumes."
        << "\n\n";
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
-    const G4GDMLAuxMapType* auxmap = parser->GetAuxMap();
+    const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
     ss << "Found " << auxmap->size()
        << " volume(s) with auxiliary information."
        << "\n\n";
@@ -282,7 +282,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
       G4cout << *(G4Material::GetMaterialTable()) << G4endl;
     }
     if (inputVolumes_ > 0) {
-      setStepLimits(pLVStore);
+      setStepLimits();
     }
     std::cout << "List SD Tree: \n";
     SDman->ListTree();
@@ -296,8 +296,6 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
     std::vector<G4LogicalVolume *> myLVvec;
     myLVvec.push_back(pLVStore->at(0)); // only need to return the LV of the world
     std::cout << "nr of LV ======================:  " << myLVvec.size() << "\n";
-    delete parser;
-    delete fReader;
 
     return myLVvec;
 }
@@ -310,7 +308,7 @@ std::vector<G4VPhysicalVolume *> larg4::LArG4DetectorService::doPlaceToPVs(std::
     return myPVvec;
 }
 
-void larg4::LArG4DetectorService::setStepLimits(G4LogicalVolumeStore *volStore){
+void larg4::LArG4DetectorService::setStepLimits() {
   // -- D. Rivera : This function sets step limits for volumes provided in the configuration file
   //                and overrides the step limit (if any) set for the same volumes but from the GMDL
   //                geometry file. The GDML step limit (if provided in the gdml file) is set first
@@ -321,19 +319,15 @@ void larg4::LArG4DetectorService::setStepLimits(G4LogicalVolumeStore *volStore){
                   << " appropriate parameter.";
 
   std::string volumeName  = "";
-  G4LogicalVolume* setVol = 0;
+  G4LogicalVolume* setVol = nullptr;
   for(auto const& [name, newStepLimit] : overrideGDMLStepLimit_Map )
   {
     G4double previousStepLimit = 0.;
 
     // -- Check whether the volumeName provided corresponds to a valid volumeName in the geometry
-    try {
-      setVol = volStore->GetVolume(name);
-    } catch (...)
-    {
-      throw cet::exception("invalidInputVolumeName") << "Provided volume name : "
-                                                     << name << " not found!\n";
-      continue;
+    if (setVol = G4LogicalVolumeStore::GetInstance()->GetVolume(name, false); !setVol) {
+      throw cet::exception("invalidInputVolumeName")
+        << "Provided volume name : " << name << " not found!\n";
     }
 
     // -- get the G4LogicalVolume corresponding to the selectedVolume
