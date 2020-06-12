@@ -55,6 +55,9 @@
 #include "Geant4/G4UnitsTable.hh"
 #include "Geant4/G4StepLimiter.hh"
 #include "Geant4/G4RegionStore.hh"
+#include "Geant4/G4Types.hh"
+#include "Geant4/G4AutoDelete.hh"
+
 // C++ includes
 #include <unordered_map>
 using std::string;
@@ -82,9 +85,14 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
   checkoverlaps_( p.get<bool>("CheckOverlaps",false)),
   volumeNames_( p.get<std::vector<std::string>>("volumeNames",{}) ),
   stepLimits_( p.get<std::vector<float>>("stepLimits",{}) ),
+  inputVolumes_(0),
   dumpMP_( p.get<bool>("DumpMaterialProperties",false)),
-  logInfo_( "LArG4DetectorService" )
+  logInfo_( "LArG4DetectorService" ),
+  DetectorList(0)
 {
+  setGDMLVolumes_.clear();
+  overrideGDMLStepLimit_Map.clear();
+
   // -- D.R. : Check for valid volume, steplimit pairs
   if(volumeNames_.size() != stepLimits_.size()) {
     throw cet::exception("LArG4DetectorService") << "Configuration error: volumeNames:[] and"
@@ -103,7 +111,8 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
                       << " positive! Bad value : stepLimits[" << i << "] = " << stepLimits_.at(i)
                       << " [mm]\n";
     } else {
-      selectedVolumes_.push_back( std::make_pair( volumeNames_.at(i), stepLimits_.at(i) ) );
+      G4double sL_ = (G4double)( stepLimits_.at(i) * CLHEP::mm);
+      overrideGDMLStepLimit_Map.emplace( volumeNames_.at(i), sL_ );
       mf::LogInfo("LArG4DetectorService::Ctr") << "Volume: " << volumeNames_.at(i)
                                                << ", stepLimit: " << stepLimits_.at(i);
     }//--check for negative
@@ -116,42 +125,46 @@ larg4::LArG4DetectorService::~LArG4DetectorService() {
 }
 
 std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
-    ColorReader* fReader = new ColorReader;
-    G4GDMLParser *parser = new G4GDMLParser(fReader);
-    parser->SetOverlapCheck(checkoverlaps_);
+    ColorReader reader;
+    G4GDMLParser parser(&reader);
+    parser.SetOverlapCheck(checkoverlaps_);
     cet::search_path sp{"FW_SEARCH_PATH"};
     std::string fullGDMLFileName;
     if (!sp.find_file(gdmlFileName_, fullGDMLFileName)) {
       throw cet::exception("LArG4DetectorService") << "Cannot find file: " << gdmlFileName_;
     }
-    parser->Read(fullGDMLFileName);
-    G4VPhysicalVolume *World = parser->GetWorldVolume();
-    std::cout << World->GetTranslation() << std::endl << std::endl;
-    std::cout << "Found World:  " << World-> GetName() << std::endl;
-    std::cout << "World LV:  " << World->GetLogicalVolume()->GetName() << std::endl;
+    parser.Read(fullGDMLFileName);
+    G4VPhysicalVolume *World = parser.GetWorldVolume();
+
+    std::stringstream ss;
+    ss << World->GetTranslation() << "\n\n";
+    ss << "Found World:  "  << World-> GetName() << "\n";
+    ss << "World LV:  "     << World->GetLogicalVolume()->GetName() << "\n";
     G4LogicalVolumeStore *pLVStore = G4LogicalVolumeStore::GetInstance();
-    std::cout << "Found " << pLVStore->size()
-            << " logical volumes."
-            << std::endl << std::endl;
+    ss << "Found " << pLVStore->size()
+       << " logical volumes."
+       << "\n\n";
     G4PhysicalVolumeStore *pPVStore = G4PhysicalVolumeStore::GetInstance();
-    std::cout << "Found " << pPVStore->size()
-              << " physical volumes."
-              << std::endl << std::endl;
+    ss << "Found " << pPVStore->size()
+       << " physical volumes."
+       << "\n\n";
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
-    const G4GDMLAuxMapType* auxmap = parser->GetAuxMap();
-    std::cout << "Found " << auxmap->size()
-              << " volume(s) with auxiliary information."
-              << std::endl << std::endl;
-    std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+    const G4GDMLAuxMapType* auxmap = parser.GetAuxMap();
+    ss << "Found " << auxmap->size()
+       << " volume(s) with auxiliary information."
+       << "\n\n";
+    ss << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+    mf::LogInfo("LArG4DetectorService::doBuildLVs") << ss.str();
+
     for (G4GDMLAuxMapType::const_iterator iter = auxmap->begin();
-        iter != auxmap->end(); iter++) {
+        iter != auxmap->end(); iter++)
+    {
         G4cout << "Volume " << ((*iter).first)->GetName()
-               << " has the following list of auxiliary information: "
-               << G4endl;
+               << " has the following list of auxiliary information: \n";
         for (G4GDMLAuxListType::const_iterator vit = (*iter).second.begin();
             vit != (*iter).second.end(); vit++) {
             G4cout << "--> Type: " << (*vit).type
-                   << " Value: " << (*vit).value << std::endl;
+                   << " Value: " << (*vit).value << "\n";
 
             G4double value = atof((*vit).value);
             G4double val_unit = 1; //--no unit
@@ -164,20 +177,23 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
             }
 
             if ((*vit).type == "StepLimit") {
-                G4UserLimits *fStepLimit = NULL;
+                G4UserLimits *fStepLimit = new G4UserLimits();
+                G4AutoDelete::Register(fStepLimit);
 
                 //-- check that steplimit has valid length unit category
                 G4String steplimit_category = "Length";
                 if(provided_category == steplimit_category) {
                   mf::LogInfo("AuxUnit") << "Valid StepLimit unit category obtained: " << provided_category.c_str();
-                  fStepLimit = new G4UserLimits(value);
-                  G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
+                  // -- convert length to mm
+                  value = (value/CLHEP::mm) * CLHEP::mm;
+                  fStepLimit->SetMaxAllowedStep(value);
+                  mf::LogInfo("fStepLimit") << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm\n";
                 } else if (provided_category == "NONE"){ //--no unit category provided, use the default CLHEP::mm
                   MF_LOG_WARNING("StepLimitUnit") << "StepLimit in geometry file does not have a unit!"
                                                   << " Defaulting to mm...";
                   value *= CLHEP::mm;
-                  fStepLimit = new G4UserLimits(value);
-                  G4cout << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm" << std::endl;
+                  fStepLimit->SetMaxAllowedStep(value);
+                  mf::LogInfo("fStepLimit") << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm\n";
                 } else { //--wrong unit category provided
                   throw cet::exception("StepLimitUnit") << "StepLimit does not have a valid length unit!\n"
                                                         << " Category of unit provided = " << provided_category << ".\n";
@@ -187,7 +203,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                 // -- D.R. insert into map <volName,stepLimit> to cross-check later
                 MF_LOG_DEBUG("LArG4DetectorService::") << "Set stepLimit for volume: " << ((*iter).first)->GetName()
                         << " from the GDML file.";
-                setGDMLVolumes_.insert(std::make_pair( ((*iter).first)->GetName(), atof((*vit).value) ));
+                setGDMLVolumes_.insert(std::make_pair( ((*iter).first)->GetName(), (float)(value/CLHEP::mm) ));
             }
             if ((*vit).type == "SensDet") {
                 if ((*vit).value == "DRCalorimeter") {
@@ -196,7 +212,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aDRCalorimeterSD);
                     ((*iter).first)->SetSensitiveDetector(aDRCalorimeterSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "Calorimeter") {
                     G4String name = ((*iter).first)->GetName() + "_Calorimeter";
@@ -204,7 +220,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aCalorimeterSD);
                     ((*iter).first)->SetSensitiveDetector(aCalorimeterSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "PhotonDetector") {
                     G4String name = ((*iter).first)->GetName() + "_PhotonDetector";
@@ -212,7 +228,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aPhotonSD);
                     ((*iter).first)->SetSensitiveDetector(aPhotonSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "Tracker") {
                     G4String name = ((*iter).first)->GetName() + "_Tracker";
@@ -220,7 +236,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aTrackerSD);
                     ((*iter).first)->SetSensitiveDetector(aTrackerSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "SimEnergyDeposit") {
                     G4String name = ((*iter).first)->GetName() + "_SimEnergyDeposit";
@@ -228,7 +244,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aSimEnergyDepositSD);
                     ((*iter).first)->SetSensitiveDetector(aSimEnergyDepositSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "AuxDet") {
                     G4String name = ((*iter).first)->GetName() + "_AuxDet";
@@ -236,7 +252,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     SDman->AddNewDetector(aAuxDetSD);
                     ((*iter).first)->SetSensitiveDetector(aAuxDetSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "HadInteraction") {
                     G4String name = ((*iter).first)->GetName() + "_HadInteraction";
@@ -245,7 +261,7 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     // SDman->AddNewDetector(aHadInteractionSD);
                     ((*iter).first)->SetSensitiveDetector(aHadInteractionSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 } else if ((*vit).value == "HadIntAndEdepTrk") {
                     G4String name = ((*iter).first)->GetName() + "_HadIntAndEdepTrk";
@@ -254,51 +270,33 @@ std::vector<G4LogicalVolume *> larg4::LArG4DetectorService::doBuildLVs() {
                     // SDman->AddNewDetector(aHadIntAndEdepTrkSD);
                     ((*iter).first)->SetSensitiveDetector(aHadIntAndEdepTrkSD);
                     std::cout << "Attaching sensitive Detector: " << (*vit).value
-                            << " to Volume:  " << ((*iter).first)->GetName() << std::endl;
+                            << " to Volume:  " << ((*iter).first)->GetName() << "\n";
                     DetectorList.push_back(std::make_pair((*iter).first->GetName(), (*vit).value));
                 }
             }
         }
-        std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
+        std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     }
     if (dumpMP_)
     {
-      G4cout << *(G4Material::GetMaterialTable());
-      /*
-        G4Region* region = G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld", false);
-        std::vector<G4Material*>::const_iterator mItr = region->GetMaterialIterator();
-        size_t nMaterial = region->GetNumberOfMaterials();
-        G4cout << nMaterial << G4endl;
-        for (size_t iMate = 0; iMate < nMaterial; iMate++) {
-          G4cout << (*mItr)->GetName() << G4endl;
-          G4MaterialPropertiesTable* mt = (*mItr)->GetMaterialPropertiesTable();
-          if (mt != nullptr) {
-            mt->DumpTable();
-            //            if (mt->GetProperty("SLOWCOMPONENT", true) != nullptr) {
-            //  mt->GetProperty("SLOWCOMPONENT", true)->SetSpline(true);
-            //    std::cout << "Scint " << mt->GetProperty("SLOWCOMPONENT", true)->GetVectorLength()<< std::endl;
-            //}
-        }
-        mItr++;
-      }
-      G4cout << G4endl;
-      */
+      G4cout << *(G4Material::GetMaterialTable()) << G4endl;
     }
     if (inputVolumes_ > 0) {
-      setStepLimits(parser);
+      setStepLimits();
     }
-    std::cout << "List SD Tree: " << std::endl;
+    std::cout << "List SD Tree: \n";
     SDman->ListTree();
-    std::cout << " Collection Capacity:  " << SDman->GetCollectionCapacity() << std::endl;
+    std::cout << " Collection Capacity:  " << SDman->GetCollectionCapacity() << "\n";
     G4HCtable* hctable = SDman->GetHCtable();
     for (G4int j = 0; j < SDman->GetCollectionCapacity(); j++) {
-        std::cout << "HC Name: " << hctable->GetHCname(j) << "   SD Name:  " << hctable->GetSDname(j) << std::endl;
+        std::cout << "HC Name: " << hctable->GetHCname(j) << "   SD Name:  " << hctable->GetSDname(j) << "\n";
     }
-    std::cout << "==================================================" << std::endl;
+    std::cout << "==================================================\n";
     // Return our logical volumes.
     std::vector<G4LogicalVolume *> myLVvec;
     myLVvec.push_back(pLVStore->at(0)); // only need to return the LV of the world
-    std::cout << "nr of LV ======================:  " << myLVvec.size() << std::endl;
+    std::cout << "nr of LV ======================:  " << myLVvec.size() << "\n";
+
     return myLVvec;
 }
 
@@ -310,7 +308,7 @@ std::vector<G4VPhysicalVolume *> larg4::LArG4DetectorService::doPlaceToPVs(std::
     return myPVvec;
 }
 
-void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
+void larg4::LArG4DetectorService::setStepLimits() {
   // -- D. Rivera : This function sets step limits for volumes provided in the configuration file
   //                and overrides the step limit (if any) set for the same volumes but from the GMDL
   //                geometry file. The GDML step limit (if provided in the gdml file) is set first
@@ -321,24 +319,30 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
                   << " appropriate parameter.";
 
   std::string volumeName  = "";
-  float previousStepLimit = 0.;
-  float newStepLimit      = 0.;
-  for(size_t i=0; i<inputVolumes_; ++i)
+  G4LogicalVolume* setVol = nullptr;
+  for(auto const& [name, newStepLimit] : overrideGDMLStepLimit_Map )
   {
+    G4double previousStepLimit = 0.;
+
     // -- Check whether the volumeName provided corresponds to a valid volumeName in the geometry
-    G4LogicalVolume* setVol = parser->GetVolume(selectedVolumes_[i].first);
+    if (setVol = G4LogicalVolumeStore::GetInstance()->GetVolume(name, false); !setVol) {
+      throw cet::exception("invalidInputVolumeName")
+        << "Provided volume name : " << name << " not found!\n";
+    }
 
     // -- get the G4LogicalVolume corresponding to the selectedVolume
     volumeName = setVol->GetName();
-    newStepLimit = selectedVolumes_[i].second;
     MF_LOG_DEBUG("LArG4DetectorService::setStepLimits") << "Got logical volume with name: "
                                                         << volumeName;
+
+    G4UserLimits* fStepLimitOverride = new G4UserLimits();
+    G4AutoDelete::Register(fStepLimitOverride);
 
     // -- check if a stepLimit for this volume has been set before:
     auto search = setGDMLVolumes_.find(volumeName);
     if(search != setGDMLVolumes_.end())
-    {
-      previousStepLimit = search->second;
+    { // -- volume name found in override list
+      previousStepLimit = (G4double)(search->second);
       if (newStepLimit != previousStepLimit) {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits") << "OVERRIDING PREVIOUSLY SET"
                     << " STEPLIMIT FOR VOLUME : " << volumeName
@@ -351,11 +355,12 @@ void larg4::LArG4DetectorService::setStepLimits(G4GDMLParser *parser){
       }
     }//--check if new steplimit differs from a previously set value
 
-    G4UserLimits *fStepLimitOverride = new G4UserLimits(selectedVolumes_[i].second);
+    fStepLimitOverride->SetMaxAllowedStep(newStepLimit); // -- !
     mf::LogInfo("LArG4DetectorService::setStepLimits") << "fStepLimitOverride:  "
-              << selectedVolumes_[i].second << "  "
-              << (selectedVolumes_[i].second * CLHEP::mm) / CLHEP::cm << " cm"
-              << " for volume: " << selectedVolumes_[i].first;
+              << newStepLimit / CLHEP::mm << " mm "
+              << newStepLimit / CLHEP::cm << " cm "
+              << "for volume: " << volumeName << "\n"
+              << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     setVol->SetUserLimits(fStepLimitOverride);
   }//--loop over input volumes
 }//--end of setStepLimit()

@@ -46,6 +46,7 @@
 #include <string>
 #include <unordered_map>
 #include "Geant4/G4LogicalVolume.hh"
+#include "Geant4/G4LogicalVolumeStore.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4GDMLParser.hh"
 
@@ -69,9 +70,9 @@ namespace larg4 {
     // A message logger for this action
     mf::LogInfo logInfo_;
 
-    std::vector< std::pair<std::string,std::string> > DetectorList;
-    std::vector< std::pair<std::string, float> >  selectedVolumes_; // holds all <volume, steplimit> pairs to be set from the configuration file
-    std::unordered_map<std::string, float> setGDMLVolumes_;         // holds all <volume, steplimit> pairs set from the GDML file
+    std::vector< std::pair<std::string,std::string>>  DetectorList;
+    std::map<std::string, G4double>                   overrideGDMLStepLimit_Map;
+    std::unordered_map<std::string, float>            setGDMLVolumes_;         // holds all <volume, steplimit> pairs set from the GDML file
   public:
     LArG4DetectorService(fhicl::ParameterSet const&);
     ~LArG4DetectorService();
@@ -83,7 +84,7 @@ namespace larg4 {
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs(std::vector<G4LogicalVolume*>) override;
 
     // -- D.R. Set the step limits for specific volumes from the configuration file
-    virtual void setStepLimits(G4GDMLParser *parser);
+    void setStepLimits();
 
     // We need to add something to the art event, so we need these two methods:
 
