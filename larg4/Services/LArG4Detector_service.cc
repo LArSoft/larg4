@@ -55,6 +55,7 @@
 #include "Geant4/G4UnitsTable.hh"
 #include "Geant4/G4StepLimiter.hh"
 #include "Geant4/G4RegionStore.hh"
+#include "Geant4/G4Types.hh"
 // C++ includes
 #include <unordered_map>
 using std::string;
@@ -85,6 +86,8 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
   dumpMP_( p.get<bool>("DumpMaterialProperties",false)),
   logInfo_( "LArG4DetectorService" )
 {
+  // Make sure units are defined.
+     G4UnitDefinition::GetUnitsTable();
   // -- D.R. : Check for valid volume, steplimit pairs
   if(volumeNames_.size() != stepLimits_.size()) {
     throw cet::exception("LArG4DetectorService") << "Configuration error: volumeNames:[] and"
