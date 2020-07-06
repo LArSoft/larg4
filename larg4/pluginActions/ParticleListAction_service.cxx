@@ -76,7 +76,8 @@ namespace larg4 {
       fkeepGenTrajectories( p.get<std::vector<std::string>>("keepGenTrajectories",{})),
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
-      fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) )
+      fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
+      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -484,6 +485,11 @@ namespace larg4 {
         // Add another point in the trajectory.
         AddPointToCurrentParticle( fourPos, fourMom, std::string(process) );
       }
+      // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
+      else if (fSparsifyTrajectories)
+      {
+        fCurrentParticle.particle->SparsifyTrajectory();
+      }
     }
 
     // store truth record pointer, only if it is available
@@ -782,6 +788,7 @@ namespace larg4 {
               error << "\n";
               throw error;
             }
+
             partCol_->push_back(std::move(p));
             art::Ptr<simb::MCParticle> mcp_ptr = art::Ptr<simb::MCParticle>(pid_,partCol_->size()-1,evt->productGetter(pid_));
             tpassn_->addSingle(mct, mcp_ptr, truthInfo);
