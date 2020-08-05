@@ -92,7 +92,8 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const & p)
 {
   setGDMLVolumes_.clear();
   overrideGDMLStepLimit_Map.clear();
-
+  // Make sure units are defined.
+     G4UnitDefinition::GetUnitsTable();
   // -- D.R. : Check for valid volume, steplimit pairs
   if(volumeNames_.size() != stepLimits_.size()) {
     throw cet::exception("LArG4DetectorService") << "Configuration error: volumeNames:[] and"
