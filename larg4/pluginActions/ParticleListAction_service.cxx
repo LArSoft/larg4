@@ -76,7 +76,8 @@ namespace larg4 {
       fkeepGenTrajectories( p.get<std::vector<std::string>>("keepGenTrajectories",{})),
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
-      fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) )
+      fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
+      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -133,6 +134,10 @@ namespace larg4 {
     fMCTIndexMap.clear();
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
+
+    fPrimaryTruthMap.clear();
+    fMCTIndexToGeneratorMap.clear();
+    fNotStoredCounterUMap.clear();
 
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
@@ -231,11 +236,11 @@ namespace larg4 {
     // ID number that we'll use in the ParticleList.
     // It is offset by the number of tracks accumulated from the previous Geant4
     // runs (if any)
-    G4int trackID = track->GetTrackID() + fTrackIDOffset;
+    int const trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
 
     // And the particle's parent (same offset as above):
-    G4int parentID = track->GetParentID() + fTrackIDOffset;
+    int parentID = track->GetParentID() + fTrackIDOffset;
 
     std::string process_name = "unknown";
     std::string mct_primary_process = "unknown";
@@ -479,6 +484,11 @@ namespace larg4 {
 
         // Add another point in the trajectory.
         AddPointToCurrentParticle( fourPos, fourMom, std::string(process) );
+      }
+      // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
+      else if (fSparsifyTrajectories)
+      {
+        fCurrentParticle.particle->SparsifyTrajectory();
       }
     }
 
@@ -757,6 +767,9 @@ namespace larg4 {
       unsigned int HowMany=0;
       for(auto const& iPartPair: particleList) {
           simb::MCParticle& p = *(iPartPair.second);
+
+          //if (this->isDropped(&p)) continue;
+
           auto gen_index = fMCTIndexMap[ p.TrackId() ];
           if (gen_index == mcl) {
             ++nGeneratedParticles;
@@ -775,6 +788,7 @@ namespace larg4 {
               error << "\n";
               throw error;
             }
+
             partCol_->push_back(std::move(p));
             art::Ptr<simb::MCParticle> mcp_ptr = art::Ptr<simb::MCParticle>(pid_,partCol_->size()-1,evt->productGetter(pid_));
             tpassn_->addSingle(mct, mcp_ptr, truthInfo);

@@ -162,6 +162,7 @@ namespace larg4 {
     std::vector<std::string> fNotStoredPhysics;      ///< Physics processes that will not be stored
     bool                     fkeepOnlyPrimaryFullTraj; ///< Whether to store trajectories only for primaries and
                                                        ///  their descendants with MCTruth process = "primary"
+    bool                     fSparsifyTrajectories;  ///< help reduce the number of trajectory points.
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 
