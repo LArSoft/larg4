@@ -80,14 +80,16 @@ namespace larg4 {
 
     // Directory path(s), in colon-delimited list, in which we should look for
     // macros, or the name of an environment variable containing that path.
-    // Contains only the current directory ('.') by default, but can be
-    // set by config file
+    // Contains only the $FW_SEARCH_PATH by default, which contains some basic
+    // macro files, but can be set by config file
     string macroPath_;
 
     // And a tool to find files along that path
     // Initialized based on macroPath_.
     cet::search_path pathFinder_;
 
+    // Name of the Geant4 macro file, if provided
+    string g4MacroFile_;
 
     // Boolean to determine whether we pause execution after each event
     // If it's true, then we do. Otherwise, we pause only after all events
@@ -124,8 +126,9 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const & p)
   session_(0),
   UI_(0),
   seed_(p.get<long>("seed", -1)),
-  macroPath_( p.get<std::string>("macroPath",".")),
+  macroPath_( p.get<std::string>("macroPath","FW_SEARCH_PATH")),
   pathFinder_( macroPath_),
+  g4MacroFile_( p.get<std::string>("visMacro", "larg4.mac")),
   pauseAfterEvent_(false),
   rmvlevel_( p.get<int>("rmvlevel",0)),
   uiAtBeginRun_( p.get<bool>("uiAtBeginRun", false)),
@@ -218,6 +221,28 @@ void larg4::larg4Main::beginRun(art::Run & r)
 
   //get the pointer to the User Interface manager
   UI_ = G4UImanager::GetUIpointer();
+
+  // Find the macro (or try to) along the directory path.
+  string macroLocation = "";
+  bool macroWasFound = pathFinder_.find_file(g4MacroFile_, macroLocation);
+  logInfo_ << "Finding path for " << g4MacroFile_ << "...\nSearch "
+           << (macroWasFound ? "successful " : "unsuccessful ")
+           << "and path is: \n" << macroLocation << "\n" << endl;
+
+  // Execute the macro if we were able to find it
+  if (macroWasFound) {
+    // Create the string containing the execution command
+    logInfo_ << "Executing macro: " << g4MacroFile_ << "\n" << endl;
+    string commandToExecute = "/control/execute ";
+    commandToExecute.append(macroLocation);
+    UI_->ApplyCommand(commandToExecute);
+
+  } else {
+    // If it wasn't found...
+    // Leave a message for the user ...
+    logInfo_ << "Unable to find " << g4MacroFile_ << " in the path(s) "
+             << macroPath_ << endl;
+  }
 
   // Open a UI if asked
   if ( uiAtBeginRun_ ) {

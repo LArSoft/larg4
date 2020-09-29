@@ -24,6 +24,7 @@ defaultqual e19
 # fwdir   -
 #
 gdmldir product_dir     gdml
+fwdir   product_dir     G4
 
 # With "product  version" table below, we now define dependencies
 # Add the dependent product and version
