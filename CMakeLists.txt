@@ -62,6 +62,7 @@ cet_find_library(ARTG4TK_SERVICES_DETECTORHOLDER_SERVICE NAMES artg4tk_services_
 add_subdirectory(fcl)
 add_subdirectory(gdml)
 add_subdirectory(larg4)
+add_subdirectory(macros)
 add_subdirectory(ups)
 
 # packaging utility
