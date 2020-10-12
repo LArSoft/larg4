@@ -163,6 +163,7 @@ namespace larg4 {
     bool                     fkeepOnlyPrimaryFullTraj; ///< Whether to store trajectories only for primaries and
                                                        ///  their descendants with MCTruth process = "primary"
     bool                     fSparsifyTrajectories;  ///< help reduce the number of trajectory points.
+    double                   fSparsifyMargin;        ///< set the sparsification margin
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 

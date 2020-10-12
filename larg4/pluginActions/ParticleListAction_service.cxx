@@ -77,7 +77,8 @@ namespace larg4 {
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
-      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) )
+      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
+      fSparsifyMargin( p.get<double>("SparsifyMargin",0.1) )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -488,7 +489,22 @@ namespace larg4 {
       // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
       else if (fSparsifyTrajectories)
       {
-        fCurrentParticle.particle->SparsifyTrajectory();
+        /*
+        auto trajectory = fCurrentParticle.particle->Trajectory();
+        if (fCurrentParticle.particle->PdgCode() == 211) {
+          mf::LogDebug("postUserTrackingAction") << "Trajectory.size() before Sparsify(margin = "
+            << fSparsifyMargin << " ) = " << trajectory.size() << " and length = "
+            << trajectory.TotalLength();
+        }
+        */
+
+        fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin);
+        /*
+        if (fCurrentParticle.particle->PdgCode() == 211) {
+          mf::LogDebug("postUserTrackingAction") << "Trajectory.size() after Sparsify() = "
+            << fCurrentParticle.particle->Trajectory().size();
+        }
+        */
       }
     }
 
