@@ -113,6 +113,11 @@ namespace larg4 {
           << " To use NotStoredPhysics, set keepEMShowerDaughters to false";
       }
     }
+
+    // -- sparsify info
+    if (fSparsifyTrajectories) logInfo_ << "Trajectory sparsification enabled with SparsifyMargin : "
+                                        << fSparsifyMargin << "\n";
+
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
@@ -489,22 +494,7 @@ namespace larg4 {
       // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
       else if (fSparsifyTrajectories)
       {
-        /*
-        auto trajectory = fCurrentParticle.particle->Trajectory();
-        if (fCurrentParticle.particle->PdgCode() == 211) {
-          mf::LogDebug("postUserTrackingAction") << "Trajectory.size() before Sparsify(margin = "
-            << fSparsifyMargin << " ) = " << trajectory.size() << " and length = "
-            << trajectory.TotalLength();
-        }
-        */
-
         fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin);
-        /*
-        if (fCurrentParticle.particle->PdgCode() == 211) {
-          mf::LogDebug("postUserTrackingAction") << "Trajectory.size() after Sparsify() = "
-            << fCurrentParticle.particle->Trajectory().size();
-        }
-        */
       }
     }
 
