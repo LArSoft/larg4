@@ -78,7 +78,7 @@ namespace larg4 {
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
       fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
-      fSparsifyMargin( p.get<double>("SparsifyMargin",0.1) )
+      fSparsifyMargin( p.get<double>("SparsifyMargin") )
   {
 
     // Create the particle list that we'll (re-)use during the course
