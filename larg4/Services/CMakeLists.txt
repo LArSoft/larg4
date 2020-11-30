@@ -32,3 +32,4 @@ simple_plugin(
 )
 
 install_headers()
+install_source()
