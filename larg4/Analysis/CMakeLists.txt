@@ -18,3 +18,4 @@ art_make(
     ${ROOT_HIST}
     ${ROOT_TREE}
 )
+install_source()
