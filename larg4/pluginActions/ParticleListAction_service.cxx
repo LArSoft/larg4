@@ -77,7 +77,8 @@ namespace larg4 {
       fKeepEMShowerDaughters( p.get<bool>("keepEMShowerDaughters",true) ),
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
-      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) )
+      fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
+      fSparsifyMargin( p.get<double>("SparsifyMargin") )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -112,6 +113,11 @@ namespace larg4 {
           << " To use NotStoredPhysics, set keepEMShowerDaughters to false";
       }
     }
+
+    // -- sparsify info
+    if (fSparsifyTrajectories) logInfo_ << "Trajectory sparsification enabled with SparsifyMargin : "
+                                        << fSparsifyMargin << "\n";
+
   }
 
   art::Event  *ParticleListActionService::getCurrArtEvent() { return (currentArtEvent_); }
@@ -488,7 +494,7 @@ namespace larg4 {
       // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
       else if (fSparsifyTrajectories)
       {
-        fCurrentParticle.particle->SparsifyTrajectory();
+        fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin);
       }
     }
 
