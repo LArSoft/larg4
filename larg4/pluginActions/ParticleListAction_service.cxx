@@ -78,7 +78,8 @@ namespace larg4 {
       fNotStoredPhysics( p.get< std::vector<std::string> >("NotStoredPhysics",{})),
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
       fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
-      fSparsifyMargin( p.get<double>("SparsifyMargin") )
+      fSparsifyMargin( p.get<double>("SparsifyMargin") ),
+      fKeepTransportation( p.get<bool>("KeepTransportation") )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -717,7 +718,7 @@ namespace larg4 {
                                                      std::string    const& process)
   {
     // Add the first point in the trajectory.
-    fCurrentParticle.particle->AddTrajectoryPoint(pos, mom, process);
+    fCurrentParticle.particle->AddTrajectoryPoint(pos, mom, process, fKeepTransportation);
 
     // also see if we can decide to keep the particle
     if (!fCurrentParticle.keep)
