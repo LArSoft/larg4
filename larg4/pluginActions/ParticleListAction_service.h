@@ -11,9 +11,7 @@
 #ifndef PARTICLELISTACTION_SERVICE_H
 #define PARTICLELISTACTION_SERVICE_H
 // Includes
-//#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
@@ -45,8 +43,7 @@ namespace larg4 {
 
   class ParticleListActionService : public  artg4tk::EventActionBase,
                                     public  artg4tk::TrackingActionBase,
-                                    public  artg4tk::SteppingActionBase,
-    private art::ProductRegistryHelper
+                                    public  artg4tk::SteppingActionBase
   {
   public:
 
@@ -78,9 +75,6 @@ namespace larg4 {
       simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
 
     }; // ParticleInfo_t
-    using art::ProductRegistryHelper::produces;
-    using art::ProductRegistryHelper::registerProducts;
-
 
     // Standard constructors and destructors;
     ParticleListActionService(fhicl::ParameterSet const&);
