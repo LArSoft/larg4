@@ -79,7 +79,7 @@ namespace larg4 {
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
       fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
       fSparsifyMargin( p.get<double>("SparsifyMargin") ),
-      fKeepTransportation( p.get<bool>("KeepTransportation") )
+      fKeepTransportation( p.get<bool>("KeepTransportation", false) )
   {
 
     // Create the particle list that we'll (re-)use during the course
