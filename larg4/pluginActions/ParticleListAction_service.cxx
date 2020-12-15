@@ -79,7 +79,8 @@ namespace larg4 {
       fkeepOnlyPrimaryFullTraj( p.get<bool>("keepOnlyPrimaryFullTrajectories",false) ),
       fSparsifyTrajectories( p.get<bool>("SparsifyTrajectories",false) ),
       fSparsifyMargin( p.get<double>("SparsifyMargin") ),
-      fKeepTransportation( p.get<bool>("KeepTransportation", false) )
+      fKeepTransportation( p.get<bool>("KeepTransportation", false) ),
+      fKeepSecondToLast( p.get<bool>("KeepSecondToLast", false) )
   {
 
     // Create the particle list that we'll (re-)use during the course
@@ -495,7 +496,7 @@ namespace larg4 {
       // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
       else if (fSparsifyTrajectories)
       {
-        fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin);
+        fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin, fKeepSecondToLast);
       }
     }
 

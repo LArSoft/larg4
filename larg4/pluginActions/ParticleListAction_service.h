@@ -165,6 +165,7 @@ namespace larg4 {
     bool                     fSparsifyTrajectories;  ///< help reduce the number of trajectory points.
     double                   fSparsifyMargin;        ///< set the sparsification margin
     bool                     fKeepTransportation;    ///< tell whether or not to keep the transportation process 
+    bool                     fKeepSecondToLast;      ///< tell whether or not to force keeping the second to last point 
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 
