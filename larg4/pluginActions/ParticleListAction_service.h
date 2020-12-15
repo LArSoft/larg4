@@ -164,6 +164,7 @@ namespace larg4 {
                                                        ///  their descendants with MCTruth process = "primary"
     bool                     fSparsifyTrajectories;  ///< help reduce the number of trajectory points.
     double                   fSparsifyMargin;        ///< set the sparsification margin
+    bool                     fKeepTransportation;    ///< tell whether or not to keep the transportation process 
 
     std::unique_ptr<thePositionInVolumeFilter> fFilter; ///< filter for particles to be kept
 
