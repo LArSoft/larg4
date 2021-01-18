@@ -30,22 +30,20 @@ fwdir   product_dir     G4
 # Add the dependent product and version
 
 product          version
-artg4tk         v10_00_02
+artg4tk         v10_01_00
 larevt          v09_01_04
-nug4            v1_05_04
-nurandom        v1_04_05
-cetbuildtools   v7_15_01       -       only_for_build
+nug4            v1_06_00
+nurandom        v1_05_00
+cetbuildtools   v7_17_01       -       only_for_build
 end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes".
 qualifier      artg4tk        larevt         nug4          nurandom
-e19:py2:debug  e19:py2:debug  e19:py2:debug  e19:py2:debug e19:py2:debug
-e19:py2:prof   e19:py2:prof   e19:py2:prof   e19:py2:prof  e19:py2:prof
+e20:debug      e20:debug      e20:debug      e20:debug     e20:debug
+e20:prof       e20:prof       e20:prof       e20:prof      e20:prof
 e19:debug      e19:debug      e19:debug      e19:debug     e19:debug
 e19:prof       e19:prof       e19:prof       e19:prof      e19:prof
-c7:py2:debug   c7:py2:debug   c7:py2:debug   c7:py2:debug  c7:py2:debug
-c7:py2:prof    c7:py2:prof    c7:py2:prof    c7:py2:prof   c7:py2:prof
 c7:debug       c7:debug       c7:debug       c7:debug      c7:debug
 c7:prof        c7:prof        c7:prof        c7:prof       c7:prof
 end_qualifier_list
