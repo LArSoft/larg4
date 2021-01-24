@@ -4,6 +4,7 @@ art_make(
     art_Framework_Principal
     art_Framework_Services_Registry
     artg4tk_geantInit
+    artg4tk_lists
     artg4tk_services_ActionHolder_service
     artg4tk_services_DetectorHolder_service
     artg4tk_services_PhysicsListHolder_service
