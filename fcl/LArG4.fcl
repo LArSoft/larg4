@@ -1,0 +1,11 @@
+BEGIN_PROLOG
+
+standard_larg4: 
+{
+    module_type: "larg4Main"
+    enableVisualization: false
+    macroPath: ".:./macros"
+    visMacro: "vis.mac"
+}
+
+END_PROLOG

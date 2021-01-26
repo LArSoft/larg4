@@ -1,4 +1,4 @@
-
+#include "LArG4.fcl"
 //#include "seedservice.fcl" 
 #no experiment specific configurations because SingleGen is detector agnostic
 
@@ -105,15 +105,8 @@ out1: {
 
 physics: {
   producers: {
-   generator: @local::standard_singlep
-    larg4Main: {  
-      module_type: larg4Main
-      enableVisualization: false
-      macroPath: ".:./macros" 
-      visMacro: "vis.mac" 
-      //afterEvent: pause
-    }
-
+    generator: @local::standard_singlep
+    larg4Main: @local::standard_larg4
   }
   analyzers: {
    CheckSimEnergyDeposit: {   module_type: CheckSimEnergyDeposit
