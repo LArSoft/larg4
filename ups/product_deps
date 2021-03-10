@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent larg4 v09_03_02
+parent larg4 v09_03_03
 defaultqual e19
 
 # These optional lines define the installed directories where headers,
@@ -30,7 +30,7 @@ fwdir   product_dir     G4
 # Add the dependent product and version
 
 product          version
-artg4tk         v10_02_00
+artg4tk         v10_02_01
 larevt          v09_02_02
 nug4            v1_07_00
 nurandom        v1_05_02
