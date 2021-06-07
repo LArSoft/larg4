@@ -13,7 +13,6 @@ project(larg4 VERSION 09.03.07 LANGUAGES CXX)
 find_package(cetmodules REQUIRED)
 find_package(canvas_root_io)
 find_package(art)
-find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
 cet_cmake_env()
