@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 art_make(
   MODULE_LIBRARIES
     art_Framework_Core

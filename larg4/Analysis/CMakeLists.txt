@@ -1,21 +1,21 @@
+set(CMAKE_CXX_FLAGS "${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 art_make(
   MODULE_LIBRARIES
     art_Framework_Core
     art_Framework_Principal
-    art_root_io_tfile_support ${ROOT_CORE}
+    art_root_io_tfile_support
     art_root_io_TFileService_service
     art_Framework_Services_Registry
     art_Persistency_Provenance
     art_Utilities
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
+    Boost::filesystem
+    Boost::system
     canvas
     cetlib_except
     fhiclcpp
-    ${G4ZLIB}
     nusimdata_SimulationBase
-    ${ROOT_CORE}
-    ${ROOT_HIST}
-    ${ROOT_TREE}
+    ROOT::Core
+    ROOT::Hist
+    ROOT::Tree
 )
 install_source()

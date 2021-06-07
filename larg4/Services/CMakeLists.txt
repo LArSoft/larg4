@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 simple_plugin(
   LArG4Detector service
   SOURCE
@@ -12,23 +13,22 @@ simple_plugin(
     artg4tk_pluginDetectors_gdml
     artg4tk_services_DetectorHolder_service
     art_Persistency_Provenance
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
+    Boost::filesystem
+    Boost::system
     canvas
     cetlib
     cetlib_except
-    clhep
+    ${CLHEP_LIBRARIES}
     fhiclcpp
-    ${G4DIGITS_HITS}
-    ${G4EVENT}
-    ${G4GEOMETRY}
-    ${G4GLOBAL}
-    ${G4MATERIALS}
-    ${G4PERSISTENCY}
+    G4digits_hits
+    G4event
+    G4geometry
+    G4global
+    G4materials
+    G4persistency
     larcorealg_Geometry
     MF_MessageLogger
-    ${ROOT_CORE}
-    ${XERCESC}
+    ROOT::Core
 )
 
 install_headers()

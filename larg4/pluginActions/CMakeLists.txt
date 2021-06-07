@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 simple_plugin(
   MCTruthEventAction service
 NOP
@@ -6,19 +7,19 @@ NOP
   artg4tk_actionBase
   artg4tk_services_ActionHolder_service
   art_Persistency_Provenance
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
+  Boost::filesystem
+  Boost::system
   canvas
   cetlib_except
-  clhep
+  ${CLHEP_LIBRARIES}
   fhiclcpp
-  ${G4GLOBAL}
-  ${G4PARTICLES}
+  G4global
+  G4particles
   MF_MessageLogger
   nusimdata_SimulationBase
   nug4_G4Base
-  ${ROOT_CORE}
-  ${ROOT_PHYSICS}
+  ROOT::Core
+  ROOT::Physics
 SOURCE
   MCTruthEventAction_service.cc
 )
@@ -30,21 +31,21 @@ NOP
   canvas
   fhiclcpp
   cetlib_except
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
+  Boost::filesystem
+  Boost::system
   art_Framework_Core
   art_Framework_Principal
   artg4tk_actionBase
   artg4tk_services_ActionHolder_service
   art_Persistency_Provenance
-  clhep
-  ${G4PARTICLES}
+  ${CLHEP_LIBRARIES}
+  G4particles
   MF_MessageLogger
   nusimdata_SimulationBase
   nug4_G4Base
   nug4_ParticleNavigation
-  ${ROOT_CORE}
-  ${ROOT_PHYSICS}
+  ROOT::Core
+  ROOT::Physics
 SOURCE
   ParticleListAction_service.cxx
 )
