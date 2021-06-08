@@ -18,11 +18,11 @@ art_make(
     cetlib_except
     clhep
     fhiclcpp
-    ${G4EVENT}
-    ${G4INTERCOMS}
+    Geant4::G4Event
+    Geant4::G4intercoms
     ${G4INTERFACES}
-    ${G4RUN}
-    ${G4TRACKING}
+    Geant4::G4run
+    Geant4::G4tracking
     larg4_pluginActions_ParticleListAction_service
     nurandom_RandomUtils_NuRandomService_service
     MF_MessageLogger
