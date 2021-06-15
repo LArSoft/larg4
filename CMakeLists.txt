@@ -10,6 +10,8 @@ cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
 project(larg4 VERSION 09.03.07 LANGUAGES CXX)
 
+set(larg4_FW_DIR fw)
+
 find_package(cetmodules REQUIRED)
 find_package(canvas_root_io)
 find_package(art)
