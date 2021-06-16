@@ -31,10 +31,10 @@ art_make(
     Geant4::G4track
     Geant4::G4tracking
     larg4_pluginActions_ParticleListAction_service
-    nurandom_RandomUtils_NuRandomService_service
-    MF_MessageLogger
-    ${ROOT_CORE}
-    ${ROOT_PHYSICS}
+    nurandom::RandomUtils_NuRandomService_service
+    messagefacility::MF_MessageLogger
+    ROOT::Core
+    ROOT::Physics
 )
 
 install_headers()
