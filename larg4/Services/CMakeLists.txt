@@ -1,4 +1,6 @@
 set(CMAKE_CXX_FLAGS "${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
+message("XercesC_LIBRARIES = ${XercesC_LIBRARIES}")
+message("CLHEP_LIBRARIES = ${CLHEP_LIBRARIES}")
 simple_plugin(
   LArG4Detector service
   SOURCE
