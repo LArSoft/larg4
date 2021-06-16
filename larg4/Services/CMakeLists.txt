@@ -29,6 +29,7 @@ simple_plugin(
     larcorealg_Geometry
     MF_MessageLogger
     ROOT::Core
+    ${XercesC_LIBRARIES}
 )
 
 install_headers()
