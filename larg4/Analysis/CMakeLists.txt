@@ -1,13 +1,13 @@
 set(CMAKE_CXX_FLAGS "${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 art_make(
   MODULE_LIBRARIES
-    art_Framework_Core
-    art_Framework_Principal
-    art_root_io_tfile_support
-    art_root_io_TFileService_service
-    art_Framework_Services_Registry
-    art_Persistency_Provenance
-    art_Utilities
+    art::Framework_Core
+    art::Framework_Principal
+    art_root_io::tfile_support
+    art_root_io::TFileService_service_plugin
+    art::Framework_Services_Registry
+    art::Persistency_Provenance
+    art::Utilities
     Boost::filesystem
     Boost::system
     canvas
