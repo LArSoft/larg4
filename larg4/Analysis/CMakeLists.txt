@@ -3,8 +3,9 @@ art_make(
   MODULE_LIBRARIES
     art::Framework_Core
     art::Framework_Principal
-    art_root_io::tfile_support
     art_root_io::TFileService_service_plugin
+    art_root_io::TFileService
+    art_root_io::tfile_support
     art::Framework_Services_Registry
     art::Persistency_Provenance
     art::Utilities
