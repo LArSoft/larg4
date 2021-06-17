@@ -30,7 +30,7 @@ art_make(
     Geant4::G4run
     Geant4::G4track
     Geant4::G4tracking
-    Geant4::ui_all
+    Geant4::G4interfaces
     larg4_pluginActions_ParticleListAction_service
     nurandom::RandomUtils_NuRandomService_service
     messagefacility::MF_MessageLogger
