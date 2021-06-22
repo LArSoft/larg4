@@ -6,13 +6,15 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
-project(larg4 LANGUAGES CXX)
+project(larg4 VERSION 09.03.07 LANGUAGES CXX)
 
-find_package(cetbuildtools REQUIRED)
+set(larg4_FW_DIR fw)
 
-list(APPEND CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules $ENV{ART_DIR}/Modules)
+find_package(cetmodules REQUIRED)
+find_package(canvas_root_io)
+find_package(art)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -35,7 +37,6 @@ find_ups_product(canvas_root_io)
 find_ups_product(cetlib)
 find_ups_product(clhep)
 find_ups_product(fhiclcpp)
-find_ups_geant4()
 find_ups_product(larcore)
 find_ups_product(larcoreobj)
 find_ups_product(lardataalg)
@@ -44,26 +45,31 @@ find_ups_product(messagefacility)
 find_ups_product(nusimdata)
 find_ups_product(nug4)
 find_ups_product(nurandom)
+find_package( Geant4  REQUIRED )
+include(${Geant4_USE_FILE})
+
 
 include(ArtDictionary)
 include(ArtMake)
 include(BuildPlugins)
 
 # artg4tk
-cet_find_library( ARTG4TK_ACTIONBASE NAMES artg4tk_actionBase PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-cet_find_library( ARTG4TK_GEANTINIT NAMES artg4tk_geantInit PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-cet_find_library( ARTG4TK_LISTS NAMES artg4tk_lists PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-cet_find_library( ARTG4TK_PLUGINDETECTORS_GDML NAMES artg4tk_pluginDetectors_gdml PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH )
-cet_find_library(ARTG4TK_DATAPRODUCTS_G4DETECTORHITS NAMES artg4tk_DataProducts_G4DetectorHits PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
-cet_find_library(ARTG4TK_SERVICES_ACTIONHOLDER_SERVICE NAMES artg4tk_services_ActionHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
-cet_find_library(ARTG4TK_SERVICES_PHYSICSLISTHOLDER_SERVICE NAMES artg4tk_services_PhysicsListHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
-cet_find_library(ARTG4TK_SERVICES_DETECTORHOLDER_SERVICE NAMES artg4tk_services_DetectorHolder_service PATHS ENV ARTG4TK_LIB NO_DEFAULT_PATH)
+cet_find_library( ARTG4TK_ACTIONBASE NAMES artg4tk_actionBase PATHS ENV ARTG4TK_LIB  )
+cet_find_library( ARTG4TK_GEANTINIT NAMES artg4tk_geantInit PATHS ENV ARTG4TK_LIB  )
+cet_find_library( ARTG4TK_LISTS NAMES artg4tk_lists PATHS ENV ARTG4TK_LIB  )
+cet_find_library( ARTG4TK_PLUGINDETECTORS_GDML NAMES artg4tk_pluginDetectors_gdml PATHS ENV ARTG4TK_LIB  )
+cet_find_library(ARTG4TK_DATAPRODUCTS_G4DETECTORHITS NAMES artg4tk_DataProducts_G4DetectorHits PATHS ENV ARTG4TK_LIB )
+cet_find_library(ARTG4TK_SERVICES_ACTIONHOLDER_SERVICE NAMES artg4tk_services_ActionHolder_service PATHS ENV ARTG4TK_LIB )
+cet_find_library(ARTG4TK_SERVICES_PHYSICSLISTHOLDER_SERVICE NAMES artg4tk_services_PhysicsListHolder_service PATHS ENV ARTG4TK_LIB )
+cet_find_library(ARTG4TK_SERVICES_DETECTORHOLDER_SERVICE NAMES artg4tk_services_DetectorHolder_service PATHS ENV ARTG4TK_LIB )
 
 add_subdirectory(fcl)
 add_subdirectory(gdml)
 add_subdirectory(larg4)
 add_subdirectory(macros)
+if(WANT_UPS)
 add_subdirectory(ups)
+endif()
 
 # packaging utility
 # this has to be last

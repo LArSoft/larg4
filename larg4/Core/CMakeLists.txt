@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS} -Wno-shadow -Wno-unused-parameter")
 art_make(
   MODULE_LIBRARIES
     art_Framework_Core
@@ -17,16 +18,24 @@ art_make(
     cetlib_except
     clhep
     fhiclcpp
-    ${G4EVENT}
-    ${G4INTERCOMS}
-    ${G4INTERFACES}
-    ${G4RUN}
-    ${G4TRACKING}
+    Geant4::G4digits_hits
+    Geant4::G4event
+    Geant4::G4geometry
+    Geant4::G4global
+    Geant4::G4graphics_reps
+    Geant4::G4intercoms
+    Geant4::G4materials
+    Geant4::G4particles
+    Geant4::G4processes
+    Geant4::G4run
+    Geant4::G4track
+    Geant4::G4tracking
+    Geant4::G4interfaces
     larg4_pluginActions_ParticleListAction_service
-    nurandom_RandomUtils_NuRandomService_service
-    MF_MessageLogger
-    ${ROOT_CORE}
-    ${ROOT_PHYSICS}
+    nurandom::RandomUtils_NuRandomService_service
+    messagefacility::MF_MessageLogger
+    ROOT::Core
+    ROOT::Physics
 )
 
 install_headers()

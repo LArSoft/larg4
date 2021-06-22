@@ -1,0 +1,3 @@
+find_package(artg4tk REQUIRED)
+find_package(larevt REQUIRED)
+include(${Geant4_USE_FILE})
