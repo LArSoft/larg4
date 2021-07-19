@@ -61,8 +61,9 @@ void larg4::CheckSimEnergyDeposit::beginJob()
 
 void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event)
 {
-  std::vector<art::Handle<sim::SimEnergyDepositCollection>> allSims;
-  event.getManyByType(allSims);
+  //std::vector<art::Handle<sim::SimEnergyDepositCollection>> allSims;
+  //event.getManyByType(allSims);
+  auto allSims = event.getMany<sim::SimEnergyDepositCollection>();
   for (auto const& sims : allSims) {
     double sumPhotons=0.0;
     double sumE = 0.0;
