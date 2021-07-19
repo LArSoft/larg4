@@ -161,9 +161,7 @@ namespace larg4 {
     // -- D.R. determine mapping between MCTruthIndex(s) and generator(s) for later reference
     art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
     art::Event & evt = actionHolder->getCurrArtEvent();
-    //std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
-    //evt.getManyByType(mclists);
-    auto mclists = evt.getMany<simb::MCTruth>();
+    auto mclists = evt.getMany<std::vector<simb::MCTruth>>();
 
     size_t nKeep = 0;
     std::string generator_name = "unknown";
@@ -758,9 +756,7 @@ namespace larg4 {
 
   art::ServiceHandle<ActionHolderService> ahs;
   art::Event * evt= getCurrArtEvent();
-  //std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
-  //evt->getManyByType(mclists);
-  auto mclists = evt.getMany<simb::MCTruth>();
+  auto mclists = evt->getMany<std::vector<simb::MCTruth>>();
 
   MF_LOG_INFO("endOfEventAction") << "MCTruth Handles Size: " << mclists.size();
 

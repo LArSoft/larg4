@@ -37,9 +37,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
   std::map< CLHEP::HepLorentzVector, G4PrimaryVertex* >::const_iterator  vi;
   art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
   art::Event & evt = actionHolder -> getCurrArtEvent();
-  //std::vector< art::Handle< std::vector<simb::MCTruth> > > mclistHandles;
-  //evt.getManyByType(mclistHandles);
-  auto mclistHandles = evt.getMany<simb::MCTruth>();
+  auto mclistHandles = evt.getMany<std::vector<simb::MCTruth>>();
 
   size_t mclSize = mclistHandles.size(); // -- should match the number of generators
   mf::LogDebug("generatePrimaries") << "MCTruth Handles Size: " << mclSize;
