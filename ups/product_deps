@@ -2,8 +2,8 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent larg4 v09_03_07
-defaultqual e19
+parent larg4 v09_03_09
+defaultqual e20
 
 # These optional lines define the installed directories where headers,
 # libraries, and executables will be found.
@@ -30,8 +30,8 @@ fwdir   product_dir     G4
 # Add the dependent product and version
 
 product          version
-artg4tk         v10_02_01
-larevt          v09_02_06
+artg4tk         v10_02_02
+larevt          v09_02_08
 nug4            v1_09_03
 nurandom        v1_07_03
 cetbuildtools   v8_11_00       -       only_for_build
