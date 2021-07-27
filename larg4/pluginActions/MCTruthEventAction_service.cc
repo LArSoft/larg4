@@ -1,4 +1,5 @@
 #include "larg4/pluginActions/MCTruthEventAction_service.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 // Geant4  includes
@@ -62,7 +63,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
       {
         simb::MCParticle const& particle = mclist->GetParticle(m);
 
-        if ( particle.StatusCode() != 1 ){ 
+        if ( particle.StatusCode() != 1 ){
           MF_LOG_WARNING("generatePrimaries") << "Status code != 1, skipping particle number with MCTruth index = " << index
                                               << " and particle index = " << i;
           continue;

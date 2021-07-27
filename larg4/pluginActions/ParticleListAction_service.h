@@ -12,7 +12,6 @@
 #define PARTICLELISTACTION_SERVICE_H
 // Includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Common/Assns.h"
 

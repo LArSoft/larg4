@@ -18,7 +18,6 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ProducingService.h"
 // framework includes:
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "canvas/Persistency/Common/Ptr.h"

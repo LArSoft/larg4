@@ -21,7 +21,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Core/EDProducer.h"
 
 #include "Geant4/G4Event.hh"
