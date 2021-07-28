@@ -1,20 +1,20 @@
 art_make(
   MODULE_LIBRARIES
     art_Framework_Core
-    art_Framework_Principal
-    art_Framework_Services_Registry
+    art::Framework_Principal
+    art::Framework_Services_Registry
     artg4tk_geantInit
     artg4tk_lists
     artg4tk_services_ActionHolder_service
     artg4tk_services_DetectorHolder_service
     artg4tk_services_PhysicsListHolder_service
-    art_Persistency_Provenance
-    art_Utilities
+    art::Persistency_Provenance
+    art::Utilities
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
-    canvas
-    cetlib
-    cetlib_except
+    canvas::canvas
+    cetlib::cetlib
+    cetlib_except::cetlib_except
     clhep
     fhiclcpp
     ${G4EVENT}
@@ -25,7 +25,7 @@ art_make(
     larg4_pluginActions_ParticleListAction_service
     nurandom_RandomUtils_NuRandomService_service
     MF_MessageLogger
-    ${ROOT_CORE}
+    ROOT::Core
     ${ROOT_PHYSICS}
 )
 

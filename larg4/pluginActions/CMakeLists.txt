@@ -1,15 +1,15 @@
 simple_plugin(
   MCTruthEventAction service
 NOP
-  art_Framework_Principal
-  art_Framework_Services_Registry
+  art::Framework_Principal
+  art::Framework_Services_Registry
   artg4tk_actionBase
   artg4tk_services_ActionHolder_service
-  art_Persistency_Provenance
+  art::Persistency_Provenance
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
-  canvas
-  cetlib_except
+  canvas::canvas
+  cetlib_except::cetlib_except
   clhep
   fhiclcpp
   ${G4GLOBAL}
@@ -17,7 +17,7 @@ NOP
   MF_MessageLogger
   nusimdata_SimulationBase
   nug4_G4Base
-  ${ROOT_CORE}
+  ROOT::Core
   ${ROOT_PHYSICS}
 SOURCE
   MCTruthEventAction_service.cc
@@ -26,24 +26,24 @@ SOURCE
 simple_plugin(
   ParticleListAction service
 NOP
-  art_Framework_Services_Registry
-  canvas
+  art::Framework_Services_Registry
+  canvas::canvas
   fhiclcpp
-  cetlib_except
+  cetlib_except::cetlib_except
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   art_Framework_Core
-  art_Framework_Principal
+  art::Framework_Principal
   artg4tk_actionBase
   artg4tk_services_ActionHolder_service
-  art_Persistency_Provenance
+  art::Persistency_Provenance
   clhep
   ${G4PARTICLES}
   MF_MessageLogger
   nusimdata_SimulationBase
   nug4_G4Base
   nug4_ParticleNavigation
-  ${ROOT_CORE}
+  ROOT::Core
   ${ROOT_PHYSICS}
 SOURCE
   ParticleListAction_service.cxx
