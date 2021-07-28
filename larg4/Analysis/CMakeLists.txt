@@ -15,7 +15,7 @@ art_make(
     ${G4ZLIB}
     nusimdata_SimulationBase
     ROOT::Core
-    ${ROOT_HIST}
-    ${ROOT_TREE}
+    ROOT::Hist
+    ROOT::Tree
 )
 install_source()

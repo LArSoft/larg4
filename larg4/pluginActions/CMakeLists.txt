@@ -18,7 +18,7 @@ NOP
   nusimdata_SimulationBase
   nug4_G4Base
   ROOT::Core
-  ${ROOT_PHYSICS}
+  ROOT::Physics
 SOURCE
   MCTruthEventAction_service.cc
 )
@@ -44,7 +44,7 @@ NOP
   nug4_G4Base
   nug4_ParticleNavigation
   ROOT::Core
-  ${ROOT_PHYSICS}
+  ROOT::Physics
 SOURCE
   ParticleListAction_service.cxx
 )

@@ -26,7 +26,7 @@ art_make(
     nurandom_RandomUtils_NuRandomService_service
     MF_MessageLogger
     ROOT::Core
-    ${ROOT_PHYSICS}
+    ROOT::Physics
 )
 
 install_headers()
