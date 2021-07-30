@@ -7,7 +7,6 @@ NOP
   artg4tk_services_ActionHolder_service
   art::Persistency_Provenance
   ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
   canvas::canvas
   cetlib_except::cetlib_except
   clhep
@@ -31,7 +30,6 @@ NOP
   fhiclcpp
   cetlib_except::cetlib_except
   ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
   art_Framework_Core
   art::Framework_Principal
   artg4tk_actionBase

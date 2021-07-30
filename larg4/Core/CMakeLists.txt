@@ -11,7 +11,6 @@ art_make(
     art::Persistency_Provenance
     art::Utilities
     ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except

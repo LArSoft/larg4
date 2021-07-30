@@ -13,7 +13,6 @@ simple_plugin(
     artg4tk_services_DetectorHolder_service
     art::Persistency_Provenance
     ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
