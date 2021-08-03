@@ -9,7 +9,7 @@ NOP
   ${Boost_FILESYSTEM_LIBRARY}
   canvas::canvas
   cetlib_except::cetlib_except
-  clhep
+  CLHEP::CLHEP
   fhiclcpp
   ${G4GLOBAL}
   ${G4PARTICLES}
@@ -35,7 +35,7 @@ NOP
   artg4tk_actionBase
   artg4tk_services_ActionHolder_service
   art::Persistency_Provenance
-  clhep
+  CLHEP::CLHEP
   ${G4PARTICLES}
   MF_MessageLogger
   nusimdata_SimulationBase

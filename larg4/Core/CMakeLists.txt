@@ -14,7 +14,7 @@ art_make(
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
-    clhep
+    CLHEP::CLHEP
     fhiclcpp
     ${G4EVENT}
     ${G4INTERCOMS}
