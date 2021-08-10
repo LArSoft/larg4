@@ -22,6 +22,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4VPrimaryGenerator.hh"

@@ -40,6 +40,7 @@
 // Includes
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 
 #include <vector>
 #include <string>
