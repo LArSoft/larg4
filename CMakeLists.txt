@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larg4 VERSION 09.03.09.04 LANGUAGES CXX)
+project(larg4 VERSION 09.03.11.01 LANGUAGES CXX)
 
 find_package(cetbuildtools REQUIRED)
 
