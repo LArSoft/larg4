@@ -125,9 +125,8 @@ namespace larg4 {
     void setCurrArtEvent(art::Event & e) { currentArtEvent_ = &e; }
     art::Event  *getCurrArtEvent();
     void  setProductID(art::ProductID pid){pid_=pid;}
-    std::unique_ptr <std::vector<simb::MCParticle>>  &GetParticleCollection(){return partCol_;}
-    //std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
-    std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >> &GetAssnsMCTruthToMCParticle(){return tpassn_;}
+    std::unique_ptr <std::vector<simb::MCParticle>>  ParticleCollection(){return std::move(partCol_);}
+    std::unique_ptr <art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >> AssnsMCTruthToMCParticle(){return std::move(tpassn_);}
   private:
     // A message logger for this action object
     mf::LogInfo logInfo_;
@@ -143,7 +142,7 @@ namespace larg4 {
     sim::ParticleList*       fparticleList;          ///< The accumulated particle information for
                                                      ///< all particles in the event.
     G4bool                   fstoreTrajectories;     ///< Whether to store particle trajectories with each particle.
-    std::vector<std::string> fkeepGenTrajectories;   ///< List of generators for which fstoreTrejactories applies.
+    std::vector<std::string> fkeepGenTrajectories;   ///< List of generators for which fstoreTrajectories applies.
                                                      ///  if not provided and storeTrajectories is true, then all
                                                      ///  trajectories for all generators will be stored. If
                                                      ///  storeTrajectories is set to false, this list is ignored
@@ -183,7 +182,6 @@ namespace larg4 {
     art::Event * currentArtEvent_;
 
     std::unique_ptr<std::vector<simb::MCParticle> > partCol_;
-    //std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle >> tpassn_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo >> tpassn_;
     art::ProductID pid_;
     /// Adds a trajectory point to the current particle, and runs the filter
@@ -193,6 +191,7 @@ namespace larg4 {
   };
 
 } // namespace larg4
-using larg4::ParticleListActionService;
-DECLARE_ART_SERVICE(ParticleListActionService,LEGACY)
+
+DECLARE_ART_SERVICE(larg4::ParticleListActionService, LEGACY)
+
 #endif // PARTICLELISTACTION_SERVICE_H
