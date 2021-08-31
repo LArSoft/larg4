@@ -177,9 +177,9 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
         g4particle->SetUserInformation( primaryParticleInfo );
 
       } // -- for each particle in MCTruth
+      ++index;
     } // -- for each MCTruth entry
-    ++index;
-  }// -- for each MCTruth handle
+  } // -- for each MCTruth handle
 }// -- generatePrimaries()
 
 void larg4::MCTruthEventActionService::addG4Particle(G4Event *event,
