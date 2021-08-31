@@ -259,26 +259,22 @@ void larg4::larg4Main::beginRun(art::Run & r)
 void larg4::larg4Main::produce(art::Event & e)
 {
   // The holder services need the event
-  art::ServiceHandle<ActionHolderService> actionHolder;
-  art::ServiceHandle<DetectorHolderService> detectorHolder;
+  art::ServiceHandle<ActionHolderService>{}->setCurrArtEvent(e);
+  art::ServiceHandle<DetectorHolderService>{}->setCurrArtEvent(e);
   art::ServiceHandle<ParticleListActionService> pla;
-  actionHolder -> setCurrArtEvent(e);
-  detectorHolder -> setCurrArtEvent(e);
-  pla -> setCurrArtEvent(e);
-  pla -> setProductID( e.getProductID<std::vector<simb::MCParticle>>());
+  pla->setCurrArtEvent(e);
+  pla->setProductID( e.getProductID<std::vector<simb::MCParticle>>());
 
   // Begin event
-  runManager_ -> BeamOnDoOneEvent(e.id().event());
+  runManager_->BeamOnDoOneEvent(e.id().event());
 
   //  logInfo_ << "Producing event " << e.id().event() << "\n" << endl;
 
   // Done with the event
-  runManager_ -> BeamOnEndEvent();
+  runManager_->BeamOnEndEvent();
 
-  auto  &partCol=pla->GetParticleCollection();
-  auto &tpassn = pla->GetAssnsMCTruthToMCParticle();
-  e.put(std::move(partCol));
-  e.put(std::move(tpassn));
+  e.put(pla->ParticleCollection());
+  e.put(pla->AssnsMCTruthToMCParticle());
 }
 
 // At end run
@@ -289,5 +285,4 @@ void larg4::larg4Main::endRun(art::Run & r)
   runManager_ -> BeamOnEndRun();
 }
 
-using larg4::larg4Main;
-DEFINE_ART_MODULE(larg4Main)
+DEFINE_ART_MODULE(larg4::larg4Main)

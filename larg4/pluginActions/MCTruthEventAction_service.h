@@ -19,7 +19,6 @@
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -59,15 +58,12 @@ namespace larg4 {
 
   private:
 
-    // A message logger for this action object
-    mf::LogInfo logInfo_;
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
-    std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
 
   };
 }//namespace larg4
-using larg4::MCTruthEventActionService;
-DECLARE_ART_SERVICE(MCTruthEventActionService,LEGACY)
+
+DECLARE_ART_SERVICE(larg4::MCTruthEventActionService,LEGACY)
 
 
 #endif
