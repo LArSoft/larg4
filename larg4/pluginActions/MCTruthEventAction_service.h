@@ -59,7 +59,6 @@ namespace larg4 {
   private:
 
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
-    std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
 
   };
 }//namespace larg4

@@ -59,7 +59,7 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
       {
         simb::MCParticle const& particle = mclist->GetParticle(m);
 
-        if ( particle.StatusCode() != 1 ){ 
+        if ( particle.StatusCode() != 1 ){
           MF_LOG_WARNING("generatePrimaries") << "Status code != 1, skipping particle number with MCTruth index = " << index
                                               << " and particle index = " << i;
           continue;
@@ -71,11 +71,6 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
           mf::LogDebug("generatePrimaries") << "TrackID: " << particle.TrackId();
           mf::LogDebug("generatePrimaries") << "index: " << index;
         }
-        /*if(index>0){
-          mf::LogDebug("generatePrimaries") << "index = " << index;
-          mf::LogDebug("generatePrimaries") << "particle = " << particle;
-          mf::LogDebug("generatePrimaries") << "status code:  " << particle.StatusCode();
-        }*/
 
         // Get the Particle Data Group code for the particle.
         G4int pdgCode = particle.PdgCode();
@@ -124,7 +119,12 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
         else
           particleDefinition = fParticleTable->FindParticle(pdgCode);
 
-        if ( pdgCode > 1000000000) { // If the particle is a nucleus
+        if (pdgCode >= 2'000'000'000) { // If the particle is generator-specific
+          mf::LogDebug("ConvertPrimaryToGeant4")
+            << ": %%% Will skip particle with generator-specific PDG code = " << pdgCode;
+          continue;
+        }
+        if (pdgCode > 1'000'000'000) { // If the particle is a nucleus
           mf::LogDebug("ConvertPrimaryToGeant4") << ": %%% Nuclear PDG code = " << pdgCode
                                                  << " (x,y,z,t)=(" << x
                                                  << "," << y
@@ -135,17 +135,16 @@ void larg4::MCTruthEventActionService::generatePrimaries(G4Event * anEvent) {
           // If the particle table doesn't have a definition yet, ask the ion
           // table for one. This will create a new ion definition as needed.
           if (!particleDefinition) {
-            int Z = (pdgCode % 10000000) / 10000; // atomic number
-            int A = (pdgCode % 10000) / 10; // mass number
+            int Z = (pdgCode % 10'000'000) / 10'000; // atomic number
+            int A = (pdgCode % 10'000) / 10; // mass number
             particleDefinition = fParticleTable->GetIonTable()->GetIon(Z, A, 0.);
           }
         }
 
         // What if the PDG code is unknown?  This has been a known
         // issue with GENIE.
-        if ( particleDefinition == 0 ){
+        if (particleDefinition == nullptr) {
           mf::LogDebug("ConvertPrimaryToGeant4") << ": %%% Code not found = " << pdgCode;
-          fUnknownPDG[ pdgCode ] += 1;
           continue;
         }
 
