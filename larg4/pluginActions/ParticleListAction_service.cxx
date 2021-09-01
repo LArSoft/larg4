@@ -775,12 +775,12 @@ namespace larg4 {
 
         for (auto const& iPartPair: particleList) {
           simb::MCParticle& p = *(iPartPair.second);
-          assert(p.NumberTrajectoryPoints() != 0ull);
 
           //if (this->isDropped(&p)) continue;
 
           auto gen_index = fMCTIndexMap[ p.TrackId() ];
           if (gen_index != nMCTruths) continue;
+          assert(p.NumberTrajectoryPoints() != 0ull);
 
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p.TrackId())};
