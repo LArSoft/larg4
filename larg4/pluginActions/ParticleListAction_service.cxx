@@ -474,10 +474,23 @@ namespace larg4 {
 
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = aTrack->GetStep()->GetPostStepPoint();
+      if (!postStepPoint->GetProcessDefinedStep()) {
+        // Now we get to do some awkward cleanup because the
+        // fparticleList was augmented during the
+        // preUserTrackingAction.  We cannot call 'Archive' because
+        // that only sets the mapped type of the entry to
+        // nullptr...which is really bad whenever we iterate through
+        // entries in the endOfEventAction and dereference the mapped
+        // type.  We have to entirely erase the entry.
+        auto key_to_erase = fparticleList->key(fCurrentParticle.particle);
+        fparticleList->erase(key_to_erase);
+        // after the particle is archived, it is deleted
+        fCurrentParticle.clear();
+        return;
+      }
 
       G4String process = postStepPoint->GetProcessDefinedStep()->GetProcessName();
       fCurrentParticle.particle->SetEndProcess(process);
-
 
       // -- D.R. Store the final point only for particles that have not had intermediate trajectory
       //    points saved. This avoids double counting the final trajectory point for particles from
@@ -524,7 +537,11 @@ namespace larg4 {
   // With every step, add to the particle's trajectory.
   void ParticleListActionService::userSteppingAction(const G4Step* step)
   {
-    if ( !fCurrentParticle.hasParticle() ) {
+    // N.B. G4 guarantees that following are non-null:
+    //  - step
+    //  - step->GetPostStepPoint()
+    if ( !fCurrentParticle.hasParticle() ||
+         !step->GetPostStepPoint()->GetProcessDefinedStep() ) {
       return;
     }
     // Temporary fix for problem where  DeltaTime on the first step
