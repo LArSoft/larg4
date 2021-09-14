@@ -31,6 +31,8 @@
 // nug4 includes
 #include "nug4/G4Base/ConvertMCTruthToG4.h"
 
+#include <map>
+
 // Get the base class
 #include "artg4tk/actionBase/PrimaryGeneratorActionBase.hh"
 
@@ -40,6 +42,7 @@ namespace larg4 {
     : public artg4tk::PrimaryGeneratorActionBase {
   public:
     MCTruthEventActionService(fhicl::ParameterSet const&);
+    ~MCTruthEventActionService();
 
     void addG4Particle(G4Event *event,
                        int pdgId,
@@ -59,6 +62,10 @@ namespace larg4 {
   private:
 
     static G4ParticleTable*           fParticleTable; ///< Geant4's table of particle definitions.
+
+    std::map<G4int, G4int>            fUnknownPDG;    ///< map of unknown PDG codes to instances
+    std::map<G4int, G4int>            fNon1StatusPDG; ///< PDG codes skipped because not status 1
+    std::map<G4int, G4int>            fProcessedPDG;  ///< PDG codes processed
 
   };
 }//namespace larg4
