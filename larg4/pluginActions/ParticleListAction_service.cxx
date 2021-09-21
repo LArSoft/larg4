@@ -39,7 +39,6 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ProducingService.h"
 // framework includes:
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "canvas/Persistency/Common/Ptr.h"
@@ -174,8 +173,7 @@ namespace larg4 {
     // -- D.R. determine mapping between MCTruthIndex(s) and generator(s) for later reference
     art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
     art::Event & evt = actionHolder->getCurrArtEvent();
-    std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
-    evt.getManyByType(mclists);
+    auto mclists = evt.getMany<std::vector<simb::MCTruth>>();
 
     size_t nKeep = 0;
     std::string generator_name = "unknown";

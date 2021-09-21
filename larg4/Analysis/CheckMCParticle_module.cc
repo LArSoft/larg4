@@ -56,8 +56,7 @@ void larg4::CheckMCParticle::beginJob()
 
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
-  std::vector<art::Handle<std::vector<simb::MCParticle>>> allGens;
-  event.getManyByType(allGens);
+  auto allGens = event.getMany<std::vector<simb::MCParticle>>();
   for (auto const& gens : allGens) {
     _hnParts->Fill(gens->size());
 #if defined _verbose_

@@ -1,4 +1,5 @@
 #include "larg4/pluginActions/MCTruthEventAction_service.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4tk/services/ActionHolder_service.hh"
 // Geant4  includes

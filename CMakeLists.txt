@@ -6,9 +6,9 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larg4 LANGUAGES CXX)
+project(larg4 VERSION 09.03.11.01 LANGUAGES CXX)
 
 find_package(cetbuildtools REQUIRED)
 
@@ -38,6 +38,7 @@ find_ups_product(fhiclcpp)
 find_ups_geant4()
 find_ups_product(larcore)
 find_ups_product(larcoreobj)
+find_ups_product(larcorealg)
 find_ups_product(lardataalg)
 find_ups_product(lardataobj)
 find_ups_product(messagefacility)

@@ -60,8 +60,9 @@ void larg4::CheckAuxDetHit::beginJob()
 
 void larg4::CheckAuxDetHit::analyze(const art::Event& event)
 {
-  std::vector<art::Handle<sim::AuxDetHitCollection>> allSims;
-  event.getManyByType(allSims);
+  //std::vector<art::Handle<sim::AuxDetHitCollection>> allSims;
+  //event.getManyByType(allSims);
+  auto allSims = event.getMany<sim::AuxDetHitCollection>();
   for (auto const& sims : allSims) {
     _hnHits->Fill(sims->size());
     for (auto const& hit : *sims) {

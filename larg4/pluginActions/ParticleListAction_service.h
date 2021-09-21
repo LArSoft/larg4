@@ -12,8 +12,8 @@
 #define PARTICLELISTACTION_SERVICE_H
 // Includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "canvas/Persistency/Common/Assns.h"
 
 #include "larg4/pluginActions/thePositionInVolumeFilter.h" // larg4::thePositionInVolumeFilter

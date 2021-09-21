@@ -7,7 +7,6 @@
 // Includes
 #include "larg4/Services/larg4ActionHolder_service.hh"
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

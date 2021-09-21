@@ -6,29 +6,28 @@ simple_plugin(
     AuxDetSD.cc
   NOP
     art_Framework_Core
-    art_Framework_Principal
-    art_Framework_Services_Registry
+    art::Framework_Principal
+    art::Framework_Services_Registry
     artg4tk_DataProducts_G4DetectorHits
     artg4tk_pluginDetectors_gdml
     artg4tk_services_DetectorHolder_service
-    art_Persistency_Provenance
+    art::Persistency_Provenance
     ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
-    canvas
-    cetlib
-    cetlib_except
-    clhep
+    canvas::canvas
+    cetlib::cetlib
+    cetlib_except::cetlib_except
+    CLHEP::CLHEP
     fhiclcpp
-    ${G4DIGITS_HITS}
-    ${G4EVENT}
-    ${G4GEOMETRY}
-    ${G4GLOBAL}
-    ${G4MATERIALS}
-    ${G4PERSISTENCY}
+    G4DIGITS_HITS
+    G4EVENT
+    G4GEOMETRY
+    G4GLOBAL
+    G4MATERIALS
+    G4PERSISTENCY
     larcorealg_Geometry
     MF_MessageLogger
-    ${ROOT_CORE}
-    ${XERCESC}
+    ROOT::Core
+    XERCESC
 )
 
 install_headers()
