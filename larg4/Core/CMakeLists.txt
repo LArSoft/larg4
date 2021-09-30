@@ -23,6 +23,7 @@ art_make(
     ${G4TRACKING}
     larg4_pluginActions_ParticleListAction_service
     nurandom_RandomUtils_NuRandomService_service
+    nug4_AdditionalG4Physics
     MF_MessageLogger
     ROOT::Core
     ROOT::Physics
