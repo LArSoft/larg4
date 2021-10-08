@@ -19,11 +19,15 @@
 // Author: Hans Wenzel (Fermilab)
 // Modified: David Rivera
 //=============================================================================
+
 // framework includes:
 #include "art/Framework/Core/ProducesCollector.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "cetlib/search_path.h"
- // larg4 includes:
+
+// larg4 includes:
 #include "larg4/Services/LArG4Detector_service.h"
+
 // artg4tk includes:
 #include "artg4tk/pluginDetectors/gdml/ColorReader.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterSD.hh"

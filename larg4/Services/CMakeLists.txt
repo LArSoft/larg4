@@ -5,14 +5,13 @@ simple_plugin(
     SimEnergyDepositSD.cc
     AuxDetSD.cc
   NOP
-    art_Framework_Core
+    art::Framework_Core
     art::Framework_Principal
     art::Framework_Services_Registry
-    artg4tk_DataProducts_G4DetectorHits
-    artg4tk_pluginDetectors_gdml
-    artg4tk_services_DetectorHolder_service
+    artg4tk::DataProducts_G4DetectorHits
+    artg4tk::pluginDetectors_gdml
+    artg4tk::services_DetectorHolder_service
     art::Persistency_Provenance
-    ${Boost_FILESYSTEM_LIBRARY}
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
