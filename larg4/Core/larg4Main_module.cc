@@ -44,6 +44,8 @@
 
 #include <string>
 
+using MCTruthCollection = std::vector<simb::MCTruth>;
+
 namespace larg4 {
 
   // Define the producer
@@ -56,6 +58,8 @@ namespace larg4 {
     void beginJob() override;
     void beginRun(art::Run& r) override;
     void endRun(art::Run&) override;
+
+    std::vector<art::Handle<MCTruthCollection>> inputCollections(art::Event const& e) const;
 
     // Our custom run manager
     std::unique_ptr<artg4tk::ArtG4RunManager> runManager_{nullptr};
@@ -82,6 +86,9 @@ namespace larg4 {
 
     // Name of the Geant4 macro file, if provided
     std::string g4MacroFile_;
+
+    // Input tags used to specify which MCTruth collections to use during G4
+    std::vector<art::InputTag> inputCollectionTags_;
 
     // Boolean to determine whether we pause execution after each event
     // If it's true, then we do. Otherwise, we pause only after all events
@@ -112,6 +119,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , macroPath_(p.get<std::string>("macroPath", "FW_SEARCH_PATH"))
   , pathFinder_(macroPath_)
   , g4MacroFile_(p.get<std::string>("visMacro", "larg4.mac"))
+  , inputCollectionTags_{p.get<std::vector<art::InputTag>>("inputCollections", {})}
   , rmvlevel_(p.get<int>("rmvlevel", 0))
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
@@ -236,7 +244,7 @@ larg4::larg4Main::produce(art::Event& e)
   art::ServiceHandle<artg4tk::ActionHolderService>()->setCurrArtEvent(e);
   art::ServiceHandle<artg4tk::DetectorHolderService>()->setCurrArtEvent(e);
 
-  auto const mclists = e.getMany<std::vector<simb::MCTruth>>();
+  auto const mclists = inputCollections(e);
   art::ServiceHandle<larg4::MCTruthEventActionService>()->setInputCollections(mclists);
 
   art::ServiceHandle<larg4::ParticleListActionService> pla;
@@ -257,6 +265,20 @@ larg4::larg4Main::endRun(art::Run& r)
 {
   art::ServiceHandle<artg4tk::ActionHolderService>()->setCurrArtRun(r);
   runManager_->BeamOnEndRun();
+}
+
+std::vector<art::Handle<MCTruthCollection>>
+larg4::larg4Main::inputCollections(art::Event const& e) const
+{
+  if (empty(inputCollectionTags_)) {
+    return e.getMany<std::vector<simb::MCTruth>>();
+  }
+
+  std::vector<art::Handle<MCTruthCollection>> result;
+  for (auto const& tag : inputCollectionTags_) {
+    result.push_back(e.getHandle<MCTruthCollection>(tag));
+  }
+  return result;
 }
 
 DEFINE_ART_MODULE(larg4::larg4Main)
