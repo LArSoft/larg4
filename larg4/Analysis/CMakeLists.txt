@@ -1,16 +1,13 @@
 art_make(
   MODULE_LIBRARIES
-    art_Framework_Core
-    art::Framework_Principal
-    art_root_io_tfile_support ROOT::Core
-    art_root_io_TFileService_service
+    art_root_io::TFileService_service
     art::Framework_Services_Registry
     art::Persistency_Provenance
     art::Utilities
-    ${Boost_FILESYSTEM_LIBRARY}
+    artg4tk::services_DetectorHolder_service
+    Boost::filesystem
     canvas::canvas
     cetlib_except::cetlib_except
-    fhiclcpp
     ${G4ZLIB}
     nusimdata_SimulationBase
     ROOT::Core

@@ -3,10 +3,9 @@ simple_plugin(
 NOP
   art::Framework_Principal
   art::Framework_Services_Registry
-  artg4tk_actionBase
-  artg4tk_services_ActionHolder_service
+  artg4tk::actionBase
+  artg4tk::services_ActionHolder_service
   art::Persistency_Provenance
-  ${Boost_FILESYSTEM_LIBRARY}
   canvas::canvas
   cetlib_except::cetlib_except
   CLHEP::CLHEP
@@ -27,13 +26,10 @@ simple_plugin(
 NOP
   art::Framework_Services_Registry
   canvas::canvas
-  fhiclcpp
-  cetlib_except::cetlib_except
-  ${Boost_FILESYSTEM_LIBRARY}
-  art_Framework_Core
+  art::Framework_Core
   art::Framework_Principal
-  artg4tk_actionBase
-  artg4tk_services_ActionHolder_service
+  artg4tk::actionBase
+  artg4tk::services_ActionHolder_service
   art::Persistency_Provenance
   CLHEP::CLHEP
   ${G4PARTICLES}
@@ -43,6 +39,7 @@ NOP
   nug4_ParticleNavigation
   ROOT::Core
   ROOT::Physics
+  Range::Range
 SOURCE
   ParticleListAction_service.cxx
 )

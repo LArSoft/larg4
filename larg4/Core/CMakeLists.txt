@@ -1,16 +1,14 @@
 art_make(
   MODULE_LIBRARIES
-    art_Framework_Core
     art::Framework_Principal
     art::Framework_Services_Registry
-    artg4tk_geantInit
-    artg4tk_lists
-    artg4tk_services_ActionHolder_service
-    artg4tk_services_DetectorHolder_service
-    artg4tk_services_PhysicsListHolder_service
+    artg4tk::geantInit
+    artg4tk::lists
+    artg4tk::services_ActionHolder_service
+    artg4tk::services_DetectorHolder_service
+    artg4tk::services_PhysicsListHolder_service
     art::Persistency_Provenance
     art::Utilities
-    ${Boost_FILESYSTEM_LIBRARY}
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
@@ -21,9 +19,10 @@ art_make(
     ${G4INTERFACES}
     ${G4RUN}
     ${G4TRACKING}
+    larg4_pluginActions_MCTruthEventAction_service
     larg4_pluginActions_ParticleListAction_service
     nurandom_RandomUtils_NuRandomService_service
-    nug4_AdditionalG4Physics
+    nug4::AdditionalG4Physics
     MF_MessageLogger
     ROOT::Core
     ROOT::Physics
