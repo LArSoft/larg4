@@ -52,6 +52,7 @@ namespace larg4 {
   class larg4Main : public art::EDProducer {
   public:
     explicit larg4Main(fhicl::ParameterSet const& p);
+    ~larg4Main();
 
   private:
     void produce(art::Event& e) override;
@@ -62,7 +63,7 @@ namespace larg4 {
     std::vector<art::Handle<MCTruthCollection>> inputCollections(art::Event const& e) const;
 
     // Our custom run manager
-    std::unique_ptr<artg4tk::ArtG4RunManager> runManager_{nullptr};
+    static std::unique_ptr<artg4tk::ArtG4RunManager> runManager_;
 
     // G4 session and managers
     G4UIsession* session_{nullptr};
@@ -109,8 +110,15 @@ namespace larg4 {
     //     pause -- Let user press return at the end of each event
     //     ui    -- show the UI at the end of the event
     std::string afterEvent_;
+
+    static bool initializeDetectors_;
+    static std::atomic<int> processingRun_;
   };
 }
+
+std::unique_ptr<artg4tk::ArtG4RunManager> larg4::larg4Main::runManager_{nullptr};
+bool larg4::larg4Main::initializeDetectors_{true};
+std::atomic<int> larg4::larg4Main::processingRun_{0};
 
 // Constructor - set parameters
 larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
@@ -132,9 +140,12 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   art::ServiceHandle<artg4tk::ActionHolderService> actionHolder;
   art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
 
-  detectorHolder->initialize();
-  // Build the detectors' logical volumes
-  detectorHolder->constructAllLVs();
+  if (initializeDetectors_) {
+    detectorHolder->initialize();
+    // Build the detectors' logical volumes
+    detectorHolder->constructAllLVs();
+    initializeDetectors_ = false;
+  }
 
   // And running @callArtProduces@ on each
   actionHolder->callArtProduces(producesCollector());
@@ -156,19 +167,30 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   }
 }
 
-// At begin job
+larg4::larg4Main::~larg4Main()
+{
+  if (runManager_) {
+    runManager_.reset();
+  }
+}
+
 void
 larg4::larg4Main::beginJob()
 {
-  // Set up run manager
   mf::LogDebug("Main_Run_Manager") << "In begin job";
+  if (runManager_) {
+    return;
+  }
   runManager_.reset(new artg4tk::ArtG4RunManager);
 }
 
-// At begin run
 void
 larg4::larg4Main::beginRun(art::Run& r)
 {
+  if (processingRun_++ != 0) {
+    return;
+  }
+
   // Get the physics list and pass it to Geant and initialize the list if necessary
   art::ServiceHandle<artg4tk::PhysicsListHolderService const> physicsListHolder;
   runManager_->SetUserInitialization(physicsListHolder->makePhysicsList());
@@ -259,11 +281,13 @@ larg4::larg4Main::produce(art::Event& e)
   e.put(pla->AssnsMCTruthToMCParticle());
 }
 
-// At end run
 void
 larg4::larg4Main::endRun(art::Run& r)
 {
-  art::ServiceHandle<artg4tk::ActionHolderService>()->setCurrArtRun(r);
+  if (--processingRun_ != 0) {
+    return;
+  }
+
   runManager_->BeamOnEndRun();
 }
 
