@@ -138,6 +138,7 @@ namespace larg4 {
     fMCTIndexMap.clear();
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
+    fTrackIDOffset = 0;
 
     fPrimaryTruthMap.clear();
     fMCTIndexToGeneratorMap.clear();
