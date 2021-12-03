@@ -9,7 +9,7 @@ art_make(
     canvas::canvas
     cetlib_except::cetlib_except
     ${G4ZLIB}
-    nusimdata_SimulationBase
+    nusimdata::SimulationBase
     ROOT::Core
     ROOT::Hist
     ROOT::Tree

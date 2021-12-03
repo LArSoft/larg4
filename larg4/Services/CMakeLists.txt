@@ -15,18 +15,17 @@ simple_plugin(
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
-    CLHEP::CLHEP
-    fhiclcpp
-    G4DIGITS_HITS
-    G4EVENT
-    G4GEOMETRY
-    G4GLOBAL
-    G4MATERIALS
-    G4PERSISTENCY
+    fhiclcpp::fhiclcpp
+    Geant4::G4digits_hits
+    Geant4::G4event
+    Geant4::G4geometry
+    Geant4::G4global
+    Geant4::G4materials
+    Geant4::G4persistency
     larcorealg_Geometry
-    MF_MessageLogger
+    messagefacility::MF_MessageLogger
     ROOT::Core
-    XERCESC
+    XercesC::XercesC
 )
 
 install_headers()

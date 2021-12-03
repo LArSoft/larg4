@@ -12,18 +12,17 @@ art_make(
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
-    CLHEP::CLHEP
     fhiclcpp
-    ${G4EVENT}
-    ${G4INTERCOMS}
-    ${G4INTERFACES}
-    ${G4RUN}
-    ${G4TRACKING}
+    Geant4::G4event
+    Geant4::G4intercoms
+    Geant4::G4interfaces
+    Geant4::G4run
+    Geant4::G4tracking
     larg4_pluginActions_MCTruthEventAction_service
     larg4_pluginActions_ParticleListAction_service
-    nurandom_RandomUtils_NuRandomService_service
+    nurandom::RandomUtils_NuRandomService_service
     nug4::AdditionalG4Physics
-    MF_MessageLogger
+    messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Physics
 )

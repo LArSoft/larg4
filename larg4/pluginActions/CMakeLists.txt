@@ -8,13 +8,13 @@ NOP
   art::Persistency_Provenance
   canvas::canvas
   cetlib_except::cetlib_except
-  CLHEP::CLHEP
-  fhiclcpp
-  ${G4GLOBAL}
-  ${G4PARTICLES}
-  MF_MessageLogger
-  nusimdata_SimulationBase
-  nug4_G4Base
+  CLHEP::Vector
+  fhiclcpp::fhiclcpp
+  Geant4::G4global
+  Geant4::G4particles
+  messagefacility::MF_MessageLogger
+  nusimdata::SimulationBase
+  nug4::G4Base
   ROOT::Core
   ROOT::Physics
 SOURCE
@@ -31,12 +31,12 @@ NOP
   artg4tk::actionBase
   artg4tk::services_ActionHolder_service
   art::Persistency_Provenance
-  CLHEP::CLHEP
-  ${G4PARTICLES}
-  MF_MessageLogger
-  nusimdata_SimulationBase
-  nug4_G4Base
-  nug4_ParticleNavigation
+  CLHEP::Vector
+  Geant4::G4particles
+  messagefacility::MF_MessageLogger
+  nusimdata::SimulationBase
+  nug4::G4Base
+  nug4::ParticleNavigation
   ROOT::Core
   ROOT::Physics
   Range::Range
