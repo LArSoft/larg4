@@ -39,7 +39,7 @@ NOP
   nug4::ParticleNavigation
   ROOT::Core
   ROOT::Physics
-  Range::Range
+  range-v3::range-v3
 SOURCE
   ParticleListAction_service.cxx
 )
