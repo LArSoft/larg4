@@ -8,11 +8,12 @@
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larg4 VERSION 09.07.01 LANGUAGES CXX)
+project(larg4 LANGUAGES CXX)
 
 find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
+set(${PROJECT}_CMAKE_PROJECT_VERSION_STRING 09.07.02-rc0)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
