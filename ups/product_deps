@@ -31,8 +31,8 @@ fwdir   product_dir     G4
 
 product          version
 artg4tk         v10_04_00
-larevt          v09_04_02
-nug4            v1_12_01
+larevt          v09_04_03
+nug4            v1_12_02
 nurandom        v1_08_01
 cetbuildtools   v8_18_09       -       only_for_build
 end_product_list
