@@ -48,7 +48,7 @@ void  AuxDetSD::Initialize(G4HCofThisEvent* ) {
 }
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
   G4bool  AuxDetSD::ProcessHits(G4Step* step, G4TouchableHistory*) {
-  G4double edep = step->GetTotalEnergyDeposit() / CLHEP::MeV;
+  G4double edep = step->GetTotalEnergyDeposit() / CLHEP::GeV;
   if (edep == 0.) return false;
   G4Track * track = step->GetTrack();
   const unsigned int trackID = track->GetTrackID();
