@@ -63,6 +63,7 @@ namespace larg4 {
          G4ProcessVector* procPost = fpSteppingManager->GetfPostStepDoItVector();
          size_t MAXofPostStepLoops = fpSteppingManager->GetMAXofPostStepLoops();
          for (size_t i3 = 0; i3 < MAXofPostStepLoops; i3++) {
+           if (!(*procPost)[i3]) continue;
            /*
              if ((*procPost)[i3]->GetProcessName() == "Cerenkov") {
              G4Cerenkov* proc =(G4Cerenkov*) (*procPost)[i3];
