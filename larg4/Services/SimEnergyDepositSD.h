@@ -6,6 +6,9 @@
 
 #ifndef LARG4_SERVICES_SIMENERGYDEPOSITSD_H
 #define LARG4_SERVICES_SIMENERGYDEPOSITSD_H
+#include "Geant4/G4VSensitiveDetector.hh"
+#include "lardataobj/Simulation/SimEnergyDeposit.h"
+
 class G4Step;
 class G4HCofThisEvent;
 //class SimEnergyDepositCollection;
