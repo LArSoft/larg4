@@ -16,9 +16,7 @@
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 
-#include "Geant4/G4VSensitiveDetector.hh"
-#include "lardataobj/Simulation/SimEnergyDeposit.h"
-
+#pragma once
 class G4Step;
 class G4HCofThisEvent;
 //class SimEnergyDepositCollection;
@@ -40,4 +38,3 @@ namespace larg4 {
     //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 }
 
-#endif // LARG4_SERVICES_SIMENERGYDEPOSITSD_H

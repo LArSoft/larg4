@@ -7,9 +7,7 @@
  *
  */
 
-#ifndef THEPOSITIONINVOLUMEFILTER_H
-#define THEPOSITIONINVOLUMEFILTER_H
-
+#pragma once
 // LArSoft libraries
 
 // ROOT libraries
@@ -111,4 +109,3 @@ namespace larg4 {
 
 } // namespace larg4
 
-#endif // THEPOSITIONINVOLUMEFILTER_H

@@ -22,10 +22,7 @@
 // Modified: David Rivera - add ability to set step limits for different volumes
 //=============================================================================
 
-// Include guard
-#ifndef GDMLDETECTOR_SERVICE_HH
-#define GDMLDETECTOR_SERVICE_HH
-
+#pragma once
 // Includes
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
@@ -81,4 +78,3 @@ namespace larg4 {
 
 DECLARE_ART_SERVICE(larg4::LArG4DetectorService, LEGACY)
 
-#endif
