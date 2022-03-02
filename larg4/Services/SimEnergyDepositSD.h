@@ -1,22 +1,11 @@
-#ifndef LARG4_SERVICES_SIMENERGYDEPOSITSD_H
-#define LARG4_SERVICES_SIMENERGYDEPOSITSD_H
-// vim: set sw=2 expandtab :
-//
-//               __        __ __  __  __
-//   ____ ______/ /_____ _/ // / / /_/ /__
-//  / __ `/ ___/ __/ __ `/ // /_/ __/ //_/
-// / /_/ / /  / /_/ /_/ /__  __/ /_/ ,<
-// \__,_/_/   \__/\__, /  /_/  \__/_/|_|
-//               /____/
-//
-// artg4tk: art based Geant 4 Toolkit
 //
 //=============================================================================
 // SimEnergyDepositSD: Class representing a liquid Ar TPC
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
 
-#pragma once
+#ifndef LARG4_SERVICES_SIMENERGYDEPOSITSD_H
+#define LARG4_SERVICES_SIMENERGYDEPOSITSD_H
 class G4Step;
 class G4HCofThisEvent;
 //class SimEnergyDepositCollection;
@@ -38,3 +27,4 @@ namespace larg4 {
     //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 }
 
+#endif //  LARG4_SERVICES_SIMENERGYDEPOSITSD_H

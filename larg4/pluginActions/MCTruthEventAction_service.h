@@ -12,7 +12,10 @@
 // - name (string): A name describing the action service.
 //       Default is 'exampleParticleGun'
 
-#pragma once
+// Include guard
+#ifndef MCTRUTHEVENTACTION_SERVICE_HH
+#define MCTRUTHEVENTACTION_SERVICE_HH
+
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -58,3 +61,4 @@ namespace larg4 {
 
 DECLARE_ART_SERVICE(larg4::MCTruthEventActionService, LEGACY)
 
+#endif // MCTRUTHEVENTACTION_SERVICE_HH

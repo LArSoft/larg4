@@ -2,7 +2,10 @@
 // AuxDetSD.h: Class representing a sensitive for a thin CRT detector
 // Author: Hans Wenzel (Fermilab)
 //=============================================================================
-#pragma once
+// Include guard
+#ifndef AuxDetSD_h
+#define AuxDetSD_h 1
+
 #include "lardataobj/Simulation/AuxDetHit.h"
 #include "larg4/Services/TempHit.h"
 #include "larcore/Geometry/Geometry.h"
@@ -39,4 +42,4 @@ namespace larg4 {
 #endif
 
 
-
+#endif //  AuxDetSD_h

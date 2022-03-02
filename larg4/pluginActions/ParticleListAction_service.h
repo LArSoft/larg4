@@ -8,7 +8,11 @@
 // accumulate a list of particles modeled by Geant4.
 //
 
-#pragma once
+// Include guard
+#ifndef PARTICLELISTACTION_SERVICE_H
+#define PARTICLELISTACTION_SERVICE_H
+
+
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "canvas/Persistency/Common/Assns.h"
@@ -198,3 +202,4 @@ namespace larg4 {
 
 DECLARE_ART_SERVICE(larg4::ParticleListActionService, LEGACY)
 
+#endif // PARTICLELISTACTION_SERVICE_H

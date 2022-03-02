@@ -7,7 +7,10 @@
  *
  */
 
-#pragma once
+// Include guard
+#ifndef THEPOSITIONINVOLUMEFILTER_H
+#define THEPOSITIONINVOLUMEFILTER_H
+
 // LArSoft libraries
 
 // ROOT libraries
@@ -108,4 +111,4 @@ namespace larg4 {
   }; // thePositionInVolumeFilter
 
 } // namespace larg4
-
+#endif // THEPOSITIONINVOLUMEFILTER_H
