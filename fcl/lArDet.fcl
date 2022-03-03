@@ -6,7 +6,7 @@ source: {
 services: {
   message : {
      debugModules : ["*"]
-     suppressInfo : []    
+     suppressInfo : []
      destinations : {
        LogToConsole : {
          type : "cout"
@@ -25,33 +25,33 @@ services: {
     DetectorHolder: {}
     ActionHolder: {}
     RandomNumberGenerator: {}
-    PhysicsListHolder: {} 
-    PhysicsList: { 
+    PhysicsListHolder: {}
+    PhysicsList: {
 	PhysicsListName: "FTFP_BERT"
-	DumpList: false	
+	DumpList: false
   	enableCerenkov: false
   	enableScintillation: true
 	ScintillationByParticleType: false
-  	enableAbsorption: false   
-  	enableRayleigh: false     
-  	enableMieHG: false       
-  	enableBoundary: false    
+  	enableAbsorption: false
+  	enableRayleigh: false
+  	enableMieHG: false
+  	enableBoundary: false
   	enableWLS: false
 }
-   
+
     // Detector(s) for the simulation
-    LArG4Detector : 
+    LArG4Detector :
     {
     category: "world"
     gdmlFileName_ : "lArDet.gdml"
-    }   
+    }
 
 
 
 
 //    writeGdml: {
 //      name: "writeGdml"
-//      gdmlFileName:"output.gdml"	
+//      gdmlFileName:"output.gdml"
 //    }
 ParticleListAction: {service_type: "ParticleListActionService"}
 
@@ -60,7 +60,7 @@ ParticleListAction: {service_type: "ParticleListActionService"}
       name: "exampleGeneral"
     }
       myParticleGunAction: {
-      name: "myParticleGun"	
+      name: "myParticleGun"
       NParticle: 1
       Name: "mu+"
       Direction: [ 0,  0,  1  ]
@@ -71,14 +71,14 @@ ParticleListAction: {service_type: "ParticleListActionService"}
 
 outputs: {
 out1: {
-  module_type: RootOutput   
+  module_type: RootOutput
   fileName: "Testingout.root"
   }
 }
 
 physics: {
   producers: {
-    artg4Main: {  
+    artg4Main: {
       module_type: artg4Main
       enableVisualization: false
       macroPath: ".:./macros"
@@ -90,7 +90,7 @@ physics: {
   analyzers: {
    CheckSimEnergyDeposit: {   module_type: CheckSimEnergyDeposit
 		  hist_dir: "HistoDir"}
-	
+
 }
 
   path1: [ artg4Main ]

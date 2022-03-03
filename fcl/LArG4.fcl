@@ -1,6 +1,6 @@
 BEGIN_PROLOG
 
-standard_larg4: 
+standard_larg4:
 {
     module_type: "larg4Main"
     enableVisualization: false

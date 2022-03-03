@@ -11,7 +11,7 @@
     // Engauge Digitizer - Digitizing software
     // http://digitizer.sourceforge.net/
     // Note! the formula used to calculate the absorption length from the transmission
-    // is not correct (too pessimistic) since it doesn't account for 
+    // is not correct (too pessimistic) since it doesn't account for
     // fresnel reflection.
     //
 -->
@@ -29,51 +29,51 @@
         <matrix name="RS"  coldim="1" values="1.0" />
         <matrix name="FTC" coldim="1" values="7.*ns" />
         <matrix name="STC" coldim="1" values="1400.*ns" />
-        <matrix name="YR"  coldim="1" values="0.75" /> 
+        <matrix name="YR"  coldim="1" values="0.75" />
         <matrix name="ArINDEX" coldim="2" values="6.7*eV 1.5
-                                                 7.1*eV 1.5 
-                                                 7.4*eV 1.5  
-                                                 7.7*eV 1.5 
-                                                 7.9*eV 1.5 
-                                                 8.1*eV 1.5          
-                                                 8.4*eV 1.5 
-                                                 8.5*eV 1.5 
-                                                 8.6*eV 1.5 
-                                                 8.8*eV 1.5 
-                                                 9.0*eV 1.5 
-                                                 9.1*eV 1.5 
-                                                 9.4*eV 1.5 
-                                                 9.8*eV 1.5 
+                                                 7.1*eV 1.5
+                                                 7.4*eV 1.5
+                                                 7.7*eV 1.5
+                                                 7.9*eV 1.5
+                                                 8.1*eV 1.5
+                                                 8.4*eV 1.5
+                                                 8.5*eV 1.5
+                                                 8.6*eV 1.5
+                                                 8.8*eV 1.5
+                                                 9.0*eV 1.5
+                                                 9.1*eV 1.5
+                                                 9.4*eV 1.5
+                                                 9.8*eV 1.5
                                                  10.4*eV 1.5"/>
         <matrix name="REFLECTIVITY" coldim="2" values="6.7*eV 0.8
-                                                 7.1*eV 0.8 
-                                                 7.4*eV 0.8  
-                                                 7.7*eV 0.8 
-                                                 7.9*eV 0.8 
-                                                 8.1*eV 0.8          
-                                                 8.4*eV 0.8 
-                                                 8.5*eV 0.8 
-                                                 8.6*eV 0.8 
-                                                 8.8*eV 0.8 
-                                                 9.0*eV 0.8 
-                                                 9.1*eV 0.8 
-                                                 9.4*eV 0.8 
-                                                 9.8*eV 0.8 
+                                                 7.1*eV 0.8
+                                                 7.4*eV 0.8
+                                                 7.7*eV 0.8
+                                                 7.9*eV 0.8
+                                                 8.1*eV 0.8
+                                                 8.4*eV 0.8
+                                                 8.5*eV 0.8
+                                                 8.6*eV 0.8
+                                                 8.8*eV 0.8
+                                                 9.0*eV 0.8
+                                                 9.1*eV 0.8
+                                                 9.4*eV 0.8
+                                                 9.8*eV 0.8
                                                  10.4*eV 0.8"/>
         <matrix name="SCINT" coldim="2" values="6.7*eV 0.04
-                                                 7.1*eV 0.12 
-                                                 7.4*eV 0.27 
-                                                 7.7*eV 0.44 
+                                                 7.1*eV 0.12
+                                                 7.4*eV 0.27
+                                                 7.7*eV 0.44
                                                  7.9*eV 0.62
-                                                 8.1*eV 0.80          
-                                                 8.4*eV 0.91 
-                                                 8.5*eV 0.92 
-                                                 8.6*eV 0.85 
+                                                 8.1*eV 0.80
+                                                 8.4*eV 0.91
+                                                 8.5*eV 0.92
+                                                 8.6*eV 0.85
                                                  8.8*eV 0.70
-                                                 9.0*eV 0.50 
-                                                 9.1*eV 0.31 
-                                                 9.4*eV 0.13 
-                                                 9.8*eV 0.04 
+                                                 9.0*eV 0.50
+                                                 9.1*eV 0.31
+                                                 9.4*eV 0.13
+                                                 9.8*eV 0.04
                                                 10.4*eV 0.01"/>
    <variable name="ii" value="0"/>
       <variable name="jj" value="0"/>
@@ -89,7 +89,7 @@
                                                1.76698*eV 1.75474
 					       1.80023*eV 1.75593
 					       1.84655*eV 1.7583
-					       1.9016*eV  1.7583 
+					       1.9016*eV  1.7583
 					       1.95004*eV 1.76067
 					       1.99407*eV 1.76244
 					       2.03291*eV 1.76422
@@ -215,19 +215,19 @@
 	 <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
 	 <auxiliary auxtype="Color" auxvalue="Red"/>
       </volume>
-    
+
         <volume name="Paddle">
             <materialref ref="G4_PLEXIGLASS"/>
             <solidref ref="PaddleBox"/>
             <auxiliary auxtype="SensDet" auxvalue="Tracker"/>
             <auxiliary auxtype="Color" auxvalue="Blue"/>
             <auxiliary auxtype="Solid" auxvalue="True"/>
-        </volume> 
+        </volume>
         <volume name="SenseWire">
             <materialref ref="G4_W"/>
             <solidref ref="t1000"/>
             <auxiliary auxtype="Color" auxvalue="Green"/>
-        </volume>   
+        </volume>
         <volume name="volTPCActiveInner">
             <materialref ref="LAr"/>
             <solidref ref="TPCVolume"/>
@@ -312,7 +312,7 @@
         <bordersurface name="bordersrf" surfaceproperty="surf" >
             <physvolref ref="pArgonVolume"/>
             <physvolref ref="pCryostatVolume"/>
-        </bordersurface> 
+        </bordersurface>
     </structure>
     <setup version="1.0" name="Default">
         <world ref="TOP"/>

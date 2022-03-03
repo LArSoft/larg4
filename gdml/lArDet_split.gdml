@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE gdml [ 
+<!DOCTYPE gdml [
 <!ENTITY materials SYSTEM "materials.xml">
 ]>
 <!-- below we insert the schema to demonstrate a simple extension of the gdml schema which allows to select visualization properties like color and visualization to gdml -->
 <gdml_simple_extension xmlns:gdml_simple_extension="http://www.example.org"
-                       xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"          
-                       xs:noNamespaceSchemaLocation="SimpleExtension.xsd"> 
+                       xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+                       xs:noNamespaceSchemaLocation="SimpleExtension.xsd">
 
     <extension>
         <color name="magenta"     R="0.0"  G="1.0"  B="0.0"  A="1.0" />
         <color name="green"       R="0.0"  G="1.0"  B="0.0"  A="1.0" />
         <color name="red"         R="1.0"  G="0.0"  B="0.0"  A="1.0" />
         <color name="blue"        R="0.0"  G="0.0"  B="1.0"  A="1.0" />
-        <color name="yellow"      R="1.0"  G="1.0"  B="0.0"  A="1.0" />    
+        <color name="yellow"      R="1.0"  G="1.0"  B="0.0"  A="1.0" />
     </extension>
 
  <!-- the content of the materials.xml file will be included here. This file summarizes the material and optical properties of liquid Ar. -->
- &materials; 
+ &materials;
 
     <solids>
         <box name="WorldBox" lunit="cm" x="100" y="100" z="410"/>
@@ -33,31 +33,31 @@
     </solids>
     <structure>
 <!--
- the line 
+ the line
  <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
-declares that we want to attach a sensitive detector of type Calorimeter to the logical volume CalorimeterVolume. The volume represent one cell of the calorimeter we will be constructing later on. All physical copies (caloriometer cells will be sensitive and will produce CalorimeterHits that are added to the event. 
-The volumes will be visualized as red wireframes.  
+declares that we want to attach a sensitive detector of type Calorimeter to the logical volume CalorimeterVolume. The volume represent one cell of the calorimeter we will be constructing later on. All physical copies (caloriometer cells will be sensitive and will produce CalorimeterHits that are added to the event.
+The volumes will be visualized as red wireframes.
 -->
         <volume name="CalorimeterVolume">
             <materialref ref="PbF2"/>
             <solidref ref="CalorimeterCell"/>
             <auxiliary auxtype="SensDet" auxvalue="Calorimeter"/>
-            <colorref ref="red"/> 
+            <colorref ref="red"/>
         </volume>
- <!-- this are the scintilator paddles deinig the beam. We are attaching  AuxDet sensitive detectors and each paddle is shown in solid blue-->  
+ <!-- this are the scintilator paddles deinig the beam. We are attaching  AuxDet sensitive detectors and each paddle is shown in solid blue-->
         <volume name="Paddle">
             <materialref ref="G4_PLEXIGLASS"/>
             <solidref ref="PaddleBox"/>
             <auxiliary auxtype="SensDet" auxvalue="AuxDet"/>
             <auxiliary auxtype="Solid" auxvalue="True"/>
-            <colorref ref="blue"/>    
-        </volume> 
+            <colorref ref="blue"/>
+        </volume>
 <!-- in the following we define a Sensewire and then use loops and formula to define a plane made of senswires-->
         <volume name="SenseWire">
             <materialref ref="G4_W"/>
             <solidref ref="t1000"/>
-            <colorref ref="green"/> 
-        </volume>   
+            <colorref ref="green"/>
+        </volume>
         <volume name="volTPCActiveInner">
             <materialref ref="LAr"/>
             <solidref ref="TPCVolume"/>
@@ -67,23 +67,23 @@ The volumes will be visualized as red wireframes.
                     <position name="posijk"  unit="mm" x="-200.0+(i+1)*5." y="-199.8" z="0"/>
                 </physvol>
             </loop>
-<!-- In the following we declare that we want to assign a sensitive detector of type SimEnergyDeposit to the active liquid Ar TPC volume. To match 
-the Geant 4 steps to the TPC read out pitch we set the step limit in this volume to 100 microns (0.1 mm). 
-The electric field  while set is not used later. 
-The volume will be shown as a blue wireframe.  --> 
+<!-- In the following we declare that we want to assign a sensitive detector of type SimEnergyDeposit to the active liquid Ar TPC volume. To match
+the Geant 4 steps to the TPC read out pitch we set the step limit in this volume to 100 microns (0.1 mm).
+The electric field  while set is not used later.
+The volume will be shown as a blue wireframe.  -->
             <auxiliary auxtype="SensDet" auxvalue="SimEnergyDeposit"/>
             <auxiliary auxtype="StepLimit" auxvalue="0.1"/>
             <auxiliary auxtype="Efield" auxvalue="1000."/>
             <colorref ref="blue"/>
         </volume>
-<!-- In the following we declare that we want to assign a sensitive detector of type PhotonDetector to the volume. 
-The volume will be shown as a red solid.  --> 
+<!-- In the following we declare that we want to assign a sensitive detector of type PhotonDetector to the volume.
+The volume will be shown as a red solid.  -->
         <volume name="volPhotodetector">
             <materialref ref="Silicon"/>
             <solidref ref="PhotoBox"/>
             <auxiliary auxtype="SensDet" auxvalue="PhotonDetector"/>
             <auxiliary auxtype="Solid" auxvalue="True"/>
-            <colorref ref="red"/> 
+            <colorref ref="red"/>
         </volume>
         <volume name="volArgon">
             <materialref ref="LAr"/>
@@ -104,7 +104,7 @@ The volume will be shown as a red solid.  -->
                 <volumeref ref="volArgon"/>
                 <position name="Argonpos" x="0" y="0" z="0"/>
             </physvol>
-            <colorref ref="yellow"/> 
+            <colorref ref="yellow"/>
         </volume>
         <volume name="TOP">
             <materialref ref="G4_AIR"/>
@@ -131,7 +131,7 @@ The volume will be shown as a red solid.  -->
                 <position name="Paddlepos4" unit="cm" x="0" y="0" z="71."/>
                 <rotation name="rotatebyz4" z="HALFPI"/>
             </physvol>
-<!--In the following we build a crystal calorimeter consisting of cubes. We use formule to place the physical volumes and the copy number together 
+<!--In the following we build a crystal calorimeter consisting of cubes. We use formule to place the physical volumes and the copy number together
 with the nameof the logical volume represents a unique ID that can be used for channel mapping-->
             <loop for="ii" from="0" to="cell" step="1">
                 <loop for="jj" from="0" to="cell" step="1">
@@ -147,7 +147,7 @@ with the nameof the logical volume represents a unique ID that can be used for c
         <bordersurface name="bordersrf" surfaceproperty="surf" >
             <physvolref ref="pArgonVolume"/>
             <physvolref ref="pCryostatVolume"/>
-        </bordersurface> 
+        </bordersurface>
     </structure>
     <setup version="1.0" name="Default">
         <world ref="TOP"/>

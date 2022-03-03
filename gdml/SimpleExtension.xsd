@@ -20,7 +20,7 @@
 	<xs:documentation>
 	  Extend the VolumeType defined by GDML.
 	</xs:documentation>
-      </xs:annotation>      
+      </xs:annotation>
       <xs:complexContent>
 	<xs:extension base="VolumeType">
 	  <xs:sequence>
@@ -45,7 +45,7 @@
   <xs:complexType name="ColorType">
     <xs:annotation>
       <xs:documentation>
-	A complex type defining RGBA values for geometric data display.  
+	A complex type defining RGBA values for geometric data display.
 	These values will be loaded into a G4VisAttributes object assigned
 	to the G4LogicalVolume.
       </xs:documentation>
@@ -74,5 +74,5 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  
+
 </xs:schema>
