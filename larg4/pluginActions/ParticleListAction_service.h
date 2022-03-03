@@ -8,8 +8,10 @@
 // accumulate a list of particles modeled by Geant4.
 //
 
+// Include guard
 #ifndef PARTICLELISTACTION_SERVICE_H
 #define PARTICLELISTACTION_SERVICE_H
+
 
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"

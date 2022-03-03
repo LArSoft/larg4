@@ -1,9 +1,9 @@
+#include "LArG4.fcl"
 //#include "seedservice.fcl"
 #no experiment specific configurations because SingleGen is detector agnostic
-
 standard_singlep:
 {
- module_type:           "SingleGen"
+ module_type:           "larg4SingleGen" 
  ParticleSelectionMode: "all"       # 0 = use full list, 1 =  randomly select a single listed particle
  PadOutVectors:		false	    # false: require all vectors to be same length
                                     # true:  pad out if a vector is size one	
@@ -101,7 +101,34 @@ services: {
       name: "exampleGeneral"
     }
 MCTruthEventAction: {service_type: "MCTruthEventActionService"}
-ParticleListAction: {service_type: "ParticleListActionService"}
+ParticleListAction: {service_type: "ParticleListActionService"
+  EnergyCut: 1e-5 # Kinetic Energy cut in [MeV]
+  keepEMShowerDaughters: true
+  storeTrajectories: true
+  keepGenTrajectories: ["generator"]       # list of generator labels for which we want to store
+                                           # trajectory points. The protodune beam label is simply
+                                           # "generator"
+  keepOnlyPrimaryFullTrajectories : false  # (defaults to false in larg4) If set to true, only
+                                           # the particles with MCTruth process == "primary" and
+                                           # their descendants will have the full set of trajetory
+                                           # points stored. Particles descending from primaries with
+                                           # MCTruth process != "primary" will not have a full set
+                                           # of trajectory points stored -- only their start and
+                                           # end points. This filter only applies to the generator
+                                           # labels listed in the keepGenTrajectories. E.g, for the
+                                           # beam generator, no "primaryBackground" particles or their
+                                           # descendants would have a full set of traj. points. if
+                                           # this is set to true.
+  SparsifyTrajectories: true               # call SparsifyTrajectory() method on MCParticles with full trajectories
+                                           # being stored. This helps reduce memory usage in the root output stage
+                                           # if there are many trajectory points.
+  SparsifyMargin: 0.015      # required when SparsifyTrajectories is set to true
+  KeepTransportation: true   # When sparsifying: forces steps with the 'Transportation' process to be saved
+                             # --- Useful in protodune to keep the first step in the active volume
+  KeepSecondToLast: true     # Sparsifying could cut out the penultimate step point, which holds the correct info
+                             # of the end of the track (the final step is defined to have 0 kinetic energy)
+                             # --- This forces that true penultimate point to be saved, thus preserving the info
+}
 }
 
 outputs: {

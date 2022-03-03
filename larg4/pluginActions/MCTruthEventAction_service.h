@@ -13,8 +13,8 @@
 //       Default is 'exampleParticleGun'
 
 // Include guard
-#ifndef EXAMPLE_MCTRUTHEVENTACTION_SERVICE_HH
-#define EXAMPLE_MCTRUTHEVENTACTION_SERVICE_HH
+#ifndef MCTRUTHEVENTACTION_SERVICE_HH
+#define MCTRUTHEVENTACTION_SERVICE_HH
 
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
@@ -61,4 +61,4 @@ namespace larg4 {
 
 DECLARE_ART_SERVICE(larg4::MCTruthEventActionService, LEGACY)
 
-#endif
+#endif // MCTRUTHEVENTACTION_SERVICE_HH

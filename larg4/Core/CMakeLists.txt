@@ -25,6 +25,9 @@ art_make(
     messagefacility::MF_MessageLogger
     ROOT::Core
     ROOT::Physics
+    ROOT::EG
+    ROOT::Hist
+    ROOT::RIO
 )
 
 install_headers()

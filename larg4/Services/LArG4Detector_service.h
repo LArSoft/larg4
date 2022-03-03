@@ -21,12 +21,10 @@
 // Author: Hans Wenzel (Fermilab)
 // Modified: David Rivera - add ability to set step limits for different volumes
 //=============================================================================
-
 // Include guard
-#ifndef GDMLDETECTOR_SERVICE_HH
-#define GDMLDETECTOR_SERVICE_HH
+#ifndef LARG4DETECTOR_SERVICE_HH
+#define LARG4DETECTOR_SERVICE_HH
 
-// Includes
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -81,4 +79,4 @@ namespace larg4 {
 
 DECLARE_ART_SERVICE(larg4::LArG4DetectorService, LEGACY)
 
-#endif
+#endif // LARG4DETECTOR_SERVICE_HH

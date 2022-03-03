@@ -131,7 +131,7 @@ larg4::LArG4DetectorService::doBuildLVs()
   if (!sp.find_file(gdmlFileName_, fullGDMLFileName)) {
     throw cet::exception("LArG4DetectorService") << "Cannot find file: " << gdmlFileName_;
   }
-  parser.Read(fullGDMLFileName);
+  parser.Read(fullGDMLFileName,false);
   G4VPhysicalVolume* World = parser.GetWorldVolume();
 
   std::stringstream ss;

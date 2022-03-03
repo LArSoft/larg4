@@ -7,6 +7,7 @@
  *
  */
 
+// Include guard
 #ifndef THEPOSITIONINVOLUMEFILTER_H
 #define THEPOSITIONINVOLUMEFILTER_H
 
@@ -110,5 +111,4 @@ namespace larg4 {
   }; // thePositionInVolumeFilter
 
 } // namespace larg4
-
 #endif // THEPOSITIONINVOLUMEFILTER_H
