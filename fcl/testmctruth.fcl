@@ -7,8 +7,8 @@ standard_singlep:
  ParticleSelectionMode: "all"       # 0 = use full list, 1 =  randomly select a single listed particle
  PadOutVectors:		false	    # false: require all vectors to be same length
                                     # true:  pad out if a vector is size one
- PDG:                   [ 13 ]      # list of pdg codes for particles to make
- P0:                    [ 6. ]      # central value of momentum for each particle
+ PDG:                   [ 11 ]      # list of pdg codes for particles to make
+ P0:                    [ 2. ]      # central value of momentum for each particle
  SigmaP:                [ 0. ]      # variation about the central value
  PDist:                 "Gaussian"  # 0 - uniform, 1 - gaussian distribution
  X0:                    [ 0. ]     # in cm in world coordinates, ie x = 0 is at the wire plane
@@ -85,7 +85,7 @@ services: {
     LArG4Detector :
     {
     category: "world"
-    gdmlFileName_ : "lArDet_split.gdml"
+    gdmlFileName_ : "simpleLArTPC.gdml"
     }
 
 

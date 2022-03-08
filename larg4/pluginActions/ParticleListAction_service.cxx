@@ -76,7 +76,7 @@ namespace larg4 {
     , fNotStoredPhysics(p.get<std::vector<std::string>>("NotStoredPhysics", {}))
     , fkeepOnlyPrimaryFullTraj(p.get<bool>("keepOnlyPrimaryFullTrajectories", false))
     , fSparsifyTrajectories(p.get<bool>("SparsifyTrajectories", false))
-    , fSparsifyMargin(p.get<double>("SparsifyMargin"))
+    , fSparsifyMargin(p.get<double>("SparsifyMargin", 0.015))
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
   {
@@ -84,6 +84,7 @@ namespace larg4 {
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
     bool customNotStored = not fNotStoredPhysics.empty();
+    std::cout <<"fKeepEMShowerDaughters:  "<<fKeepEMShowerDaughters<<std::endl;
     if (!fKeepEMShowerDaughters) {
       // -- Don't keep all processes
       if (!customNotStored) // -- Don't keep but haven't provided a list
@@ -108,8 +109,10 @@ namespace larg4 {
         fNotStoredCounterUMap.emplace(i, 0); // -- initialize counter
       }
       mf::LogInfo("ParticleListActionService") << sstored.str() << "}\n";
+      std::cout << "sstored-"<<sstored.str()<<std::endl;
     }
     else { // -- Keep all processes
+    std::cout << "sstored-"<<std::endl;
       mf::LogInfo("ParticleListActionService")
         << "Storing full tracking information for all processes. \n";
       if (customNotStored) // -- custom list will be ignored
@@ -169,6 +172,7 @@ namespace larg4 {
       // -- Obtain the generator (provenance) corresponding to the mctruth index:
       auto const& mclistHandle = (*fMCLists)[mcti];
       generator_name = mclistHandle.provenance()->inputTag().label();
+      //std::cout<<"Generator *****************"<< generator_name<<std::endl;
       sskeepgen << "\n\tProvenance/Generator : " << generator_name;
 
       G4bool keepGen = false;
@@ -563,21 +567,29 @@ namespace larg4 {
     } // end if this is the first step
 
     // At this point, the particle is being transported through the
-    // simulation. This method is being called for every voxel that
+    // simulation.
+    // change below:
+    // This method is being called for every step that
     // the track passes through, but we don't want to update the
     // trajectory information if we're just updating voxels. To check
     // for this, look at the process name for the step, and compare it
     // against the voxelization process name (set in PhysicsList.cxx).
     G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-    G4bool ignoreProcess = process.contains("LArVoxel") || process.contains("OpDetReadout");
-
+    G4bool ignoreProcess = process.contains("StepLimiter");
+    
+    //  if (ignoreProcess)
+    //  {
+    //	std::cout <<"StepLimit ********************* "<<std::endl;
+    //  }
+   
+    // mf::LogDebug("ParticleListActionService::SteppingAction")
     /*
-    mf::LogDebug("ParticleListActionService::SteppingAction")
-    << ": DEBUG - process='"
+    std::cout
+    << ": DEBUG - process="
     << process << "'"
     << " ignoreProcess=" << ignoreProcess
     << " fstoreTrajectories="
-    << fstoreTrajectories;
+    << fstoreTrajectories <<std::endl;
     */
 
     // We store the initial creation point of the particle
