@@ -8,7 +8,7 @@
         <color name="yellow" R="1.0" G="1.0" B="0.0" A="1.0" />
     </extension>
     <define>
-        <matrix name="SY" coldim="1" values="50000/MeV" />
+        <matrix name="SY" coldim="1" values="500/MeV" />
         <matrix name="RS" coldim="1" values="1.0" />
         <matrix name="FTC" coldim="1" values="7.*ns" />
         <matrix name="STC" coldim="1" values="1400.*ns" />
@@ -22,7 +22,7 @@
         <rotation name="rPMTRotation1" unit="deg" x="90" y="270" z="0" />
         <matrix coldim="2" name="REFLECTIVITY" values="2.034*eV 1 2.068*eV 1 2.103*eV 1 2.139*eV 1 2.177*eV 1 2.216*eV 1 2.256*eV 1 2.298*eV 1 2.341*eV 1 2.386*eV 1 2.433*eV 1 2.481*eV 1 2.532*eV 1 2.585*eV 1 2.64*eV 1 2.697*eV 1 2.757*eV 1 2.82*eV 1 2.885*eV 1 2.954*eV 1 3.026*eV 1 3.102*eV 1 3.181*eV 1 3.265*eV 1 3.353*eV 1 3.446*eV 1 3.545*eV 1 3.649*eV 1 3.76*eV 1 3.877*eV 1 4.002*eV 1 4.136*eV 1 5.0*eV 1 6.0*eV 1 7.0*eV 1 8.0*eV 1 9.0*eV 1 9.0*eV 1 10.0*eV 1 11.0*eV 1 11.6*eV 1" />
         <matrix coldim="2" name="EFFICIENCY" values="2.034*eV 1 2.068*eV 1 2.103*eV 1 2.139*eV 1 2.177*eV 1 2.216*eV 1 2.256*eV 1 2.298*eV 1 2.341*eV 1 2.386*eV 1 2.433*eV 1 2.481*eV 1 2.532*eV 1 2.585*eV 1 2.64*eV 1 2.697*eV 1 2.757*eV 1 2.82*eV 1 2.885*eV 1 2.954*eV 1 3.026*eV 1 3.102*eV 1 3.181*eV  1 3.265*eV 1 3.353*eV 1 3.446*eV 1 3.545*eV 1 3.649*eV 1 3.76*eV 1 3.877*eV 1 4.002*eV 1 4.136*eV 1 5.0*eV 1 6.0*eV 1 7.0*eV 1 8.0*eV 1 9.0*eV 1 9.0*eV 1 10.0*eV 1 11.0*eV 1 11.6*eV 1" />
-        <matrix coldim="2" name="AirRINDEX" values="2.034*eV 1 2.068*eV 1 2.103*eV 1 2.139*eV 1 2.177*eV 1 2.216*eV 1 2.256*eV 1 2.298*eV 1 2.341*eV 1 2.386*eV 1 2.433*eV 1 2.481*eV 1 2.532*eV 1 2.585*eV 1 2.64*eV 1 2.697*eV 1 2.757*eV 1 2.82*eV 1 2.885*eV 1 2.954*eV 1 3.026*eV 1 3.102*eV 1 3.181*eV 1 3.265*eV 1 3.353*eV 1 3.446*eV 1 3.545*eV 1 3.649*eV 1 3.76*eV 1 3.877*eV 1 4.002*eV 1 4.136*eV 1 5.0*eV 1 6.0*eV 1 7.0*eV 1 8.0*eV 1 9.0*eV 1 9.0*eV 1 10.0*eV 1 11.0*eV 1 11.6*eV 1" />
+        <matrix coldim="2" name="AirRINDEX" values="2.034*eV 1 2.068*eV 1 2.103*eV 1 2.139*eV 1 2.177*eV 1 2.216*eV 1 2.256*eV 1 2.298*eV 1 2.341*eV 1 2.386*eV 1 2.433*eV 1 2.481*eV 1 2.532*eV 1 2.585*eV 1 2.64*eV 1 2.697*eV 1 2.757*eV 1 2.82*eV 1 2.885*eV 1 2.954*eV 1 3.026*eV 1 3.102*eV 1 3.181*eV 1 3.265*eV 1 3.353*eV 1 3.446*eV 1 3.545*eV 1 3.649*eV 1 3.76*eV 1 3.877*eV 1 4.002*eV 1 4.136*eV 1 5.0*eV 1 6.0*eV 1 7.0*eV 1 8.0*eV 1 9.0*eV 1 10.0*eV 1 11.0*eV 1 11.6*eV 1" />
     </define>
     <materials>
         <material name="liquidAr">
@@ -31,7 +31,6 @@
             <property name="RINDEX" ref="RINDEXLAR" />
             <property name="ABSLENGTH" ref="ABSLENGTHLAR" />
             <property name="RAYLEIGH" ref="RAYLEIGHLAR" />
-            <!--
             <property name="SCINTILLATIONYIELD" ref="SY" />
             <property name="SCINTILLATIONYIELD1" ref="RY1" />
             <property name="SCINTILLATIONYIELD2" ref="RY2" />
@@ -40,15 +39,20 @@
             <property name="RESOLUTIONSCALE" ref="RS" />
             <property name="SCINTILLATIONTIMECONSTANT1" ref="FTC" />
             <property name="SCINTILLATIONTIMECONSTANT2" ref="STC" />
-            -->
-            <property name="FASTCOMPONENT" ref="SCINTLAR"/>
-            <property name="SLOWCOMPONENT" ref="SCINTLAR"/>
+            <property name="REEMISSIONPROB" ref="SCINTLAR" />
+            <property name="SLOWTIMECONSTANT" ref="STC" />
+            <property name="FASTTIMECONSTANT" ref="FTC" />
+            <property name="FASTCOMPONENT" ref="SCINTLAR" />
+            <property name="SLOWCOMPONENT" ref="SCINTLAR" />
+            <property name="YIELDRATIO" ref="YR" />
+            <!--
             <property name="REEMISSIONPROB" ref="SCINTLAR"/>
             <property name="SCINTILLATIONYIELD" ref="SY" />
             <property name="RESOLUTIONSCALE" ref="RS" />
             <property name="SLOWTIMECONSTANT" ref="STC" />
             <property name="FASTTIMECONSTANT" ref="FTC" />
             <property name="YIELDRATIO" ref="YR" />
+	    -->
         </material>
         <material name="Air">
             <D value="1.290" unit="mg/cm3" />
@@ -84,29 +88,29 @@
             <colorref ref="blue" />
             <auxiliary auxtype="StepLimit" auxvalue="0.4" auxunit="mm" />
             <auxiliary auxtype="SensDet" auxvalue="Radiator" />
-            <physvol name="Det1">
+            <physvol name="Det2" copynumber="2">
                 <volumeref ref="Det" />
-                <position name="Det1" unit="mm" x="497.5" y="0" z="0" />
+                <position name="Det2" unit="mm" x="497.5" y="0" z="0" />
                 <rotationref ref="rPMTRotation1" />
             </physvol>
-            <physvol name="Det2">
+            <physvol name="Det3" copynumber="3">
                 <volumeref ref="Det" />
-                <position name="Det2" unit="mm" x="497.5" y="450" z="950" />
+                <position name="Det3" unit="mm" x="497.5" y="450" z="950" />
                 <rotationref ref="rPMTRotation1" />
             </physvol>
-            <physvol name="Det3">
+            <physvol name="Det0" copynumber="0">
                 <volumeref ref="Det" />
-                <position name="Det3" unit="mm" x="497.5" y="450" z="-950" />
+                <position name="Det0" unit="mm" x="497.5" y="450" z="-950" />
                 <rotationref ref="rPMTRotation1" />
             </physvol>
-            <physvol name="Det4">
+            <physvol name="Det4" copynumber="4">
                 <volumeref ref="Det" />
                 <position name="Det4" unit="mm" x="497.5" y="-450" z="950" />
                 <rotationref ref="rPMTRotation1" />
             </physvol>
-            <physvol name="Det5">
+            <physvol name="Det1" copynumber="1">
                 <volumeref ref="Det" />
-                <position name="Det5" unit="mm" x="497.5" y="-450" z="-950" />
+                <position name="Det1" unit="mm" x="497.5" y="-450" z="-950" />
                 <rotationref ref="rPMTRotation1" />
             </physvol>
         </volume>
@@ -117,6 +121,10 @@
                 <volumeref ref="Obj" />
             </physvol>
         </volume>
+        <bordersurface name="ScintWrap0" surfaceproperty="ScintWrap">
+            <physvolref ref="Obj" />
+            <physvolref ref="Det0" />
+        </bordersurface>
         <bordersurface name="ScintWrap1" surfaceproperty="ScintWrap">
             <physvolref ref="Obj" />
             <physvolref ref="Det1" />
@@ -132,10 +140,6 @@
         <bordersurface name="ScintWrap4" surfaceproperty="ScintWrap">
             <physvolref ref="Obj" />
             <physvolref ref="Det4" />
-        </bordersurface>
-        <bordersurface name="ScintWrap5" surfaceproperty="ScintWrap">
-            <physvolref ref="Obj" />
-            <physvolref ref="Det5" />
         </bordersurface>
     </structure>
     <setup name="Default" version="1.0">
