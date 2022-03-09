@@ -84,7 +84,6 @@ namespace larg4 {
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
     bool customNotStored = not fNotStoredPhysics.empty();
-    std::cout <<"fKeepEMShowerDaughters:  "<<fKeepEMShowerDaughters<<std::endl;
     if (!fKeepEMShowerDaughters) {
       // -- Don't keep all processes
       if (!customNotStored) // -- Don't keep but haven't provided a list
@@ -109,10 +108,10 @@ namespace larg4 {
         fNotStoredCounterUMap.emplace(i, 0); // -- initialize counter
       }
       mf::LogInfo("ParticleListActionService") << sstored.str() << "}\n";
-      std::cout << "sstored-"<<sstored.str()<<std::endl;
+      //hjw std::cout << "sstored-"<<sstored.str()<<std::endl;
     }
     else { // -- Keep all processes
-    std::cout << "sstored-"<<std::endl;
+      //hjw std::cout << "sstored-"<<std::endl;
       mf::LogInfo("ParticleListActionService")
         << "Storing full tracking information for all processes. \n";
       if (customNotStored) // -- custom list will be ignored
@@ -172,7 +171,7 @@ namespace larg4 {
       // -- Obtain the generator (provenance) corresponding to the mctruth index:
       auto const& mclistHandle = (*fMCLists)[mcti];
       generator_name = mclistHandle.provenance()->inputTag().label();
-      //std::cout<<"Generator *****************"<< generator_name<<std::endl;
+      //hjw std::cout<<"Generator *****************"<< generator_name<<std::endl;
       sskeepgen << "\n\tProvenance/Generator : " << generator_name;
 
       G4bool keepGen = false;
@@ -225,10 +224,11 @@ namespace larg4 {
     // of the first EM particle that led to this one
     auto itr = fParentIDMap.find(trackid);
     while (itr != fParentIDMap.end()) {
-
+      //hjw std::cout<< "parentage for " << trackid << " " << (*itr).second <<std::endl;
       // set the parentid to the current parent ID, when the loop ends
       // this id will be the first EM particle
       parentid = (*itr).second;
+      //hjw std::cout<< "final parentage for " << trackid << " " << (*itr).second <<std::endl;
       itr = fParentIDMap.find(parentid);
     }
 
@@ -342,9 +342,9 @@ namespace larg4 {
           // figure out the ultimate parentage of this particle
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
-
-          fCurrentTrackID = -1 * this->GetParentage(trackID);
-
+	  fCurrentTrackID = this->GetParentage(trackID);
+          //fCurrentTrackID = -1 * this->GetParentage(trackID);
+	  //std::cout <<"************************* fCurrentTrackID:  "<< fCurrentTrackID<< std::endl;
           // check that fCurrentTrackID is in the particle list - it is possible
           // that this particle's parent is a particle that did not get tracked.
           // An example is a parent that was made due to muMinusCaptureAtRest
@@ -353,7 +353,7 @@ namespace larg4 {
           // which will put a bogus track id value into the sim::IDE object for
           // the sim::SimChannel if we don't check it.
           if (!fParticleList.KnownParticle(fCurrentTrackID)) fCurrentTrackID = sim::NoParticleId;
-
+	  //std::cout <<"************************* clear"<<std::endl;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
           fCurrentParticle.clear();
@@ -443,6 +443,7 @@ namespace larg4 {
 
     // Save the particle in the ParticleList.
     fParticleList.Add(fCurrentParticle.particle);
+    //hjw std::cout <<" pre Tracking fParticleList.size:  " << fParticleList.size()<<std::endl;
   }
 
   //----------------------------------------------------------------------------
@@ -634,7 +635,7 @@ namespace larg4 {
     {
       // We're looking at this Particle in the list.
       int particleID = particleListEntry.first;
-
+      
       // The parent ID of this particle;
       // we ask the particle list since the particle itself might have been lost
       // ("archived"), but the particle list still holds the information we need
@@ -661,6 +662,7 @@ namespace larg4 {
 
       // Add the current particle to the daughter list of the parent.
       simb::MCParticle* parent = parentEntry->second;
+      //std::cout<<"AddDaughter:  "<< particleID <<std::endl;
       parent->AddDaughter(particleID);
     }
 
@@ -731,6 +733,7 @@ namespace larg4 {
     // give it the pointer to the particle list.  We're using the STL
     // "for_each" instead of the C++ "for loop" because it's supposed
     // to be faster.
+    //hjw std::cout <<" end of event fParticleList.size:  " << fParticleList.size()<<std::endl;
     std::for_each(
       fParticleList.begin(), fParticleList.end(), UpdateDaughterInformation{fParticleList});
 

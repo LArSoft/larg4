@@ -103,7 +103,7 @@ services: {
 MCTruthEventAction: {service_type: "MCTruthEventActionService"}
 ParticleListAction: {service_type: "ParticleListActionService"
   EnergyCut: 1e-5 # Kinetic Energy cut in [MeV]
-  keepEMShowerDaughters: true
+  keepEMShowerDaughters: false
   storeTrajectories: true
   keepGenTrajectories: ["generator"]       # list of generator labels for which we want to store
                                            # trajectory points. The protodune beam label is simply

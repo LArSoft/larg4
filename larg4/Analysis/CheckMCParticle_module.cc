@@ -76,13 +76,13 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
       cout <<" trajectory size:   " << trajectory.size();
       */
       cout <<" Nr. of Daughters: " << genpart.NumberDaughters();
-      cout <<" FirstDaughter:" << genpart.FirstDaughter();
-      cout <<" LastDaughter: " << genpart.LastDaughter() <<endl;
-      //for (int i=0;i<genpart.NumberDaughters();i++)
-      //	{
-      //	 cout << genpart.Daughter(i)<<",";
-      //	}
-      // cout<<endl;
+      cout <<" FirstDaughter:" << genpart.FirstDaughter()<<endl;
+      //      cout <<" LastDaughter: " << genpart.LastDaughter() <<endl;
+      for (int i=0;i<genpart.NumberDaughters();i++)
+      	{
+	  cout << genpart.Daughter(i)<<",";
+      	}
+      cout<<endl;
     }
 #endif
   }
