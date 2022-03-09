@@ -25,7 +25,7 @@
 
 // Other includes.
 #include "CLHEP/Units/SystemOfUnits.h"
-#define _verbose_ 1
+//#define _verbose_ 1
 using namespace std;
 namespace larg4 {
   class CheckMCParticle;
