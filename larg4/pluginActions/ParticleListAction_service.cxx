@@ -145,7 +145,7 @@ namespace larg4 {
     fPrimaryTruthMap.clear();
     fMCTIndexToGeneratorMap.clear();
     fNotStoredCounterUMap.clear();
-
+    fdroppedTracksSet.clear();
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -356,6 +356,7 @@ namespace larg4 {
 	  //std::cout <<"************************* clear"<<std::endl;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
+	  fdroppedTracksSet.insert(trackID);
           fCurrentParticle.clear();
           return;
         } // end if process matches an undesired process
@@ -365,11 +366,11 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut) {
+	fdroppedTracksSet.insert(trackID);
         fCurrentParticle.clear();
-
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
-        fParentIDMap[trackID] = parentID;
+
         fCurrentTrackID = -1 * this->GetParentage(trackID);
 
         return;
@@ -719,6 +720,14 @@ namespace larg4 {
     if (!fNotStoredCounterUMap.empty()) { // -- Only if there is something to report
       std::stringstream sscounter;
       sscounter << "Not Stored Process summary:";
+      /*
+      std::cout << "List of dropped Tracks: "<<std::endl;
+       for(auto dropped :  fdroppedTracksSet )
+	 {
+	   std::cout << dropped << " ";
+	 }
+       std::cout <<std::endl;
+      */
       for (auto const& [process, count] : fNotStoredCounterUMap) {
         sscounter << "\n\t" << process << " : " << count;
       }
@@ -726,6 +735,7 @@ namespace larg4 {
     }
 
     partCol_ = std::make_unique<std::vector<simb::MCParticle>>();
+    droppedCol_ = std::make_unique<std::set<int>>();
     tpassn_ =
       std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
     // Set up the utility class for the "for_each" algorithm.  (We only
@@ -773,6 +783,10 @@ namespace larg4 {
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
         }
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
+       for(auto dropped :  fdroppedTracksSet )
+	 {
+	   droppedCol_->insert(dropped);
+	 }
         ++nMCTruths;
       }
     }
