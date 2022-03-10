@@ -343,8 +343,6 @@ namespace larg4 {
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
 	  fCurrentTrackID = this->GetParentage(trackID);
-          //fCurrentTrackID = -1 * this->GetParentage(trackID);
-	  //std::cout <<"************************* fCurrentTrackID:  "<< fCurrentTrackID<< std::endl;
           // check that fCurrentTrackID is in the particle list - it is possible
           // that this particle's parent is a particle that did not get tracked.
           // An example is a parent that was made due to muMinusCaptureAtRest
@@ -353,7 +351,6 @@ namespace larg4 {
           // which will put a bogus track id value into the sim::IDE object for
           // the sim::SimChannel if we don't check it.
           if (!fParticleList.KnownParticle(fCurrentTrackID)) fCurrentTrackID = sim::NoParticleId;
-	  //std::cout <<"************************* clear"<<std::endl;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
 	  fdroppedTracksSet.insert(trackID);
@@ -371,7 +368,7 @@ namespace larg4 {
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
 
-        fCurrentTrackID = -1 * this->GetParentage(trackID);
+        fCurrentTrackID = this->GetParentage(trackID);
 
         return;
       }
@@ -573,27 +570,10 @@ namespace larg4 {
     // change below:
     // This method is being called for every step that
     // the track passes through, but we don't want to update the
-    // trajectory information if we're just updating voxels. To check
-    // for this, look at the process name for the step, and compare it
-    // against the voxelization process name (set in PhysicsList.cxx).
+    // trajectory information if the step  was defined by the StepLimiter. 
     G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     G4bool ignoreProcess = process.contains("StepLimiter");
     
-    //  if (ignoreProcess)
-    //  {
-    //	std::cout <<"StepLimit ********************* "<<std::endl;
-    //  }
-   
-    // mf::LogDebug("ParticleListActionService::SteppingAction")
-    /*
-    std::cout
-    << ": DEBUG - process="
-    << process << "'"
-    << " ignoreProcess=" << ignoreProcess
-    << " fstoreTrajectories="
-    << fstoreTrajectories <<std::endl;
-    */
-
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
     // what, but whether we store the rest of the trajectory depends
