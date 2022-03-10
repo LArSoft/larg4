@@ -43,6 +43,7 @@
 #include "Geant4/G4UIterminal.hh"
 
 #include <string>
+#include <set>
 
 using MCTruthCollection = std::vector<simb::MCTruth>;
 
@@ -132,6 +133,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
 {
+  produces<std::set<int>>();
   produces<std::vector<simb::MCParticle>>();
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
 
@@ -279,6 +281,7 @@ larg4::larg4Main::produce(art::Event& e)
 
   e.put(pla->ParticleCollection());
   e.put(pla->AssnsMCTruthToMCParticle());
+  e.put(pla->DroppedTracksCollection());
 }
 
 void

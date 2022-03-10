@@ -56,19 +56,45 @@ void larg4::CheckMCParticle::beginJob()
 
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
+#if defined _verbose_
+  auto allDropped =  event.getMany<std::set<int>>();
+  for (auto const& dropped : allDropped) {
+    
+    std::cout << "List of dropped Tracks: "<<std::endl;
+    for(auto const& droppedTrack :  *dropped )
+      {
+	std::cout << droppedTrack << " ";
+      }
+    std::cout <<std::endl;   
+  }
+#endif
   auto allGens = event.getMany<std::vector<simb::MCParticle>>();
   for (auto const& gens : allGens) {
     _hnParts->Fill(gens->size());
 #if defined _verbose_
     for (auto const& genpart : *gens) {
-      cout << "Part id:  " << genpart.TrackId()  << endl;
-      cout << "PDG id:  " << genpart.PdgCode()  << endl;
-      cout << "Status Code:  " << genpart.StatusCode()  << endl;
-      cout << "Mother:  " << genpart.Mother()  << endl;
       if (genpart.Mother()==0) {
-        cout << "momentum:  " <<   genpart.P() << endl;
-        cout << "position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
+        cout << "Primary momentum:  " <<   genpart.P();
+        cout << "  position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
       }
+      cout << "Part id:  " << genpart.TrackId();
+      cout << " PDG id:  " << genpart.PdgCode();
+      cout << " Status Code:  " << genpart.StatusCode();
+      cout << " Mother:  " << genpart.Mother();
+      cout << " Creation Process: "<<genpart.Process();
+      cout << " End Process: "<<genpart.EndProcess();
+      /*
+      auto trajectory = genpart.Trajectory();
+      cout <<" trajectory size:   " << trajectory.size();
+      */
+      cout <<" Nr. of Daughters: " << genpart.NumberDaughters();
+      cout <<" FirstDaughter:" << genpart.FirstDaughter()<<endl;
+      //      cout <<" LastDaughter: " << genpart.LastDaughter() <<endl;
+      for (int i=0;i<genpart.NumberDaughters();i++)
+      	{
+	  cout << genpart.Daughter(i)<<",";
+      	}
+      cout<<endl;
     }
 #endif
   }

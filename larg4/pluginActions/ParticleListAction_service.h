@@ -31,6 +31,7 @@
 
 #include "Geant4/globals.hh"
 #include <map>
+#include <set>
 
 // Forward declarations.
 class G4Event;
@@ -87,6 +88,12 @@ namespace larg4 {
     ParticleCollection()
     {
       return std::move(partCol_);
+    }
+    std::unique_ptr<std::set<int>>
+
+    DroppedTracksCollection()
+    {
+      return std::move(droppedCol_);
     }
 
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
@@ -187,7 +194,11 @@ namespace larg4 {
     /// Map: not stored process and counter
     std::unordered_map<std::string, int> fNotStoredCounterUMap;
 
+    /// set: list of track ids for which no MCParticle was created 
+    std::set<int> fdroppedTracksSet;
+
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
+    std::unique_ptr<std::set<int>> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;
     art::ProductID pid_{art::ProductID::invalid()};
