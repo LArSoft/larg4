@@ -56,6 +56,16 @@ void larg4::CheckMCParticle::beginJob()
 
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
+  auto allDropped =  event.getMany<std::set<int>>();
+  for (auto const& dropped : allDropped) {
+    
+    std::cout << "List of dropped Tracks: "<<std::endl;
+    for(auto const& droppedTrack :  *dropped )
+      {
+	std::cout << droppedTrack << " ";
+      }
+    std::cout <<std::endl;   
+  }
   auto allGens = event.getMany<std::vector<simb::MCParticle>>();
   for (auto const& gens : allGens) {
     _hnParts->Fill(gens->size());
