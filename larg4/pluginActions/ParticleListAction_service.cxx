@@ -108,10 +108,8 @@ namespace larg4 {
         fNotStoredCounterUMap.emplace(i, 0); // -- initialize counter
       }
       mf::LogInfo("ParticleListActionService") << sstored.str() << "}\n";
-      //hjw std::cout << "sstored-"<<sstored.str()<<std::endl;
     }
     else { // -- Keep all processes
-      //hjw std::cout << "sstored-"<<std::endl;
       mf::LogInfo("ParticleListActionService")
         << "Storing full tracking information for all processes. \n";
       if (customNotStored) // -- custom list will be ignored
@@ -171,7 +169,6 @@ namespace larg4 {
       // -- Obtain the generator (provenance) corresponding to the mctruth index:
       auto const& mclistHandle = (*fMCLists)[mcti];
       generator_name = mclistHandle.provenance()->inputTag().label();
-      //hjw std::cout<<"Generator *****************"<< generator_name<<std::endl;
       sskeepgen << "\n\tProvenance/Generator : " << generator_name;
 
       G4bool keepGen = false;
@@ -224,11 +221,9 @@ namespace larg4 {
     // of the first EM particle that led to this one
     auto itr = fParentIDMap.find(trackid);
     while (itr != fParentIDMap.end()) {
-      //hjw std::cout<< "parentage for " << trackid << " " << (*itr).second <<std::endl;
       // set the parentid to the current parent ID, when the loop ends
       // this id will be the first EM particle
       parentid = (*itr).second;
-      //hjw std::cout<< "final parentage for " << trackid << " " << (*itr).second <<std::endl;
       itr = fParentIDMap.find(parentid);
     }
 
@@ -441,7 +436,6 @@ namespace larg4 {
 
     // Save the particle in the ParticleList.
     fParticleList.Add(fCurrentParticle.particle);
-    //hjw std::cout <<" pre Tracking fParticleList.size:  " << fParticleList.size()<<std::endl;
   }
 
   //----------------------------------------------------------------------------
@@ -723,7 +717,6 @@ namespace larg4 {
     // give it the pointer to the particle list.  We're using the STL
     // "for_each" instead of the C++ "for loop" because it's supposed
     // to be faster.
-    //hjw std::cout <<" end of event fParticleList.size:  " << fParticleList.size()<<std::endl;
     std::for_each(
       fParticleList.begin(), fParticleList.end(), UpdateDaughterInformation{fParticleList});
 
