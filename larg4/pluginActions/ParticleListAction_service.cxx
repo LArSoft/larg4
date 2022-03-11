@@ -135,6 +135,7 @@ namespace larg4 {
     fCurrentParticle.clear();
     fParticleList.clear();
     fParentIDMap.clear();
+    fTargetIDMap.clear();
     fMCTIndexMap.clear();
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
@@ -207,6 +208,27 @@ namespace larg4 {
     }
   }
 
+  //-----------------------------------------------------------------
+  // read up the target ID map to return what the stored track ID 
+  // should be for a given trackid
+  //
+  int
+  ParticleListActionService::getStorableTrackID(int trackid) const
+  {
+    auto itr = fTargetIDMap.find(trackid);
+    if(itr == fTargetIDMap.end()){
+      mf::LogWarning("ParticleListActionService::getStorableTrackID")
+	<< "Track ID " << trackid << " not found in the TargetIDMap.  "
+	<< "Returning original trackid, but there may be issues with truth-matching.";
+      return trackid;
+    }
+    
+    //else
+    return itr->second;
+  }
+
+
+
   //-------------------------------------------------------------
   // figure out the ultimate parentage of the particle with track ID
   // trackid
@@ -245,7 +267,7 @@ namespace larg4 {
     // runs (if any)
     int const trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
-
+    fTargetIDMap[trackID] = fCurrentTrackID;
     // And the particle's parent (same offset as above):
     int parentID = track->GetParentID() + fTrackIDOffset;
 
@@ -337,7 +359,7 @@ namespace larg4 {
           // figure out the ultimate parentage of this particle
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
-	  fCurrentTrackID = this->GetParentage(trackID);
+	  fCurrentTrackID =-1 * this->GetParentage(trackID);
           // check that fCurrentTrackID is in the particle list - it is possible
           // that this particle's parent is a particle that did not get tracked.
           // An example is a parent that was made due to muMinusCaptureAtRest
@@ -346,6 +368,7 @@ namespace larg4 {
           // which will put a bogus track id value into the sim::IDE object for
           // the sim::SimChannel if we don't check it.
           if (!fParticleList.KnownParticle(fCurrentTrackID)) fCurrentTrackID = sim::NoParticleId;
+	  fTargetIDMap[trackID] = fCurrentTrackID;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
 	  fdroppedTracksSet.insert(trackID);
@@ -362,9 +385,9 @@ namespace larg4 {
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
-
-        fCurrentTrackID = this->GetParentage(trackID);
-
+	fParentIDMap[trackID] = parentID;
+        fCurrentTrackID = -1 * this->GetParentage(trackID);
+	fTargetIDMap[trackID] = fCurrentTrackID;
         return;
       }
 

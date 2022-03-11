@@ -163,6 +163,7 @@ namespace larg4 {
                                      ///  storeTrajectories is set to false, this list is ignored
                                      ///  and all additional trajectory points are not stored.
     std::map<int, int> fParentIDMap; ///< key is current track ID, value is parent ID
+    std::map<int, int> fTargetIDMap; ///< key is original track ID, value is ID to assign for downstream objs (e.g. SimEdeps)
     int fCurrentTrackID;             ///< track ID of the current particle, set to eve ID
                                      ///< for EM shower particles
     mutable int fTrackIDOffset;      ///< offset added to track ids when running over
