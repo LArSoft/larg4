@@ -93,10 +93,7 @@ namespace larg4 {
       return std::move(tpassn_);
     }
 
-    std::map<int,int> getParentIDMap() const
-    { return fParentIDMap; } 
-    std::map<int,int> getTargetIDMap() const
-    { return fTargetIDMap; } 
+    int getStorableTrackID(int trackid) const;
 
   private:
     struct ParticleInfo_t {

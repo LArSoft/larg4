@@ -208,6 +208,26 @@ namespace larg4 {
     }
   }
 
+  //-----------------------------------------------------------------
+  // read up the target ID map to return what the stored track ID 
+  // should be for a given trackid
+  //
+  int
+  ParticleListActionService::getStorableTrackID(int trackid) const
+  {
+    auto itr = fTargetIDMap.find(trackid);
+    if(itr == fTargetIDMap.end()){
+      mf::LogWarning("ParticleListActionService::getStorableTrackID")
+	<< "Track ID " << trackid << " not found in the TargetIDMap.  "
+	<< "Returning original trackid, but there may be issues with truth-matching.";
+      return trackid;
+    }
+    
+    //else
+    return itr->second;
+  }
+
+
   //-------------------------------------------------------------
   // figure out the ultimate parentage of the particle with track ID
   // trackid
