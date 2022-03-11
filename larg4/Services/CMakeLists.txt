@@ -24,6 +24,7 @@ simple_plugin(
     G4MATERIALS
     G4PERSISTENCY
     larcorealg_Geometry
+    larg4_pluginActions_ParticleListAction_service
     MF_MessageLogger
     ROOT::Core
     XERCESC

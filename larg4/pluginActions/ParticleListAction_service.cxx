@@ -135,6 +135,7 @@ namespace larg4 {
     fCurrentParticle.clear();
     fParticleList.clear();
     fParentIDMap.clear();
+    fTargetIDMap.clear();
     fMCTIndexMap.clear();
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
@@ -246,6 +247,7 @@ namespace larg4 {
     // runs (if any)
     int const trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
+    fTargetIDMap[trackID] = fCurrentTrackID;
 
     // And the particle's parent (same offset as above):
     int parentID = track->GetParentID() + fTrackIDOffset;
@@ -350,6 +352,8 @@ namespace larg4 {
           // the sim::SimChannel if we don't check it.
           if (!fParticleList.KnownParticle(fCurrentTrackID)) fCurrentTrackID = sim::NoParticleId;
 
+	  fTargetIDMap[trackID] = fCurrentTrackID;
+
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
           fCurrentParticle.clear();
@@ -367,6 +371,7 @@ namespace larg4 {
         // and set the current track id to be it's ultimate parent
         fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
+	fTargetIDMap[trackID] = fCurrentTrackID;
 
         return;
       }
