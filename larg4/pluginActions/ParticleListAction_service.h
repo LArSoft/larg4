@@ -102,6 +102,8 @@ namespace larg4 {
       return std::move(tpassn_);
     }
 
+    int getStorableTrackID(int trackid) const;
+
   private:
     struct ParticleInfo_t {
       simb::MCParticle* particle = nullptr; ///< simple structure representing particle

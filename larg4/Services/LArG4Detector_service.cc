@@ -45,6 +45,7 @@
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
 #include "larg4/Services/AuxDetSD.h"
 #include "larg4/Services/SimEnergyDepositSD.h"
+#include "larg4/pluginActions/ParticleListAction_service.h"
 //
 // Geant 4 includes:
 #include "Geant4/G4AutoDelete.hh"
@@ -428,6 +429,10 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
   G4SDManager* sdman = G4SDManager::GetSDMpointer();
   art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
   art::Event& e = detectorHolder->getCurrArtEvent();
+
+  //add in PartliceListActionService ... 
+  art::ServiceHandle<larg4::ParticleListActionService> particleListAction;
+
   for (auto const& [volume_name, sd_name] : detectors_) {
     auto sd = sdman->FindSensitiveDetector(volume_name + "_" + sd_name);
     if (sd_name == "HadInteraction") {
@@ -455,7 +460,10 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
     }
     else if (sd_name == "SimEnergyDeposit") {
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
-      e.put(make_product(sedsd->GetHits()), instanceName(volume_name));
+      sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
+      for(size_t ihit=0; ihit<hitCollection.size(); ++ihit)
+	hitCollection[ihit].setTrackID(particleListAction->getStorableTrackID(hitCollection[ihit].TrackID()));
+        e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);
