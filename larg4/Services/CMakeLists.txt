@@ -16,6 +16,8 @@ simple_plugin(
     cetlib::cetlib
     cetlib_except::cetlib_except
     fhiclcpp::fhiclcpp
+    nug4::ParticleNavigation
+    nusimdata::SimulationBase
     Geant4::G4digits_hits
     Geant4::G4event
     Geant4::G4geometry

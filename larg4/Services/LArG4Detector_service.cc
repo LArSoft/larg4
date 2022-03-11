@@ -461,9 +461,17 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
     else if (sd_name == "SimEnergyDeposit") {
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
+      /*
       for(size_t ihit=0; ihit<hitCollection.size(); ++ihit)
 	hitCollection[ihit].setTrackID(particleListAction->getStorableTrackID(hitCollection[ihit].TrackID()));
         e.put(make_product(hitCollection), instanceName(volume_name));
+    }
+      */
+      for(auto  hit : hitCollection)
+	{
+	  hit.setTrackID(particleListAction->getStorableTrackID(hit.TrackID()));
+	}
+      e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);

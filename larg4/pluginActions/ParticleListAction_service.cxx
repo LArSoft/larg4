@@ -223,7 +223,6 @@ namespace larg4 {
       return trackid;
     }
     
-    //else
     return itr->second;
   }
 
