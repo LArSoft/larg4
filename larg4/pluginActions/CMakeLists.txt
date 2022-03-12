@@ -1,5 +1,7 @@
 simple_plugin(
   MCTruthEventAction service
+SOURCE
+  MCTruthEventAction_service.cc
 NOP
   art::Framework_Principal
   art::Framework_Services_Registry
@@ -17,12 +19,12 @@ NOP
   nug4::G4Base
   ROOT::Core
   ROOT::Physics
-SOURCE
-  MCTruthEventAction_service.cc
 )
 
 simple_plugin(
   ParticleListAction service
+SOURCE
+  ParticleListAction_service.cc
 NOP
   art::Framework_Services_Registry
   canvas::canvas
@@ -40,8 +42,6 @@ NOP
   ROOT::Core
   ROOT::Physics
   range-v3::range-v3
-SOURCE
-  ParticleListAction_service.cxx
 )
 
 install_headers()
