@@ -25,7 +25,7 @@
 
 // Other includes.
 #include "CLHEP/Units/SystemOfUnits.h"
-#define _verbose_ 1
+//#define _verbose_ 1
 using namespace std;
 namespace larg4 {
   class CheckMCParticle;
@@ -61,9 +61,10 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
   auto allDropped =  event.getMany<std::map<int,std::set<int>>>();
 
   for (auto const& maps : allDropped ) {
-    for  (auto const& element : maps ) {
+    for  (auto const& element : *maps ) {
     std::cout << "Parent of dropped Tracks: "<<element.first<< std::endl;
     std::set<int> droppedset= element.second; 
+    std::cout<< " droppedid size:  "<< droppedset.size()<<std::endl;
     for(auto const& droppedid :  droppedset  )
       {
 	std::cout << droppedid << " ";

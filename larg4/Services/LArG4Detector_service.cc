@@ -82,6 +82,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
                           p.get<string>("mother_category", ""))
   , gdmlFileName_{p.get<std::string>("gdmlFileName_", "")}
   , checkOverlaps_{p.get<bool>("CheckOverlaps", false)}
+  , updateSimEnergyDeposits_{p.get<bool>("UpdateSimEnergyDeposits", true)}
   , volumeNames_{p.get<std::vector<std::string>>("volumeNames", {})}
   , stepLimits_{p.get<std::vector<float>>("stepLimits", {})}
   , inputVolumes_{size(volumeNames_)}
@@ -460,9 +461,12 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
-      for(auto  &hit : hitCollection)
+      if(updateSimEnergyDeposits_) 
 	{
-	  hit.setTrackID(tmap[hit.TrackID()]);
+	  for(auto  &hit : hitCollection)
+	    {
+	      hit.setTrackID(tmap[hit.TrackID()]);
+	    }
 	}
       e.put(make_product(hitCollection), instanceName(volume_name));
     }

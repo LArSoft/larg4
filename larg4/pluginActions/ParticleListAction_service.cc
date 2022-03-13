@@ -365,7 +365,7 @@ namespace larg4 {
 	  fTargetIDMap[trackID] = fCurrentTrackID;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
-	  if (fdroppedTracksMap.find(this->GetParentage(trackID))!=fdroppedTracksMap.end())
+	  if (fdroppedTracksMap.find(this->GetParentage(trackID))==fdroppedTracksMap.end())
 	    {
 	      fdroppedTracksMap[this->GetParentage(trackID)]={trackID};
 	    } else
@@ -382,7 +382,7 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut) {
-	  if (fdroppedTracksMap.find(this->GetParentage(trackID))!=fdroppedTracksMap.end())
+	  if (fdroppedTracksMap.find(this->GetParentage(trackID))==fdroppedTracksMap.end())
 	    {
 	      fdroppedTracksMap[this->GetParentage(trackID)]={trackID};
 	    } else

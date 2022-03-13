@@ -66,6 +66,7 @@ namespace larg4 {
 
     std::string gdmlFileName_;             // name of the gdml file
     bool checkOverlaps_;                   // enable/disable check of overlaps
+    bool updateSimEnergyDeposits_;        // enable/disable change of TrackID  for Tracks where no MCParticle was created
     std::vector<std::string> volumeNames_; // list of volume names for which step limits should be set
     std::vector<float> stepLimits_;        // corresponding step limits to be set for each volume in the list of volumeNames, [mm]
     size_t inputVolumes_; // number of stepLimits to be set
