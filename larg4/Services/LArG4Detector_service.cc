@@ -460,19 +460,10 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
-      //     std::cout << "tmap.size():  "<<tmap.size()<<std::endl;
       for(auto  &hit : hitCollection)
 	{
-	  //	  std::cout<<"oldie:  "<< hit.TrackID()<< " newie: " <<tmap[hit.TrackID()] <<std::endl;
 	  hit.setTrackID(tmap[hit.TrackID()]);
 	}
-      /*
-      for(auto  &hit : hitCollection)
-	{
-	  std::cout<<"****oldie:  "<< hit.TrackID()<<std::endl;
-	 
-	}
-      */
       e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {

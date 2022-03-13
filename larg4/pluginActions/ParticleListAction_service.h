@@ -84,14 +84,11 @@ namespace larg4 {
       productGetter_ = productGetter;
     }
 
-    std::unique_ptr<std::vector<simb::MCParticle>>
-    ParticleCollection()
+    std::unique_ptr<std::vector<simb::MCParticle>> ParticleCollection()
     {
       return std::move(partCol_);
     }
-    std::unique_ptr<std::set<int>>
-
-    DroppedTracksCollection()
+    std::unique_ptr<std::map<int,std::set<int>>> DroppedTracksCollection()
     {
       return std::move(droppedCol_);
     }
@@ -102,7 +99,6 @@ namespace larg4 {
       return std::move(tpassn_);
     }
 
-    int getStorableTrackID(int trackid) const;
     std::map<int, int> GetTargetIDMap() {return fTargetIDMap;}
   private:
     struct ParticleInfo_t {
@@ -197,11 +193,11 @@ namespace larg4 {
     /// Map: not stored process and counter
     std::unordered_map<std::string, int> fNotStoredCounterUMap;
 
-    /// set: list of track ids for which no MCParticle was created 
-    std::set<int> fdroppedTracksSet;
+    /// map <ParentID, set: list of track ids for which no MCParticle was created> 
+    std::map<int,std::set<int> > fdroppedTracksMap;
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
-    std::unique_ptr<std::set<int>> droppedCol_;
+    std::unique_ptr<std::map<int,std::set<int> > > droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;
     art::ProductID pid_{art::ProductID::invalid()};

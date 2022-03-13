@@ -61,14 +61,11 @@ void larg4::CheckSimEnergyDeposit::beginJob()
 
 void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event)
 {
-  //std::vector<art::Handle<sim::SimEnergyDepositCollection>> allSims;
-  //event.getManyByType(allSims);
   auto allSims = event.getMany<sim::SimEnergyDepositCollection>();
   for (auto const& sims : allSims) {
     double sumPhotons=0.0;
     double sumE = 0.0;
     _hnHits->Fill(sims->size());
-    //    std::cout<< "CheckSimEnergyDeposit: ";
     for (auto const& hit : *sims) {
       // sum up energy deposit in a 1cm slice of liquid Argon.
       if (std::abs(hit.EndZ())<0.5) {
@@ -78,18 +75,6 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event)
       _hnumPhotons->Fill( hit.NumPhotons());
       _hEdep->Fill( hit.Energy());   // energy deposit in MeV
       _hSteplength->Fill( hit.StepLength()); // step length in cm
-      //std::cout<<hit.TrackID()<<" ,"<< <<std::endl
-      //std::cout<<hit.TrackID()<<",";
-      /*
-        _ntuple->Fill(event.event(),
-        hit.GetEdep(),
-        hit.GetEdepEM(),
-        hit.GetEdepnonEM(),
-        hit.GetXpos(),
-        hit.GetYpos(),
-        hit.GetZpos(),
-        hit.GetTime());
-      */
     }
     std::cout<< std::endl;
     _hLandauPhotons->Fill(sumPhotons);
