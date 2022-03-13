@@ -24,10 +24,11 @@
 #include "art/Framework/Core/ProducesCollector.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "cetlib/search_path.h"
-
 // larg4 includes:
 #include "larg4/Services/LArG4Detector_service.h"
-
+#include "larg4/Services/AuxDetSD.h"
+#include "larg4/Services/SimEnergyDepositSD.h"
+#include "larg4/pluginActions/ParticleListAction_service.h"
 // artg4tk includes:
 #include "artg4tk/pluginDetectors/gdml/ByParticle.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterHit.hh"
@@ -41,12 +42,9 @@
 #include "artg4tk/pluginDetectors/gdml/PhotonSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
+//lardataobj includes:
 #include "lardataobj/Simulation/AuxDetHit.h"
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
-#include "larg4/Services/AuxDetSD.h"
-#include "larg4/Services/SimEnergyDepositSD.h"
-#include "larg4/pluginActions/ParticleListAction_service.h"
-//
 // Geant 4 includes:
 #include "Geant4/G4AutoDelete.hh"
 #include "Geant4/G4GDMLParser.hh"
@@ -461,16 +459,20 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
     else if (sd_name == "SimEnergyDeposit") {
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
-      /*
-      for(size_t ihit=0; ihit<hitCollection.size(); ++ihit)
-	hitCollection[ihit].setTrackID(particleListAction->getStorableTrackID(hitCollection[ihit].TrackID()));
-        e.put(make_product(hitCollection), instanceName(volume_name));
-    }
-      */
-      for(auto  hit : hitCollection)
+      std::map<int, int> tmap = particleListAction->GetTargetIDMap();
+      //     std::cout << "tmap.size():  "<<tmap.size()<<std::endl;
+      for(auto  &hit : hitCollection)
 	{
-	  hit.setTrackID(particleListAction->getStorableTrackID(hit.TrackID()));
+	  //	  std::cout<<"oldie:  "<< hit.TrackID()<< " newie: " <<tmap[hit.TrackID()] <<std::endl;
+	  hit.setTrackID(tmap[hit.TrackID()]);
 	}
+      /*
+      for(auto  &hit : hitCollection)
+	{
+	  std::cout<<"****oldie:  "<< hit.TrackID()<<std::endl;
+	 
+	}
+      */
       e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {

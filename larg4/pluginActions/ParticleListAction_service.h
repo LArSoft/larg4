@@ -103,7 +103,7 @@ namespace larg4 {
     }
 
     int getStorableTrackID(int trackid) const;
-
+    std::map<int, int> GetTargetIDMap() {return fTargetIDMap;}
   private:
     struct ParticleInfo_t {
       simb::MCParticle* particle = nullptr; ///< simple structure representing particle

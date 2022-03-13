@@ -57,6 +57,7 @@ void larg4::CheckMCParticle::beginJob()
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
 #if defined _verbose_
+  /*
   auto allDropped =  event.getMany<std::set<int>>();
   for (auto const& dropped : allDropped) {
     
@@ -67,6 +68,7 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
       }
     std::cout <<std::endl;   
   }
+  */
 #endif
   auto allGens = event.getMany<std::vector<simb::MCParticle>>();
   for (auto const& gens : allGens) {

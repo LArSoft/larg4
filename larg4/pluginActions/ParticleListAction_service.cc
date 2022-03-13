@@ -724,6 +724,13 @@ namespace larg4 {
 	 }
        std::cout <<std::endl;
       */
+      /*
+      std::cout << "size of fTargetIDMap: " << fTargetIDMap.size()<<std::endl;
+      for (auto const& element : fTargetIDMap)
+	{
+	  std::cout << "old: "  << element.first<<"  new: "<<  element.second<<std::endl;
+	}
+      */
       for (auto const& [process, count] : fNotStoredCounterUMap) {
         sscounter << "\n\t" << process << " : " << count;
       }
