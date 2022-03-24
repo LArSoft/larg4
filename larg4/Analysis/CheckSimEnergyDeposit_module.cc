@@ -76,7 +76,6 @@ void larg4::CheckSimEnergyDeposit::analyze(const art::Event& event)
       _hEdep->Fill( hit.Energy());   // energy deposit in MeV
       _hSteplength->Fill( hit.StepLength()); // step length in cm
     }
-    std::cout<< std::endl;
     _hLandauPhotons->Fill(sumPhotons);
     _hLandauEdep->Fill(sumE);
   }

@@ -206,25 +206,6 @@ namespace larg4 {
     }
   }
 
-  //-----------------------------------------------------------------
-  // read up the target ID map to return what the stored track ID 
-  // should be for a given trackid
-  //
-  /*
-  int
-  ParticleListActionService::getStorableTrackID(int trackid) const
-  {
-    auto itr = fTargetIDMap.find(trackid);
-    if(itr == fTargetIDMap.end()){
-      mf::LogWarning("ParticleListActionService::getStorableTrackID")
-	<< "Track ID " << trackid << " not found in the TargetIDMap.  "
-	<< "Returning original trackid, but there may be issues with truth-matching.";
-      return trackid;
-    }
-    return itr->second;
-  }
-  */
-
 
   //-------------------------------------------------------------
   // figure out the ultimate parentage of the particle with track ID
@@ -365,14 +346,7 @@ namespace larg4 {
 	  fTargetIDMap[trackID] = fCurrentTrackID;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
-	  if (fdroppedTracksMap.find(this->GetParentage(trackID))==fdroppedTracksMap.end())
-	    {
-	      fdroppedTracksMap[this->GetParentage(trackID)]={trackID};
-	    } else
-	    {
-	      fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
-	    }
-
+	  fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
           fCurrentParticle.clear();
           return;
         } // end if process matches an undesired process
@@ -382,13 +356,7 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut) {
-	  if (fdroppedTracksMap.find(this->GetParentage(trackID))==fdroppedTracksMap.end())
-	    {
-	      fdroppedTracksMap[this->GetParentage(trackID)]={trackID};
-	    } else
-	    {
-	      fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
-	    }
+	fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
