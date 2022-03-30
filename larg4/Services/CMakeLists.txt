@@ -11,11 +11,14 @@ simple_plugin(
     artg4tk::DataProducts_G4DetectorHits
     artg4tk::pluginDetectors_gdml
     artg4tk::services_DetectorHolder_service
+    larg4_pluginActions_ParticleListAction_service
     art::Persistency_Provenance
     canvas::canvas
     cetlib::cetlib
     cetlib_except::cetlib_except
     fhiclcpp::fhiclcpp
+    nug4::ParticleNavigation
+    nusimdata::SimulationBase
     Geant4::G4digits_hits
     Geant4::G4event
     Geant4::G4geometry

@@ -57,16 +57,22 @@ void larg4::CheckMCParticle::beginJob()
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
 #if defined _verbose_
-  auto allDropped =  event.getMany<std::set<int>>();
-  for (auto const& dropped : allDropped) {
-    
-    std::cout << "List of dropped Tracks: "<<std::endl;
-    for(auto const& droppedTrack :  *dropped )
+  
+  auto allDropped =  event.getMany<std::map<int,std::set<int>>>();
+
+  for (auto const& maps : allDropped ) {
+    for  (auto const& element : *maps ) {
+    std::cout << "Parent of dropped Tracks: "<<element.first<< std::endl;
+    std::set<int> droppedset= element.second; 
+    std::cout<< " droppedid size:  "<< droppedset.size()<<std::endl;
+    for(auto const& droppedid :  droppedset  )
       {
-	std::cout << droppedTrack << " ";
+	std::cout << droppedid << " ";
       }
     std::cout <<std::endl;   
+    }
   }
+
 #endif
   auto allGens = event.getMany<std::vector<simb::MCParticle>>();
   for (auto const& gens : allGens) {

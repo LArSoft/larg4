@@ -24,10 +24,11 @@
 #include "art/Framework/Core/ProducesCollector.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "cetlib/search_path.h"
-
 // larg4 includes:
 #include "larg4/Services/LArG4Detector_service.h"
-
+#include "larg4/Services/AuxDetSD.h"
+#include "larg4/Services/SimEnergyDepositSD.h"
+#include "larg4/pluginActions/ParticleListAction_service.h"
 // artg4tk includes:
 #include "artg4tk/pluginDetectors/gdml/ByParticle.hh"
 #include "artg4tk/pluginDetectors/gdml/CalorimeterHit.hh"
@@ -41,11 +42,9 @@
 #include "artg4tk/pluginDetectors/gdml/PhotonSD.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerHit.hh"
 #include "artg4tk/pluginDetectors/gdml/TrackerSD.hh"
+//lardataobj includes:
 #include "lardataobj/Simulation/AuxDetHit.h"
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
-#include "larg4/Services/AuxDetSD.h"
-#include "larg4/Services/SimEnergyDepositSD.h"
-//
 // Geant 4 includes:
 #include "Geant4/G4AutoDelete.hh"
 #include "Geant4/G4GDMLParser.hh"
@@ -83,6 +82,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
                           p.get<string>("mother_category", ""))
   , gdmlFileName_{p.get<std::string>("gdmlFileName_", "")}
   , checkOverlaps_{p.get<bool>("CheckOverlaps", false)}
+  , updateSimEnergyDeposits_{p.get<bool>("UpdateSimEnergyDeposits", true)}
   , volumeNames_{p.get<std::vector<std::string>>("volumeNames", {})}
   , stepLimits_{p.get<std::vector<float>>("stepLimits", {})}
   , inputVolumes_{size(volumeNames_)}
@@ -428,6 +428,10 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
   G4SDManager* sdman = G4SDManager::GetSDMpointer();
   art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
   art::Event& e = detectorHolder->getCurrArtEvent();
+
+  //add in PartliceListActionService ... 
+  art::ServiceHandle<larg4::ParticleListActionService> particleListAction;
+
   for (auto const& [volume_name, sd_name] : detectors_) {
     auto sd = sdman->FindSensitiveDetector(volume_name + "_" + sd_name);
     if (sd_name == "HadInteraction") {
@@ -455,7 +459,16 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
     }
     else if (sd_name == "SimEnergyDeposit") {
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
-      e.put(make_product(sedsd->GetHits()), instanceName(volume_name));
+      sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
+      std::map<int, int> tmap = particleListAction->GetTargetIDMap();
+      if(updateSimEnergyDeposits_) 
+	{
+	  for(auto  &hit : hitCollection)
+	    {
+	      hit.setTrackID(tmap[hit.TrackID()]);
+	    }
+	}
+      e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);

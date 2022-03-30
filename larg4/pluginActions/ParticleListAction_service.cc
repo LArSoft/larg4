@@ -33,14 +33,13 @@
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "nusimdata/SimulationBase/MCGeneratorInfo.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
-
 // Framework includes
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
-
+// Geant4 includes
 #include "Geant4/G4DynamicParticle.hh"
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4ParticleDefinition.hh"
@@ -52,11 +51,11 @@
 #include "Geant4/G4Track.hh"
 #include "Geant4/G4VProcess.hh"
 #include "Geant4/G4VUserPrimaryParticleInformation.hh"
-
+// Root includes
 #include "TLorentzVector.h"
 
 #include "range/v3/view.hpp"
-
+// STL includes
 #include <algorithm>
 #include <cassert>
 #include <string>
@@ -108,10 +107,8 @@ namespace larg4 {
         fNotStoredCounterUMap.emplace(i, 0); // -- initialize counter
       }
       mf::LogInfo("ParticleListActionService") << sstored.str() << "}\n";
-      //hjw std::cout << "sstored-"<<sstored.str()<<std::endl;
     }
     else { // -- Keep all processes
-      //hjw std::cout << "sstored-"<<std::endl;
       mf::LogInfo("ParticleListActionService")
         << "Storing full tracking information for all processes. \n";
       if (customNotStored) // -- custom list will be ignored
@@ -137,15 +134,15 @@ namespace larg4 {
     fCurrentParticle.clear();
     fParticleList.clear();
     fParentIDMap.clear();
+    fTargetIDMap.clear();
     fMCTIndexMap.clear();
     fMCTPrimProcessKeepMap.clear();
     fCurrentTrackID = sim::NoParticleId;
     fTrackIDOffset = 0;
-
     fPrimaryTruthMap.clear();
     fMCTIndexToGeneratorMap.clear();
     fNotStoredCounterUMap.clear();
-    fdroppedTracksSet.clear();
+    fdroppedTracksMap.clear();
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -171,7 +168,6 @@ namespace larg4 {
       // -- Obtain the generator (provenance) corresponding to the mctruth index:
       auto const& mclistHandle = (*fMCLists)[mcti];
       generator_name = mclistHandle.provenance()->inputTag().label();
-      //hjw std::cout<<"Generator *****************"<< generator_name<<std::endl;
       sskeepgen << "\n\tProvenance/Generator : " << generator_name;
 
       G4bool keepGen = false;
@@ -210,6 +206,7 @@ namespace larg4 {
     }
   }
 
+
   //-------------------------------------------------------------
   // figure out the ultimate parentage of the particle with track ID
   // trackid
@@ -224,11 +221,9 @@ namespace larg4 {
     // of the first EM particle that led to this one
     auto itr = fParentIDMap.find(trackid);
     while (itr != fParentIDMap.end()) {
-      //hjw std::cout<< "parentage for " << trackid << " " << (*itr).second <<std::endl;
       // set the parentid to the current parent ID, when the loop ends
       // this id will be the first EM particle
       parentid = (*itr).second;
-      //hjw std::cout<< "final parentage for " << trackid << " " << (*itr).second <<std::endl;
       itr = fParentIDMap.find(parentid);
     }
 
@@ -250,7 +245,7 @@ namespace larg4 {
     // runs (if any)
     int const trackID = track->GetTrackID() + fTrackIDOffset;
     fCurrentTrackID = trackID;
-
+    fTargetIDMap[trackID] = fCurrentTrackID;
     // And the particle's parent (same offset as above):
     int parentID = track->GetParentID() + fTrackIDOffset;
 
@@ -271,7 +266,6 @@ namespace larg4 {
       if (ppi != nullptr) {
         primaryIndex = ppi->MCParticleIndex();
         primarymctIndex = ppi->MCTruthIndex();
-
         mct_primary_process = ppi->GetMCParticle()->Process();
 
         // If we've made it this far, a PrimaryParticleInformation
@@ -336,13 +330,11 @@ namespace larg4 {
             break;
           }
         }
-
         if (notstore) {
-
           // figure out the ultimate parentage of this particle
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
-	  fCurrentTrackID = this->GetParentage(trackID);
+	  fCurrentTrackID =-1 * this->GetParentage(trackID);
           // check that fCurrentTrackID is in the particle list - it is possible
           // that this particle's parent is a particle that did not get tracked.
           // An example is a parent that was made due to muMinusCaptureAtRest
@@ -351,9 +343,10 @@ namespace larg4 {
           // which will put a bogus track id value into the sim::IDE object for
           // the sim::SimChannel if we don't check it.
           if (!fParticleList.KnownParticle(fCurrentTrackID)) fCurrentTrackID = sim::NoParticleId;
+	  fTargetIDMap[trackID] = fCurrentTrackID;
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
-	  fdroppedTracksSet.insert(trackID);
+	  fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
           fCurrentParticle.clear();
           return;
         } // end if process matches an undesired process
@@ -363,13 +356,13 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut) {
-	fdroppedTracksSet.insert(trackID);
+	fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
-
-        fCurrentTrackID = this->GetParentage(trackID);
-
+	fParentIDMap[trackID] = parentID;
+        fCurrentTrackID = -1 * this->GetParentage(trackID);
+	fTargetIDMap[trackID] = fCurrentTrackID;
         return;
       }
 
@@ -433,15 +426,12 @@ namespace larg4 {
             (isFromMCTProcessPrimary) ?
         true :       /*only descendants from primaries with MCTruth process == "primary"*/
               false; /*not from MCTruth process "primary"*/
-
     // Polarization.
     const G4ThreeVector& polarization = track->GetPolarization();
     fCurrentParticle.particle->SetPolarization(
       TVector3{polarization.x(), polarization.y(), polarization.z()});
-
     // Save the particle in the ParticleList.
     fParticleList.Add(fCurrentParticle.particle);
-    //hjw std::cout <<" pre Tracking fParticleList.size:  " << fParticleList.size()<<std::endl;
   }
 
   //----------------------------------------------------------------------------
@@ -643,7 +633,6 @@ namespace larg4 {
 
       // Add the current particle to the daughter list of the parent.
       simb::MCParticle* parent = parentEntry->second;
-      //std::cout<<"AddDaughter:  "<< particleID <<std::endl;
       parent->AddDaughter(particleID);
     }
 
@@ -700,14 +689,6 @@ namespace larg4 {
     if (!fNotStoredCounterUMap.empty()) { // -- Only if there is something to report
       std::stringstream sscounter;
       sscounter << "Not Stored Process summary:";
-      /*
-      std::cout << "List of dropped Tracks: "<<std::endl;
-       for(auto dropped :  fdroppedTracksSet )
-	 {
-	   std::cout << dropped << " ";
-	 }
-       std::cout <<std::endl;
-      */
       for (auto const& [process, count] : fNotStoredCounterUMap) {
         sscounter << "\n\t" << process << " : " << count;
       }
@@ -715,7 +696,7 @@ namespace larg4 {
     }
 
     partCol_ = std::make_unique<std::vector<simb::MCParticle>>();
-    droppedCol_ = std::make_unique<std::set<int>>();
+    droppedCol_ = std::make_unique<std::map<int,std::set<int>>>();
     tpassn_ =
       std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
     // Set up the utility class for the "for_each" algorithm.  (We only
@@ -723,7 +704,6 @@ namespace larg4 {
     // give it the pointer to the particle list.  We're using the STL
     // "for_each" instead of the C++ "for loop" because it's supposed
     // to be faster.
-    //hjw std::cout <<" end of event fParticleList.size:  " << fParticleList.size()<<std::endl;
     std::for_each(
       fParticleList.begin(), fParticleList.end(), UpdateDaughterInformation{fParticleList});
 
@@ -732,21 +712,16 @@ namespace larg4 {
     unsigned int nGeneratedParticles = 0;
     unsigned int nMCTruths = 0;
     sim::ParticleList particleList = YieldList();
-
     for (size_t mcl = 0; mcl < fMCLists->size(); ++mcl) {
       auto const& mclistHandle = (*fMCLists)[mcl];
       MF_LOG_INFO("endOfEventAction") << "mclistHandle Size: " << mclistHandle->size();
-
       for (size_t m = 0; m < mclistHandle->size(); ++m) {
         art::Ptr<simb::MCTruth> mct(mclistHandle, m);
-
         MF_LOG_INFO("endOfEventAction") << "Found " << mct->NParticles() << " particles";
-
         for (simb::MCParticle* p : particleList | ranges::views::values) {
           auto gen_index = fMCTIndexMap[p->TrackId()];
           if (gen_index != nMCTruths) continue;
           assert(p->NumberTrajectoryPoints() != 0ull);
-
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
@@ -757,20 +732,18 @@ namespace larg4 {
               << "\nwith particles from the truth record '" << mclistHandle.provenance()->inputTag()
               << "':\n\n";
           }
-
           partCol_->push_back(std::move(*p));
           art::Ptr<simb::MCParticle> mcp_ptr{pid_, partCol_->size() - 1, productGetter_};
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
         }
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
-       for(auto dropped :  fdroppedTracksSet )
-	 {
-	   droppedCol_->insert(dropped);
-	 }
-        ++nMCTruths;
+	for(auto const& dropped :  fdroppedTracksMap )
+	  {
+	    droppedCol_->insert(dropped);
+	  }
+       ++nMCTruths;
       }
     }
-
     fTrackIDOffset = 0;
   }
 } // namespace LArG4

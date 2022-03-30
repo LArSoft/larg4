@@ -32,18 +32,18 @@
 #include "artg4tk/services/ActionHolder_service.hh"
 #include "artg4tk/services/DetectorHolder_service.hh"
 #include "artg4tk/services/PhysicsListHolder_service.hh"
-
 // art extensions
 #include "lardataalg/MCDumpers/MCDumpers.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "nurandom/RandomUtils/NuRandomService.h"
-
+// Geant4 includes
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4UIterminal.hh"
-
+// C++ includes
 #include <string>
 #include <set>
+#include <map>
 
 using MCTruthCollection = std::vector<simb::MCTruth>;
 
@@ -133,7 +133,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
 {
-  produces<std::set<int>>();
+  produces<std::map<int,std::set<int>>>();
   produces<std::vector<simb::MCParticle>>();
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
 

@@ -81,7 +81,7 @@ services: {
     LArG4Detector :
     {
     category: "world"
-    gdmlFileName_ : "simpleLArTPC.gdml"
+    gdmlFileName_ : "lArDet.gdml"
     }
 
 //    writeGdml: {
