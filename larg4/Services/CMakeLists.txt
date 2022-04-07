@@ -29,7 +29,7 @@ simple_plugin(
     messagefacility::MF_MessageLogger
     ROOT::Core
     XercesC::XercesC
-)
+) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use cet_build_plugin() with explicit source lists and plugin base types
 
 install_headers()
 install_source()

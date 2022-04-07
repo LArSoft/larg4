@@ -19,7 +19,7 @@ NOP
   nug4::G4Base
   ROOT::Core
   ROOT::Physics
-)
+) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use cet_build_plugin() with explicit source lists and plugin base types
 
 simple_plugin(
   ParticleListAction service
@@ -42,7 +42,7 @@ NOP
   ROOT::Core
   ROOT::Physics
   range-v3::range-v3
-)
+) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use cet_build_plugin() with explicit source lists and plugin base types
 
 install_headers()
 install_source()
