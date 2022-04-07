@@ -56,7 +56,9 @@ add_subdirectory(gdml)
 add_subdirectory(larg4)
 add_subdirectory(macros)
 add_subdirectory(ups)
+add_subdirectory(test)
 
 # packaging utility
 # this has to be last
+#cet_cmake_config()
 include(UseCPack)

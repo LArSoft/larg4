@@ -1,5 +1,15 @@
-#include "LArG4.fcl"
-//#include "seedservice.fcl"
+BEGIN_PROLOG
+
+standard_larg4:
+{
+    module_type: "larg4Main"
+    enableVisualization: false
+    macroPath: ".:./macros"
+    visMacro: "vis.mac"
+}
+
+END_PROLOG
+
 #no experiment specific configurations because larg4SingleGen is detector agnostic
 
 standard_singlep:
