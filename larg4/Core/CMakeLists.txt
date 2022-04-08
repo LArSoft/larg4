@@ -1,34 +1,40 @@
-art_make(
-  MODULE_LIBRARIES
-    art::Framework_Principal
-    art::Framework_Services_Registry
-    artg4tk::geantInit
-    artg4tk::lists
-    artg4tk::services_ActionHolder_service
-    artg4tk::services_DetectorHolder_service
-    artg4tk::services_PhysicsListHolder_service
-    art::Persistency_Provenance
-    art::Utilities
-    canvas::canvas
-    cetlib::cetlib
-    cetlib_except::cetlib_except
-    fhiclcpp
-    Geant4::G4event
-    Geant4::G4intercoms
-    Geant4::G4interfaces
-    Geant4::G4run
-    Geant4::G4tracking
-    larg4_pluginActions_MCTruthEventAction_service
-    larg4_pluginActions_ParticleListAction_service
-    nurandom::RandomUtils_NuRandomService_service
-    nug4::AdditionalG4Physics
-    messagefacility::MF_MessageLogger
-    ROOT::Core
-    ROOT::Physics
-    ROOT::EG
-    ROOT::Hist
-    ROOT::RIO
-) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use art_make_library(), art_dictonary(), and cet_build_plugin() with explicit source lists and plugin base types
+cet_build_plugin(larg4Main art::EDProducer
+  LIBRARIES PRIVATE
+  larg4::pluginActions_MCTruthEventAction_service
+  larg4::pluginActions_ParticleListAction_service
+  lardataalg::MCDumpers
+  lardataobj::Simulation
+  nug4::ParticleNavigation
+  nurandom::RandomUtils_NuRandomService_service
+  artg4tk::geantInit
+  artg4tk::services_ActionHolder_service
+  artg4tk::services_DetectorHolder_service
+  artg4tk::services_PhysicsListHolder_service
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  art::Framework_Services_Registry
+  canvas::canvas
+  Geant4::G4intercoms
+  Geant4::G4interfaces
+  ROOT::Physics
+)
+
+cet_build_plugin(larg4SingleGen art::EDProducer
+  LIBRARIES PRIVATE
+  nusimdata::SimulationBase
+  nurandom::RandomUtils_NuRandomService_service
+  art::Framework_Services_Registry
+  messagefacility::MF_MessageLogger
+  fhiclcpp::types
+  fhiclcpp::fhiclcpp
+  cetlib::cetlib
+  cetlib_except::cetlib_except
+  ROOT::EG
+  ROOT::Physics
+  ROOT::Hist
+  ROOT::RIO
+  CLHEP::Random
+)
 
 install_headers()
 install_source()

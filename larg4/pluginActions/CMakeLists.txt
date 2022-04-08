@@ -1,48 +1,43 @@
-simple_plugin(
-  MCTruthEventAction service
-SOURCE
-  MCTruthEventAction_service.cc
-NOP
-  art::Framework_Principal
-  art::Framework_Services_Registry
-  artg4tk::actionBase
-  artg4tk::services_ActionHolder_service
-  art::Persistency_Provenance
-  canvas::canvas
-  cetlib_except::cetlib_except
-  CLHEP::Vector
-  fhiclcpp::fhiclcpp
-  Geant4::G4global
-  Geant4::G4particles
-  messagefacility::MF_MessageLogger
-  nusimdata::SimulationBase
-  nug4::G4Base
-  ROOT::Core
-  ROOT::Physics
-) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use cet_build_plugin() with explicit source lists and plugin base types
-
-simple_plugin(
-  ParticleListAction service
-SOURCE
-  ParticleListAction_service.cc
-NOP
-  art::Framework_Services_Registry
-  canvas::canvas
-  art::Framework_Core
-  art::Framework_Principal
-  artg4tk::actionBase
-  artg4tk::services_ActionHolder_service
-  art::Persistency_Provenance
-  CLHEP::Vector
-  Geant4::G4particles
-  messagefacility::MF_MessageLogger
-  nusimdata::SimulationBase
-  nug4::G4Base
+cet_build_plugin(MCTruthEventAction artg4tk::ActionService
+  LIBRARIES
+  PUBLIC
   nug4::ParticleNavigation
-  ROOT::Core
+  nug4::G4Base
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  art::Framework_Services_Registry
+  Geant4::G4global
+  PRIVATE
+  canvas::canvas
+  messagefacility::MF_MessageLogger
+  fhiclcpp::fhiclcpp
+  Geant4::G4particles
+  Geant4::G4event
+  CLHEP::Vector
   ROOT::Physics
+)
+
+cet_build_plugin(ParticleListAction artg4tk::ActionService
+  LIBRARIES
+  PUBLIC
+  lardataobj::Simulation
+  nug4::ParticleNavigation
+  nug4::G4Base
+  nusimdata::SimulationBase
+  art::Framework_Principal
+  art::Framework_Services_Registry
+  canvas::canvas
+  messagefacility::MF_MessageLogger
+  Geant4::G4global
+  ROOT::Core
+  PRIVATE
+  fhiclcpp::fhiclcpp
+  ROOT::Physics
+  Geant4::G4tracking
+  Geant4::G4track
+  Geant4::G4particles
   range-v3::range-v3
-) ### MIGRATE-ACTION-RECOMMENDED (migrate-3.09.03) - deprecated: use cet_build_plugin() with explicit source lists and plugin base types
+)
 
 install_headers()
 install_source()

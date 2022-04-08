@@ -41,9 +41,12 @@
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4UIterminal.hh"
 // C++ includes
+#include <atomic>
 #include <string>
 #include <set>
 #include <map>
+#include <memory>
+#include <vector>
 
 using MCTruthCollection = std::vector<simb::MCTruth>;
 

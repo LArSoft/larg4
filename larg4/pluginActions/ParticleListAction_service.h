@@ -12,35 +12,49 @@
 #ifndef PARTICLELISTACTION_SERVICE_H
 #define PARTICLELISTACTION_SERVICE_H
 
-
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "nug4/ParticleNavigation/ParticleList.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-#include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
+#include "lardataobj/Simulation/GeneratedParticleInfo.h"
 
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
 #include "artg4tk/actionBase/TrackingActionBase.hh"
 
-#include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
+
+#include "nusimdata/SimulationBase/MCParticle.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
+
+#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+
+#include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+
+namespace art {
+  class EDProductGetter;
+}
+
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Geant4/globals.hh"
-#include <map>
-#include <set>
 
-// Forward declarations.
 class G4Event;
 class G4Track;
 class G4Step;
 
-namespace sim {
-  class ParticleList;
-}
+class TLorentzVector;
+
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace larg4 {
 

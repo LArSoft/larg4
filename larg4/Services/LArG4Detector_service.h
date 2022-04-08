@@ -25,21 +25,29 @@
 #ifndef LARG4DETECTOR_SERVICE_HH
 #define LARG4DETECTOR_SERVICE_HH
 
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "artg4tk/Core/DetectorBase.hh"
 
-#include "Geant4/G4GDMLParser.hh"
-#include "Geant4/G4LogicalVolume.hh"
-#include "Geant4/G4LogicalVolumeStore.hh"
-#include "Geant4/G4VPhysicalVolume.hh"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+
+namespace art {
+  class ProducesCollector;
+}
+
+namespace fhicl {
+  class ParameterSet;
+}
+
+class G4HCofThisEvent;
+class G4LogicalVolume;
+class G4VPhysicalVolume;
+
+#include "Geant4/G4Types.hh"
+
+#include <map>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
-
-// Get the base class
-#include "artg4tk/Core/DetectorBase.hh"
 
 namespace larg4 {
 

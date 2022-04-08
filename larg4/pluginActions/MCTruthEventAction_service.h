@@ -16,20 +16,24 @@
 #ifndef MCTRUTHEVENTACTION_SERVICE_HH
 #define MCTRUTHEVENTACTION_SERVICE_HH
 
+#include "artg4tk/actionBase/PrimaryGeneratorActionBase.hh"
+
+#include "nusimdata/SimulationBase/MCTruth.h"
+
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
-#include "fhiclcpp/ParameterSet.h"
 
-#include "artg4tk/actionBase/PrimaryGeneratorActionBase.hh"
-#include "nug4/G4Base/ConvertMCTruthToG4.h"
+namespace fhicl {
+  class ParameterSet;
+}
 
-#include "Geant4/G4Event.hh"
-#include "Geant4/G4ParticleTable.hh"
-#include "Geant4/G4VPrimaryGenerator.hh"
-#include "Geant4/G4VUserPrimaryGeneratorAction.hh"
-#include "Geant4/globals.hh"
+#include "Geant4/G4Types.hh"
+
+class G4Event;
+class G4ParticleTable;
 
 #include <map>
+#include <vector>
 
 namespace larg4 {
 
