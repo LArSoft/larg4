@@ -42,8 +42,7 @@ namespace larg4 {
     MCTruthEventActionService(fhicl::ParameterSet const&);
     ~MCTruthEventActionService();
 
-    void
-    setInputCollections(std::vector<art::Handle<std::vector<simb::MCTruth>>> const& mclists)
+    void setInputCollections(std::vector<art::Handle<std::vector<simb::MCTruth>>> const& mclists)
     {
       fMCLists = &mclists;
     }

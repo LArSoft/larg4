@@ -72,18 +72,22 @@ namespace larg4 {
     // Actually produce
     void doFillEventWithArtHits(G4HCofThisEvent* hc) override;
 
-    std::string gdmlFileName_;             // name of the gdml file
-    bool checkOverlaps_;                   // enable/disable check of overlaps
-    bool updateSimEnergyDeposits_;        // enable/disable change of TrackID  for Tracks where no MCParticle was created
-    std::vector<std::string> volumeNames_; // list of volume names for which step limits should be set
-    std::vector<float> stepLimits_;        // corresponding step limits to be set for each volume in the list of volumeNames, [mm]
+    std::string gdmlFileName_; // name of the gdml file
+    bool checkOverlaps_;       // enable/disable check of overlaps
+    bool
+      updateSimEnergyDeposits_; // enable/disable change of TrackID  for Tracks where no MCParticle was created
+    std::vector<std::string>
+      volumeNames_; // list of volume names for which step limits should be set
+    std::vector<float>
+      stepLimits_; // corresponding step limits to be set for each volume in the list of volumeNames, [mm]
     size_t inputVolumes_; // number of stepLimits to be set
     bool dumpMP_;         // enable/disable dump of material properties
 
     std::vector<std::pair<std::string, std::string>> detectors_{};
     std::map<std::string, G4double> overrideGDMLStepLimit_Map{};
-    std::unordered_map<std::string, float> setGDMLVolumes_{}; // holds all <volume, steplimit> pairs set from the GDML file
-};
+    std::unordered_map<std::string, float>
+      setGDMLVolumes_{}; // holds all <volume, steplimit> pairs set from the GDML file
+  };
 }
 
 DECLARE_ART_SERVICE(larg4::LArG4DetectorService, LEGACY)

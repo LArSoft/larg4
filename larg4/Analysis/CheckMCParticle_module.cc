@@ -1,27 +1,27 @@
 // C++ includes.
-#include <iostream>
-#include <string>
-#include <set>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <string>
 
 // Framework includes.
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileDirectory.h"
 #include "art_root_io/TFileService.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 // Root includes.
+#include "TDirectory.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TDirectory.h"
 
 // Other includes.
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -43,9 +43,8 @@ private:
   TH1F* _hnParts{nullptr};
 };
 
-larg4::CheckMCParticle::CheckMCParticle(fhicl::ParameterSet const& p) :
-  art::EDAnalyzer(p),
-  _myName(p.get<std::string>("name", "CheckMCParticle"))
+larg4::CheckMCParticle::CheckMCParticle(fhicl::ParameterSet const& p)
+  : art::EDAnalyzer(p), _myName(p.get<std::string>("name", "CheckMCParticle"))
 {}
 
 void larg4::CheckMCParticle::beginJob()
@@ -57,19 +56,18 @@ void larg4::CheckMCParticle::beginJob()
 void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
 #if defined _verbose_
-  
-  auto allDropped =  event.getMany<std::map<int,std::set<int>>>();
 
-  for (auto const& maps : allDropped ) {
-    for  (auto const& element : *maps ) {
-    std::cout << "Parent of dropped Tracks: "<<element.first<< std::endl;
-    std::set<int> droppedset= element.second; 
-    std::cout<< " droppedid size:  "<< droppedset.size()<<std::endl;
-    for(auto const& droppedid :  droppedset  )
-      {
-	std::cout << droppedid << " ";
+  auto allDropped = event.getMany<std::map<int, std::set<int>>>();
+
+  for (auto const& maps : allDropped) {
+    for (auto const& element : *maps) {
+      std::cout << "Parent of dropped Tracks: " << element.first << std::endl;
+      std::set<int> droppedset = element.second;
+      std::cout << " droppedid size:  " << droppedset.size() << std::endl;
+      for (auto const& droppedid : droppedset) {
+        std::cout << droppedid << " ";
       }
-    std::cout <<std::endl;   
+      std::cout << std::endl;
     }
   }
 
@@ -79,28 +77,28 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
     _hnParts->Fill(gens->size());
 #if defined _verbose_
     for (auto const& genpart : *gens) {
-      if (genpart.Mother()==0) {
-        cout << "Primary momentum:  " <<   genpart.P();
-        cout << "  position:  " << genpart.Vx()<< "  "<< genpart.Vy()<<"  "<< genpart.Vz()  << endl;
+      if (genpart.Mother() == 0) {
+        cout << "Primary momentum:  " << genpart.P();
+        cout << "  position:  " << genpart.Vx() << "  " << genpart.Vy() << "  " << genpart.Vz()
+             << endl;
       }
       cout << "Part id:  " << genpart.TrackId();
       cout << " PDG id:  " << genpart.PdgCode();
       cout << " Status Code:  " << genpart.StatusCode();
       cout << " Mother:  " << genpart.Mother();
-      cout << " Creation Process: "<<genpart.Process();
-      cout << " End Process: "<<genpart.EndProcess();
+      cout << " Creation Process: " << genpart.Process();
+      cout << " End Process: " << genpart.EndProcess();
       /*
       auto trajectory = genpart.Trajectory();
       cout <<" trajectory size:   " << trajectory.size();
       */
-      cout <<" Nr. of Daughters: " << genpart.NumberDaughters();
-      cout <<" FirstDaughter:" << genpart.FirstDaughter()<<endl;
+      cout << " Nr. of Daughters: " << genpart.NumberDaughters();
+      cout << " FirstDaughter:" << genpart.FirstDaughter() << endl;
       //      cout <<" LastDaughter: " << genpart.LastDaughter() <<endl;
-      for (int i=0;i<genpart.NumberDaughters();i++)
-      	{
-	  cout << genpart.Daughter(i)<<",";
-      	}
-      cout<<endl;
+      for (int i = 0; i < genpart.NumberDaughters(); i++) {
+        cout << genpart.Daughter(i) << ",";
+      }
+      cout << endl;
     }
 #endif
   }

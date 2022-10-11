@@ -24,8 +24,8 @@
 #include "art/Framework/Core/ProducesCollector.h"
 #include "cetlib/search_path.h"
 // larg4 includes:
-#include "larg4/Services/LArG4Detector_service.h"
 #include "larg4/Services/AuxDetSD.h"
+#include "larg4/Services/LArG4Detector_service.h"
 #include "larg4/Services/SimEnergyDepositSD.h"
 #include "larg4/pluginActions/ParticleListAction_service.h"
 // artg4tk includes:
@@ -67,8 +67,7 @@ using std::string;
 
 namespace {
   template <typename T>
-  auto
-  make_product(T t)
+  auto make_product(T t)
   {
     return std::make_unique<T>(std::move(t));
   }
@@ -119,8 +118,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
 
 // Destructor
 
-std::vector<G4LogicalVolume*>
-larg4::LArG4DetectorService::doBuildLVs()
+std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
 {
   ColorReader reader;
   G4GDMLParser parser(&reader);
@@ -130,7 +128,7 @@ larg4::LArG4DetectorService::doBuildLVs()
   if (!sp.find_file(gdmlFileName_, fullGDMLFileName)) {
     throw cet::exception("LArG4DetectorService") << "Cannot find file: " << gdmlFileName_;
   }
-  parser.Read(fullGDMLFileName,false);
+  parser.Read(fullGDMLFileName, false);
   G4VPhysicalVolume* World = parser.GetWorldVolume();
 
   std::stringstream ss;
@@ -303,8 +301,8 @@ larg4::LArG4DetectorService::doBuildLVs()
   return myLVvec;
 }
 
-std::vector<G4VPhysicalVolume*>
-larg4::LArG4DetectorService::doPlaceToPVs(std::vector<G4LogicalVolume*>)
+std::vector<G4VPhysicalVolume*> larg4::LArG4DetectorService::doPlaceToPVs(
+  std::vector<G4LogicalVolume*>)
 {
   // Note we don't use our input.
   std::vector<G4VPhysicalVolume*> myPVvec;
@@ -314,8 +312,7 @@ larg4::LArG4DetectorService::doPlaceToPVs(std::vector<G4LogicalVolume*>)
   return myPVvec;
 }
 
-void
-larg4::LArG4DetectorService::setStepLimits()
+void larg4::LArG4DetectorService::setStepLimits()
 {
   // -- D. Rivera : This function sets step limits for volumes provided in the configuration file
   //                and overrides the step limit (if any) set for the same volumes but from the GMDL
@@ -375,14 +372,12 @@ larg4::LArG4DetectorService::setStepLimits()
   } //--loop over input volumes
 } //--end of setStepLimit()
 
-std::string
-larg4::LArG4DetectorService::instanceName(std::string const& volume_name) const
+std::string larg4::LArG4DetectorService::instanceName(std::string const& volume_name) const
 {
   return myName() + volume_name;
 }
 
-void
-larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector)
+void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector)
 {
   // Tell Art what we produce, and label the entries
   for (auto const& [volume_name, sd_name] : detectors_) {
@@ -417,8 +412,7 @@ larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector
   }
 }
 
-void
-larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
+void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
 {
   //
   // NOTE(JVY): 1st hadronic interaction will be fetched as-is from HadInteractionSD
@@ -428,7 +422,7 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
   art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
   art::Event& e = detectorHolder->getCurrArtEvent();
 
-  //add in PartliceListActionService ... 
+  //add in PartliceListActionService ...
   art::ServiceHandle<larg4::ParticleListActionService> particleListAction;
 
   for (auto const& [volume_name, sd_name] : detectors_) {
@@ -460,13 +454,11 @@ larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
-      if(updateSimEnergyDeposits_) 
-	{
-	  for(auto  &hit : hitCollection)
-	    {
-	      hit.setTrackID(tmap[hit.TrackID()]);
-	    }
-	}
+      if (updateSimEnergyDeposits_) {
+        for (auto& hit : hitCollection) {
+          hit.setTrackID(tmap[hit.TrackID()]);
+        }
+      }
       e.put(make_product(hitCollection), instanceName(volume_name));
     }
     else if (sd_name == "AuxDet") {

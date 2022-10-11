@@ -42,10 +42,10 @@
 #include "Geant4/G4UIterminal.hh"
 // C++ includes
 #include <atomic>
-#include <string>
-#include <set>
 #include <map>
 #include <memory>
+#include <set>
+#include <string>
 #include <vector>
 
 using MCTruthCollection = std::vector<simb::MCTruth>;
@@ -136,7 +136,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
 {
-  produces<std::map<int,std::set<int>>>();
+  produces<std::map<int, std::set<int>>>();
   produces<std::vector<simb::MCParticle>>();
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
 
@@ -174,27 +174,19 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
 
 larg4::larg4Main::~larg4Main()
 {
-  if (runManager_) {
-    runManager_.reset();
-  }
+  if (runManager_) { runManager_.reset(); }
 }
 
-void
-larg4::larg4Main::beginJob()
+void larg4::larg4Main::beginJob()
 {
   mf::LogDebug("Main_Run_Manager") << "In begin job";
-  if (runManager_) {
-    return;
-  }
+  if (runManager_) { return; }
   runManager_.reset(new artg4tk::ArtG4RunManager);
 }
 
-void
-larg4::larg4Main::beginRun(art::Run& r)
+void larg4::larg4Main::beginRun(art::Run& r)
 {
-  if (processingRun_++ != 0) {
-    return;
-  }
+  if (processingRun_++ != 0) { return; }
 
   // Get the physics list and pass it to Geant and initialize the list if necessary
   art::ServiceHandle<artg4tk::PhysicsListHolderService const> physicsListHolder;
@@ -264,8 +256,7 @@ larg4::larg4Main::beginRun(art::Run& r)
 }
 
 // Produce the Geant event
-void
-larg4::larg4Main::produce(art::Event& e)
+void larg4::larg4Main::produce(art::Event& e)
 {
   // The holder services need the event
   art::ServiceHandle<artg4tk::ActionHolderService>()->setCurrArtEvent(e);
@@ -287,22 +278,17 @@ larg4::larg4Main::produce(art::Event& e)
   e.put(pla->DroppedTracksCollection());
 }
 
-void
-larg4::larg4Main::endRun(art::Run& r)
+void larg4::larg4Main::endRun(art::Run& r)
 {
-  if (--processingRun_ != 0) {
-    return;
-  }
+  if (--processingRun_ != 0) { return; }
 
   runManager_->BeamOnEndRun();
 }
 
-std::vector<art::Handle<MCTruthCollection>>
-larg4::larg4Main::inputCollections(art::Event const& e) const
+std::vector<art::Handle<MCTruthCollection>> larg4::larg4Main::inputCollections(
+  art::Event const& e) const
 {
-  if (empty(inputCollectionTags_)) {
-    return e.getMany<std::vector<simb::MCTruth>>();
-  }
+  if (empty(inputCollectionTags_)) { return e.getMany<std::vector<simb::MCTruth>>(); }
 
   std::vector<art::Handle<MCTruthCollection>> result;
   for (auto const& tag : inputCollectionTags_) {

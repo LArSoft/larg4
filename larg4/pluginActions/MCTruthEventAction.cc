@@ -29,8 +29,7 @@
 using std::string;
 
 namespace {
-  constexpr bool
-  genie_specific(int const pdg)
+  constexpr bool genie_specific(int const pdg)
   {
     constexpr int genieLoPdg = 2000000001;
     constexpr int genieHiPdg = 2000000300;
@@ -86,8 +85,7 @@ larg4::MCTruthEventActionService::~MCTruthEventActionService()
 
 // Create a primary particle for an event!
 // (Standard Art G4 simulation)
-void
-larg4::MCTruthEventActionService::generatePrimaries(G4Event* anEvent)
+void larg4::MCTruthEventActionService::generatePrimaries(G4Event* anEvent)
 {
   // For each MCTruth (probably only one, but you never know):
   // index keeps track of which MCTruth object you are using
@@ -233,5 +231,5 @@ larg4::MCTruthEventActionService::generatePrimaries(G4Event* anEvent)
       } // -- for each particle in MCTruth
       ++index;
     } // -- for each MCTruth entry
-  } // -- for each MCTruth handle
+  }   // -- for each MCTruth handle
 } // -- generatePrimaries()

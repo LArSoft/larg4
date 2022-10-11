@@ -84,15 +84,12 @@ namespace larg4 {
     void endOfEventAction(const G4Event*) override;
 
     // Set/get the current Art event
-    void
-    setInputCollections(std::vector<art::Handle<std::vector<simb::MCTruth>>> const& mclists)
+    void setInputCollections(std::vector<art::Handle<std::vector<simb::MCTruth>>> const& mclists)
     {
       fMCLists = &mclists;
     }
 
-    void
-    setPtrInfo(art::ProductID pid,
-               art::EDProductGetter const* productGetter)
+    void setPtrInfo(art::ProductID pid, art::EDProductGetter const* productGetter)
     {
       pid_ = pid;
       productGetter_ = productGetter;
@@ -102,7 +99,7 @@ namespace larg4 {
     {
       return std::move(partCol_);
     }
-    std::unique_ptr<std::map<int,std::set<int>>> DroppedTracksCollection()
+    std::unique_ptr<std::map<int, std::set<int>>> DroppedTracksCollection()
     {
       return std::move(droppedCol_);
     }
@@ -113,7 +110,8 @@ namespace larg4 {
       return std::move(tpassn_);
     }
 
-    std::map<int, int> GetTargetIDMap() {return fTargetIDMap;}
+    std::map<int, int> GetTargetIDMap() { return fTargetIDMap; }
+
   private:
     struct ParticleInfo_t {
       simb::MCParticle* particle = nullptr; ///< simple structure representing particle
@@ -123,8 +121,7 @@ namespace larg4 {
       simb::GeneratedParticleIndex_t truthIndex = simb::NoGeneratedParticleIndex;
 
       /// Resets the information (does not release memory it does not own)
-      void
-      clear()
+      void clear()
       {
         particle = nullptr;
         keepFullTrajectory = false;
@@ -132,25 +129,13 @@ namespace larg4 {
       }
 
       /// Returns whether there is a particle
-      bool
-      hasParticle() const
-      {
-        return particle;
-      }
+      bool hasParticle() const { return particle; }
 
       /// Returns whether there is a particle
-      bool
-      isPrimary() const
-      {
-        return simb::isGeneratedParticleIndex(truthIndex);
-      }
+      bool isPrimary() const { return simb::isGeneratedParticleIndex(truthIndex); }
 
       /// Returns the index of the particle in the generator truth record.
-      simb::GeneratedParticleIndex_t
-      truthInfoIndex() const
-      {
-        return truthIndex;
-      }
+      simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
 
     }; // ParticleInfo_t
 
@@ -175,12 +160,13 @@ namespace larg4 {
                                      ///  storeTrajectories is set to false, this list is ignored
                                      ///  and all additional trajectory points are not stored.
     std::map<int, int> fParentIDMap; ///< key is current track ID, value is parent ID
-    std::map<int, int> fTargetIDMap; ///< key is original track ID, value is ID to assign for downstream objs (e.g. SimEdeps)
-    int fCurrentTrackID;             ///< track ID of the current particle, set to eve ID
-                                     ///< for EM shower particles
-    mutable int fTrackIDOffset;      ///< offset added to track ids when running over
-                                     ///< multiple MCTruth objects.
-    bool fKeepEMShowerDaughters;     ///< whether to keep EM shower secondaries, tertiaries, etc
+    std::map<int, int>
+      fTargetIDMap; ///< key is original track ID, value is ID to assign for downstream objs (e.g. SimEdeps)
+    int fCurrentTrackID;         ///< track ID of the current particle, set to eve ID
+                                 ///< for EM shower particles
+    mutable int fTrackIDOffset;  ///< offset added to track ids when running over
+                                 ///< multiple MCTruth objects.
+    bool fKeepEMShowerDaughters; ///< whether to keep EM shower secondaries, tertiaries, etc
     std::vector<std::string> fNotStoredPhysics; ///< Physics processes that will not be stored
     bool fkeepOnlyPrimaryFullTraj; ///< Whether to store trajectories only for primaries and
                                    ///  their descendants with MCTruth process = "primary"
@@ -207,11 +193,11 @@ namespace larg4 {
     /// Map: not stored process and counter
     std::unordered_map<std::string, int> fNotStoredCounterUMap;
 
-    /// map <ParentID, set: list of track ids for which no MCParticle was created> 
-    std::map<int,std::set<int> > fdroppedTracksMap;
+    /// map <ParentID, set: list of track ids for which no MCParticle was created>
+    std::map<int, std::set<int>> fdroppedTracksMap;
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
-    std::unique_ptr<std::map<int,std::set<int> > > droppedCol_;
+    std::unique_ptr<std::map<int, std::set<int>>> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;
     art::ProductID pid_{art::ProductID::invalid()};
