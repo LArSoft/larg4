@@ -468,7 +468,6 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
       if (updateAuxDetHits_) {
         for (auto& hit : hitCollection) {
-	  std::cout << "Changing: " << hit.GetTrackID() << " to " << tmap[hit.GetTrackID()] << std::endl;
           hit.SetTrackID(tmap[hit.GetTrackID()]);
         }
       }
