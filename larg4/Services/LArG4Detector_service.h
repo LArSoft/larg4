@@ -77,7 +77,7 @@ namespace larg4 {
     bool
       updateSimEnergyDeposits_; // enable/disable change of TrackID  for Tracks where no MCParticle was created
     bool
-      updateAuxDetHits_;        // enable/disable change of TrackID  for Tracks where no MCParticle was created
+      updateAuxDetHits_; // enable/disable change of TrackID  for Tracks where no MCParticle was created
     std::vector<std::string>
       volumeNames_; // list of volume names for which step limits should be set
     std::vector<float>
