@@ -684,7 +684,7 @@ namespace larg4 {
     }
 
     partCol_ = std::make_unique<std::vector<simb::MCParticle>>();
-    droppedCol_ = std::make_unique<std::map<int, std::set<int>>>();
+    droppedCol_ = std::make_unique<sim::ParticleAncestryMap>();
     tpassn_ =
       std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
     // Set up the utility class for the "for_each" algorithm.  (We only
@@ -725,9 +725,7 @@ namespace larg4 {
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
         }
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
-        for (auto const& dropped : fdroppedTracksMap) {
-          droppedCol_->insert(dropped);
-        }
+	droppedCol_->SetMap(fdroppedTracksMap);
         ++nMCTruths;
       }
     }
