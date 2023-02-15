@@ -35,9 +35,9 @@
 // art extensions
 #include "lardataalg/MCDumpers/MCDumpers.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "lardataobj/Simulation/ParticleAncestryMap.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "nurandom/RandomUtils/NuRandomService.h"
-#include "lardataobj/Simulation/ParticleAncestryMap.h"
 // Geant4 includes
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4UIterminal.hh"

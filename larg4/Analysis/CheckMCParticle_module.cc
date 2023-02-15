@@ -15,8 +15,8 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileDirectory.h"
 #include "art_root_io/TFileService.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
 #include "lardataobj/Simulation/ParticleAncestryMap.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 
 // Root includes.
 #include "TDirectory.h"

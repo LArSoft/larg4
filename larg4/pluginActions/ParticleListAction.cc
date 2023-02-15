@@ -725,7 +725,7 @@ namespace larg4 {
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
         }
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
-	droppedCol_->SetMap(fdroppedTracksMap);
+        droppedCol_->SetMap(fdroppedTracksMap);
         ++nMCTruths;
       }
     }
