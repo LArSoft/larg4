@@ -50,11 +50,6 @@
 #include "Geant4/G4VProcess.hh"
 #include "Geant4/G4VUserPrimaryParticleInformation.hh"
 
-#include "Geant4/G4ProcessManager.hh"
-#include "Geant4/G4OpBoundaryProcess.hh"
-#include "Geant4/G4ProcessVector.hh"
-
-
 #include "range/v3/view.hpp"
 
 // STL includes
@@ -87,9 +82,6 @@ namespace larg4 {
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
     bool customNotStored = not fNotStoredPhysics.empty();
-	
-
-
     if (!fKeepEMShowerDaughters) {
       // -- Don't keep all processes
       if (!customNotStored) // -- Don't keep but haven't provided a list
@@ -334,8 +326,7 @@ namespace larg4 {
           }
         }
         if (notstore) {
-        
-	   // figure out the ultimate parentage of this particle
+          // figure out the ultimate parentage of this particle
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
           fCurrentTrackID = -1 * this->GetParentage(trackID);
@@ -358,18 +349,9 @@ namespace larg4 {
 
       // Check the energy of the particle.  If it falls below the energy
       // cut, don't add it to our list.
-      //
-      //
-      //  ----------- acastill ------------
-      //
-      // This is probably the place to drop Cernekov photons 
-      //
-      //
-      //
       G4double energy = track->GetKineticEnergy();
-      if (energy < fenergyCut && pdgCode != 0 ) {
-       
-	fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
+      if (energy < fenergyCut) {
+        fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
         // and set the current track id to be it's ultimate parent
@@ -428,9 +410,6 @@ namespace larg4 {
 
     fMCTPrimProcessKeepMap[trackID] = isFromMCTProcessPrimary;
 
-
-
-
     // -- determine whether full set of trajectorie points should be stored or only the start and end points
     fCurrentParticle.keepFullTrajectory =
       (!fstoreTrajectories) ?
@@ -447,12 +426,7 @@ namespace larg4 {
     fCurrentParticle.particle->SetPolarization(
       TVector3{polarization.x(), polarization.y(), polarization.z()});
     // Save the particle in the ParticleList.
-    if (track->GetProperTime() != 0)
-    {
-      return;
-    } 
     fParticleList.Add(fCurrentParticle.particle);
-
   }
 
   //----------------------------------------------------------------------------
@@ -465,7 +439,7 @@ namespace larg4 {
 
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = aTrack->GetStep()->GetPostStepPoint();
-     if (!postStepPoint->GetProcessDefinedStep()) {
+      if (!postStepPoint->GetProcessDefinedStep()) {
         // Now we get to do some awkward cleanup because the
         // fparticleList was augmented during the
         // preUserTrackingAction.  We cannot call 'Archive' because
@@ -526,10 +500,11 @@ namespace larg4 {
   void ParticleListActionService::userSteppingAction(const G4Step* step)
   {
     // N.B. G4 guarantees that following are non-null:
+    //  - step
+    //  - step->GetPostStepPoint()
     if (!fCurrentParticle.hasParticle() || !step->GetPostStepPoint()->GetProcessDefinedStep()) {
       return;
     }
-
     // Temporary fix for problem where  DeltaTime on the first step
     // of optical photon propagation is calculated incorrectly. -wforeman
     double const globalTime = step->GetTrack()->GetGlobalTime();
@@ -542,7 +517,7 @@ namespace larg4 {
       step->GetPostStepPoint()->SetGlobalTime(globalTime - step->GetDeltaTime() +
                                               step->GetStepLength() / velocity_G4);
     }
-   
+
     // For the most part, we just want to add the post-step
     // information to the particle's trajectory.  There's one
     // exception: In PreTrackingAction, the correct time information
