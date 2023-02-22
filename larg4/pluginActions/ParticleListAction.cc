@@ -427,10 +427,7 @@ namespace larg4 {
       TVector3{polarization.x(), polarization.y(), polarization.z()});
     // Save the particle in the ParticleList.
 
-    if (track->GetProperTime() != 0)	
-    {	
-      return;	
-    }
+    if (track->GetProperTime() != 0) { return; }
 
     fParticleList.Add(fCurrentParticle.particle);
   }
