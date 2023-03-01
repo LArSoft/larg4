@@ -350,7 +350,7 @@ namespace larg4 {
       // Check the energy of the particle.  If it falls below the energy
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
-      if (energy < fenergyCut) {
+      if (energy < fenergyCut && pdgCode != 0) {
         fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
@@ -426,6 +426,9 @@ namespace larg4 {
     fCurrentParticle.particle->SetPolarization(
       TVector3{polarization.x(), polarization.y(), polarization.z()});
     // Save the particle in the ParticleList.
+
+    if (track->GetProperTime() != 0) { return; }
+
     fParticleList.Add(fCurrentParticle.particle);
   }
 
