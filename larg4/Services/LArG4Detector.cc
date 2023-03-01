@@ -81,6 +81,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
   , gdmlFileName_{p.get<std::string>("gdmlFileName_", "")}
   , checkOverlaps_{p.get<bool>("CheckOverlaps", false)}
   , updateSimEnergyDeposits_{p.get<bool>("UpdateSimEnergyDeposits", true)}
+  , updateAuxDetHits_{p.get<bool>("UpdateAuxDetHits", true)}
   , volumeNames_{p.get<std::vector<std::string>>("volumeNames", {})}
   , stepLimits_{p.get<std::vector<float>>("stepLimits", {})}
   , inputVolumes_{size(volumeNames_)}
@@ -463,6 +464,13 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
     }
     else if (sd_name == "AuxDet") {
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);
+      sim::AuxDetHitCollection hitCollection = auxsd->GetHits();
+      std::map<int, int> tmap = particleListAction->GetTargetIDMap();
+      if (updateAuxDetHits_) {
+        for (auto& hit : hitCollection) {
+          hit.SetTrackID(tmap[hit.GetTrackID()]);
+        }
+      }
       e.put(make_product(auxsd->GetHits()), instanceName(volume_name));
     }
     else if (sd_name == "Calorimeter") {
