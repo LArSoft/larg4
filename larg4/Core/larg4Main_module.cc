@@ -163,7 +163,8 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   }
   // Set up the random number engine.
   // -- D.R.: Use the NuRandomService engine for additional control over the seed generation policy
-  (void)art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "G4Engine", p, "seed");
+  (void)art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(
+    createEngine(0, "G4Engine"), "G4Engine", p, "seed");
 
   // Handle the afterEvent setting
   if (afterEvent_ == "ui") { uiAtEndEvent_ = true; }
