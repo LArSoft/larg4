@@ -16,6 +16,7 @@
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "lardataobj/Simulation/ParticleAncestryMap.h"
 
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
@@ -99,7 +100,7 @@ namespace larg4 {
     {
       return std::move(partCol_);
     }
-    std::unique_ptr<std::map<int, std::set<int>>> DroppedTracksCollection()
+    std::unique_ptr<sim::ParticleAncestryMap> DroppedTracksCollection()
     {
       return std::move(droppedCol_);
     }
@@ -197,7 +198,7 @@ namespace larg4 {
     std::map<int, std::set<int>> fdroppedTracksMap;
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
-    std::unique_ptr<std::map<int, std::set<int>>> droppedCol_;
+    std::unique_ptr<sim::ParticleAncestryMap> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;
     art::ProductID pid_{art::ProductID::invalid()};

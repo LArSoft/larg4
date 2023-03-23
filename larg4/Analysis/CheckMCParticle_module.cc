@@ -15,6 +15,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art_root_io/TFileDirectory.h"
 #include "art_root_io/TFileService.h"
+#include "lardataobj/Simulation/ParticleAncestryMap.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 // Root includes.
@@ -57,14 +58,14 @@ void larg4::CheckMCParticle::analyze(const art::Event& event)
 {
 #if defined _verbose_
 
-  auto allDropped = event.getMany<std::map<int, std::set<int>>>();
+  auto allDropped = event.getMany<sim::ParticleAncestryMap>();
 
   for (auto const& maps : allDropped) {
-    for (auto const& element : *maps) {
-      std::cout << "Parent of dropped Tracks: " << element.first << std::endl;
-      std::set<int> droppedset = element.second;
-      std::cout << " droppedid size:  " << droppedset.size() << std::endl;
-      for (auto const& droppedid : droppedset) {
+    auto const& map = maps->GetMap();
+    for (auto const& [parent, daughters] : map) {
+      std::cout << "Parent of dropped Tracks: " << parent << std::endl;
+      std::cout << " droppedid size:  " << daughters.size() << std::endl;
+      for (auto const& droppedid : daughters) {
         std::cout << droppedid << " ";
       }
       std::cout << std::endl;
