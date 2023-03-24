@@ -35,6 +35,7 @@
 // art extensions
 #include "lardataalg/MCDumpers/MCDumpers.h"
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
+#include "lardataobj/Simulation/ParticleAncestryMap.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "nurandom/RandomUtils/NuRandomService.h"
 // Geant4 includes
@@ -136,7 +137,7 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
 {
-  produces<std::map<int, std::set<int>>>();
+  produces<sim::ParticleAncestryMap>();
   produces<std::vector<simb::MCParticle>>();
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
 

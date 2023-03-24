@@ -13,6 +13,7 @@ cet_build_plugin(CheckAuxDetHit art::EDAnalyzer
 
 cet_build_plugin(CheckMCParticle art::EDAnalyzer
   LIBRARIES PRIVATE
+  lardataobj::Simulation
   nusimdata::SimulationBase
   art_root_io::TFileService_service
   art_root_io::tfile_support
