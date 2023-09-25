@@ -17,6 +17,7 @@
 
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
 #include "lardataobj/Simulation/ParticleAncestryMap.h"
+#include "lardataobj/MCBase/MCParticleLite.h"
 
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
@@ -100,6 +101,10 @@ namespace larg4 {
     {
       return std::move(partCol_);
     }
+    std::unique_ptr<std::vector<sim::MCParticleLite>> DroppedParticleCollection()
+    {
+      return std::move(droppedPartCol_);
+    }
     std::unique_ptr<sim::ParticleAncestryMap> DroppedTracksCollection()
     {
       return std::move(droppedCol_);
@@ -140,8 +145,14 @@ namespace larg4 {
 
     }; // ParticleInfo_t
 
+    // Returns whether the particle was dropped
+    bool isDropped(simb::MCParticle const* p);
+
     // Yields the ParticleList accumulated during the current event.
     sim::ParticleList&& YieldList();
+
+    // Yields the (dropped) ParticleList accumulated during the current event.
+    sim::ParticleList&& YieldDroppedList();
 
     // this method will loop over the fParentIDMap to get the
     // parentage of the provided trackid
@@ -175,6 +186,9 @@ namespace larg4 {
     double fSparsifyMargin;        ///< set the sparsification margin
     bool fKeepTransportation;      ///< tell whether or not to keep the transportation process
     bool fKeepSecondToLast; ///< tell whether or not to force keeping the second to last point
+    bool fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+    std::unique_ptr<sim::ParticleList> fdroppedParticleList;   ///< The accumulated particle information for
+                                      ///< all (dropped) particles in the event.
 
     std::vector<art::Handle<std::vector<simb::MCTruth>>> const*
       fMCLists; ///< MCTruthCollection input lists
@@ -198,6 +212,8 @@ namespace larg4 {
     std::map<int, std::set<int>> fdroppedTracksMap;
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
+    /// This collection will hold the MCParticleLite objects created from dropped particles
+    std::unique_ptr<std::vector<sim::MCParticleLite>> droppedPartCol_;
     std::unique_ptr<sim::ParticleAncestryMap> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;

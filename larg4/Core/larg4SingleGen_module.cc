@@ -36,6 +36,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 //  nusimdata includes
+#include "lardataobj/MCBase/MCParticleLite.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 

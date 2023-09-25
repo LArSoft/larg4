@@ -6,6 +6,7 @@
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
+#include "lardataobj/MCBase/MCParticleLite.h"
 
 // Art includes
 #include "art/Framework/Core/EDProducer.h"
@@ -118,6 +119,8 @@ namespace larg4 {
 
     static bool initializeDetectors_;
     static std::atomic<int> processingRun_;
+
+    bool fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
   };
 }
 
@@ -136,10 +139,13 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , rmvlevel_(p.get<int>("rmvlevel", 0))
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
+  , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
 {
   produces<sim::ParticleAncestryMap>();
   produces<std::vector<simb::MCParticle>>();
+  if (fStoreDroppedMCParticles) { produces<std::vector<sim::MCParticleLite>>(); }
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
+
 
   // We need all of the services to run @produces@ on the data they will store. We do this
   // by retrieving the holder services.
@@ -278,6 +284,9 @@ void larg4::larg4Main::produce(art::Event& e)
   e.put(pla->ParticleCollection());
   e.put(pla->AssnsMCTruthToMCParticle());
   e.put(pla->DroppedTracksCollection());
+  if (fStoreDroppedMCParticles){ //Produce and place only if requested
+    e.put(pla->DroppedParticleCollection());
+  }
 }
 
 void larg4::larg4Main::endRun(art::Run& r)
