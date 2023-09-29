@@ -215,24 +215,16 @@ namespace larg4 {
   // the fParentIDMap
   int ParticleListActionService::GetParentage(int trackid) const//, int fromend
   {
-    //std::vector<int> parentid;
     int parentid = sim::NoParticleId;
 
     // search the fParentIDMap recursively until we have the parent id
     // of the first EM particle that led to this one
     auto itr = fParentIDMap.find(trackid);
     while (itr != fParentIDMap.end()) {
-      // set the parentid to the current parent ID, when the loop ends
-      // this id will be the first EM particle
-      //parentid.push_back( (*itr).second );
-      //itr = fParentIDMap.find(parentid.back());
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
 
-    //std::cout << "GetParentage track id=" << trackid << " return when size=" << parentid.size() << std::endl;
-    //if (parentid.size()>0) return parentid[std::max(size_t(0),parentid.size()-1-fromend)];
-    //return sim::NoParticleId;
     return parentid;
   }
 
@@ -253,8 +245,6 @@ namespace larg4 {
     fTargetIDMap[trackID] = fCurrentTrackID;
     // And the particle's parent (same offset as above):
     int parentID = track->GetParentID() + fTrackIDOffset;
-
-    //std::cout << "preUserTrackingAction track ID=" << trackID << " parent ID=" << parentID << std::endl;
 
     std::string process_name = "unknown";
     std::string mct_primary_process = "unknown";
@@ -323,7 +313,6 @@ namespace larg4 {
       // one of pair production, compton scattering, photoelectric effect
       // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
-      //std::cout << "not primary, fKeepEMShowerDaughters=" << fKeepEMShowerDaughters << std::endl;
       if (!fKeepEMShowerDaughters) {
         bool notstore = false;
         for (auto const& p : fNotStoredPhysics) {
@@ -339,7 +328,6 @@ namespace larg4 {
           }
         }
         if (notstore) {
-	  //std::cout << "dropping trackID=" << trackID << " with parentID=" << parentID << std::endl;
           // figure out the ultimate parentage of this particle
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
@@ -370,7 +358,6 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut && pdgCode != 0) {
-	//std::cout << "fail e cut" << std::endl;
         fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
         // do add the particle to the parent id map though
@@ -394,7 +381,7 @@ namespace larg4 {
         // do add the particle to the parent id map
         // just in case it makes a daughter that we have to track as well
         fParentIDMap[trackID] = parentID;
-        int pid = this->GetParentage(parentID);//,1
+        int pid = this->GetParentage(parentID);
 
         // if we still can't find the parent in the particle navigator,
         // we have to give up
@@ -403,8 +390,6 @@ namespace larg4 {
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
             << " track ID " << fCurrentTrackID << " in the hope that it will aid debugging.";
-	  //std::cout << "fMCTIndexMap.count(pid)=" << fMCTIndexMap.count(pid) << " pid=" << pid << std::endl;
-	  //std::cout << "fdroppedTracksMap[parentID]=" << fdroppedTracksMap[parentID].size() << " parentID=" << parentID << std::endl;
         }
         else
           parentID = pid;
@@ -412,8 +397,6 @@ namespace larg4 {
 
       // Once the parentID is secured, inherit the MCTruth Index
       // which should have been set already
-      ////std::cout << __FILE__ << " " << __LINE__ << std::endl;
-      //std::cout << "look for match in fMCTIndexMap for parentID=" << parentID << std::endl;
       if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
         primarymctIndex = it->second;
       }
@@ -421,7 +404,6 @@ namespace larg4 {
         throw art::Exception(art::errors::LogicError)
           << "Could not locate MCT Index for parent trackID of " << parentID;
       }
-      ////std::cout << __FILE__ << " " << __LINE__ << std::endl;
 
       // Inherit whether the parent is from a primary with MCTruth process_name == "primary"
       isFromMCTProcessPrimary = fMCTPrimProcessKeepMap[parentID];
@@ -436,7 +418,6 @@ namespace larg4 {
       new simb::MCParticle{trackID, pdgCode, process_name, parentID, mass};
     fCurrentParticle.truthIndex = primaryIndex;
 
-    //std::cout << "fill fMCTIndexMap with trackID=" << trackID << " primarymctIndex=" << primarymctIndex << std::endl;
     fMCTIndexMap[trackID] = primarymctIndex;
 
     fMCTPrimProcessKeepMap[trackID] = isFromMCTProcessPrimary;
@@ -463,7 +444,6 @@ namespace larg4 {
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.isInVolume = true;
 
-    //std::cout << "adding particle to list with id=" << fCurrentParticle.particle->TrackId() << " mother=" << fCurrentParticle.particle->Mother() << std::endl;
     fParticleList.Add(fCurrentParticle.particle);
   }
 
@@ -471,8 +451,6 @@ namespace larg4 {
   void ParticleListActionService::postUserTrackingAction(const G4Track* aTrack)
   {
     if (!fCurrentParticle.hasParticle()) return;
-
-    //std::cout << "postUserTrackingAction track ID=" << aTrack->GetTrackID() << " parent ID=" << aTrack->GetParentID() << std::endl;
 
     if (aTrack) {
       fCurrentParticle.particle->SetWeight(aTrack->GetWeight());
@@ -538,14 +516,12 @@ namespace larg4 {
       // do add the particle to the parent id map though
       // and set the current track id to be it's ultimate parent
       fParentIDMap[trackID] = parentID;
-      //std::cout << "erased key=" << key_to_erase << " tid=" << trackID << " pid=" << parentID << " fParentIDMap[trackID]=" << fParentIDMap[trackID] << " fdroppedTracksMap[parentID]=" << fdroppedTracksMap[parentID].size() << " parentage=" << this->GetParentage(trackID) << std::endl;
       fCurrentTrackID = -1 * this->GetParentage(trackID);
       fTargetIDMap[trackID] = fCurrentTrackID;
     }
 
     // store truth record pointer, only if it is available
     if (fCurrentParticle.isPrimary()) {
-      //std::cout << "adding primary with id=" << fCurrentParticle.particle->TrackId() << std::endl;
       fPrimaryTruthMap[fCurrentParticle.particle->TrackId()] = fCurrentParticle.truthInfoIndex();
     }
 
@@ -772,7 +748,6 @@ namespace larg4 {
           assert(p->NumberTrajectoryPoints() != 0ull);
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
-	  std::cout << "truthInfo.hasGeneratedParticleIndex()=" << truthInfo.hasGeneratedParticleIndex() << " p->Mother()=" << p->Mother() << " p->TrackId()=" << p->TrackId() << std::endl;
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
 	     MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
             // this means it's primary but with no information; logic error!!

@@ -119,7 +119,6 @@ namespace larg4 {
     /// Grabs a particle filter
     void ParticleFilter()
     {
-      std::cout << "XXXXXXX ParticleFilter" << std::endl;
       // if we don't have favourite volumes, don't even bother creating a filter
       std::set<std::string> vol_names(fKeepParticlesInVolumes.begin(),
 				      fKeepParticlesInVolumes.end());
@@ -155,7 +154,6 @@ namespace larg4 {
 	pRot->GetAngles(phi, theta, psi);
 	auto pRot2 = new TGeoRotation();
 	pRot2->SetAngles(phi, theta, psi);
-	std::cout << "XXXXXXX volume phi=" << phi << " theta=" << theta << " psi=" << psi << std::endl;
 
 	auto pTransf = new TGeoCombiTrans(*pTransl2, *pRot2);
 	GeoVolumePairs.emplace_back(node_paths[iVolume].back()->GetVolume(), pTransf);
@@ -198,7 +196,7 @@ namespace larg4 {
 
     // this method will loop over the fParentIDMap to get the
     // parentage of the provided trackid
-    int GetParentage(int trackid) const;//, int fromend = 0
+    int GetParentage(int trackid) const;
 
     G4double fenergyCut;             ///< The minimum energy for a particle to
                                      ///< be included in the list.
