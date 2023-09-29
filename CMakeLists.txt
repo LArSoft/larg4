@@ -19,6 +19,7 @@ cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 find_package(larcore REQUIRED EXPORT)
+find_package(larcorealg REQUIRED EXPORT)
 find_package(lardataalg REQUIRED EXPORT)
 find_package(lardataobj REQUIRED EXPORT)
 
