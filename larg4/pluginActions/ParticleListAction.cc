@@ -143,8 +143,6 @@ namespace larg4 {
     fNotStoredCounterUMap.clear();
     fdroppedTracksMap.clear();
     //
-    // need to add this to the map as well, as we may drop particles on the way
-    //fMCTIndexMap[0] = 0;
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -213,7 +211,7 @@ namespace larg4 {
   // trackid
   // assume that the current track id has already been added to
   // the fParentIDMap
-  int ParticleListActionService::GetParentage(int trackid) const//, int fromend
+  int ParticleListActionService::GetParentage(int trackid) const
   {
     int parentid = sim::NoParticleId;
 
@@ -221,6 +219,8 @@ namespace larg4 {
     // of the first EM particle that led to this one
     auto itr = fParentIDMap.find(trackid);
     while (itr != fParentIDMap.end()) {
+      // set the parentid to the current parent ID, when the loop ends
+      // this id will be the first EM particle
       parentid = (*itr).second;
       itr = fParentIDMap.find(parentid);
     }
@@ -345,11 +345,10 @@ namespace larg4 {
           // adding trajectory points to it
           fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
           fCurrentParticle.clear();
-	  //
+	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
 	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
 	    fMCTIndexMap[trackID] = it->second;
 	  }
-	  //
           return;
         } // end if process matches an undesired process
       }   // end if keeping EM shower daughters
@@ -365,11 +364,10 @@ namespace larg4 {
         fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
         fTargetIDMap[trackID] = fCurrentTrackID;
-	//
+	// keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
 	if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
 	  fMCTIndexMap[trackID] = it->second;
 	}
-	//
         return;
       }
 
