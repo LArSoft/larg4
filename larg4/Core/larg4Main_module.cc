@@ -6,7 +6,6 @@
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "lardataobj/MCBase/MCParticleLite.h"
 
 // Art includes
 #include "art/Framework/Core/EDProducer.h"
@@ -120,7 +119,8 @@ namespace larg4 {
     static bool initializeDetectors_;
     static std::atomic<int> processingRun_;
 
-    bool fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+    bool fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticle` list of dropped particles
+    std::string fDroppedParticleInstanceName; ///< Name of the dropped particle collection
   };
 }
 
@@ -140,10 +140,11 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
   , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
+  , fDroppedParticleInstanceName(p.get<std::string>("DroppedParticleInstanceName", "droppedMCParticles"))
 {
   produces<sim::ParticleAncestryMap>();
   produces<std::vector<simb::MCParticle>>();
-  if (fStoreDroppedMCParticles) { produces<std::vector<sim::MCParticleLite>>(); }
+  if (fStoreDroppedMCParticles) { produces<std::vector<simb::MCParticle>>(fDroppedParticleInstanceName); } //Assign product instance name
   produces<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
 
 
@@ -285,7 +286,7 @@ void larg4::larg4Main::produce(art::Event& e)
   e.put(pla->AssnsMCTruthToMCParticle());
   e.put(pla->DroppedTracksCollection());
   if (fStoreDroppedMCParticles){ //Produce and place only if requested
-    e.put(pla->DroppedParticleCollection());
+    e.put(pla->DroppedParticleCollection(),fDroppedParticleInstanceName);
   }
 }
 

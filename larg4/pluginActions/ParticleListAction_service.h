@@ -17,7 +17,6 @@
 
 #include "lardataobj/Simulation/GeneratedParticleInfo.h"
 #include "lardataobj/Simulation/ParticleAncestryMap.h"
-#include "lardataobj/MCBase/MCParticleLite.h"
 
 #include "artg4tk/actionBase/EventActionBase.hh"
 #include "artg4tk/actionBase/SteppingActionBase.hh"
@@ -101,7 +100,7 @@ namespace larg4 {
     {
       return std::move(partCol_);
     }
-    std::unique_ptr<std::vector<sim::MCParticleLite>> DroppedParticleCollection()
+    std::unique_ptr<std::vector<simb::MCParticle>> DroppedParticleCollection()
     {
       return std::move(droppedPartCol_);
     }
@@ -213,7 +212,7 @@ namespace larg4 {
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
     /// This collection will hold the MCParticleLite objects created from dropped particles
-    std::unique_ptr<std::vector<sim::MCParticleLite>> droppedPartCol_;
+    std::unique_ptr<std::vector<simb::MCParticle>> droppedPartCol_;
     std::unique_ptr<sim::ParticleAncestryMap> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;

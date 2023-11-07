@@ -750,7 +750,7 @@ namespace larg4 {
 
     partCol_ = std::make_unique<std::vector<simb::MCParticle>>();
     droppedCol_ = std::make_unique<sim::ParticleAncestryMap>();
-    droppedPartCol_ = std::make_unique<std::vector<sim::MCParticleLite>>();
+    droppedPartCol_ = std::make_unique<std::vector<simb::MCParticle>>();
     tpassn_ =
       std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
     // Set up the utility class for the "for_each" algorithm.  (We only
@@ -803,10 +803,7 @@ namespace larg4 {
             if (isDropped(p)) continue; //Is it dropped?? 
             if (p->StatusCode() != 1) continue; //Is it a primary particle??
 
-            sim::MCParticleLite mini_mcp(*p);
-            mini_mcp.Origin(mct->Origin());
-
-            droppedPartCol_->push_back(std::move(mini_mcp));
+            droppedPartCol_->push_back(std::move(*p));
           } // for(droppedParticleList)
         }// if (fStoreDroppedMCParticles && droppedPartCol_)
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
