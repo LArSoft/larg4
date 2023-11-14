@@ -78,7 +78,8 @@ namespace larg4 {
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
     , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
-    , fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() : nullptr)
+    , fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() :
+                                                      nullptr)
 
   {
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
@@ -382,7 +383,7 @@ namespace larg4 {
         // if we still can't find the parent in the particle navigator,
         // we have to give up
         if (!fParticleList.KnownParticle(pid) &&
-          !(fdroppedParticleList && fdroppedParticleList->KnownParticle(parentID))) {
+            !(fdroppedParticleList && fdroppedParticleList->KnownParticle(parentID))) {
           MF_LOG_WARNING("ParticleListActionService")
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
@@ -467,9 +468,11 @@ namespace larg4 {
         // type.  We have to entirely erase the entry.
         auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
         fParticleList.erase(key_to_erase);
-        if (!fCurrentParticle.keepFullTrajectory && fdroppedParticleList){ 
+        if (!fCurrentParticle.keepFullTrajectory && fdroppedParticleList) {
           //fdroppedParticleList->erase(key_to_erase); // also erase from dropped list
-          fdroppedParticleList->Archive(fCurrentParticle.particle); //Archive in case LArG4 is configured to keep minimal version
+          fdroppedParticleList->Archive(
+            fCurrentParticle
+              .particle); //Archive in case LArG4 is configured to keep minimal version
         }
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
@@ -768,7 +771,7 @@ namespace larg4 {
     sim::ParticleList particleList = YieldList();
     // Request a list of dropped particles
     sim::ParticleList droppedParticleList;
-    if (fdroppedParticleList) {droppedParticleList = YieldDroppedList();}    
+    if (fdroppedParticleList) { droppedParticleList = YieldDroppedList(); }
     for (size_t mcl = 0; mcl < fMCLists->size(); ++mcl) {
       auto const& mclistHandle = (*fMCLists)[mcl];
       MF_LOG_INFO("endOfEventAction") << "mclistHandle Size: " << mclistHandle->size();
@@ -797,15 +800,15 @@ namespace larg4 {
           art::Ptr<simb::MCParticle> mcp_ptr{pid_, partCol_->size() - 1, productGetter_};
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
 
-        }// endfor p in particleList
+        } // endfor p in particleList
         if (fStoreDroppedMCParticles && droppedPartCol_) {
           for (simb::MCParticle* p : droppedParticleList | ranges::views::values) {
-            if (isDropped(p)) continue; //Is it dropped?? 
+            if (isDropped(p)) continue;         //Is it dropped??
             if (p->StatusCode() != 1) continue; //Is it a primary particle??
 
             droppedPartCol_->push_back(std::move(*p));
           } // for(droppedParticleList)
-        }// if (fStoreDroppedMCParticles && droppedPartCol_)
+        }   // if (fStoreDroppedMCParticles && droppedPartCol_)
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
         droppedCol_->SetMap(fdroppedTracksMap);
         ++nMCTruths;

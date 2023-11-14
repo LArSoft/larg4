@@ -185,9 +185,11 @@ namespace larg4 {
     double fSparsifyMargin;        ///< set the sparsification margin
     bool fKeepTransportation;      ///< tell whether or not to keep the transportation process
     bool fKeepSecondToLast; ///< tell whether or not to force keeping the second to last point
-    bool fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
-    std::unique_ptr<sim::ParticleList> fdroppedParticleList;   ///< The accumulated particle information for
-                                      ///< all (dropped) particles in the event.
+    bool
+      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+    std::unique_ptr<sim::ParticleList>
+      fdroppedParticleList; ///< The accumulated particle information for
+                            ///< all (dropped) particles in the event.
 
     std::vector<art::Handle<std::vector<simb::MCTruth>>> const*
       fMCLists; ///< MCTruthCollection input lists
