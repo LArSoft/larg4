@@ -28,8 +28,8 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
 
-#include "larcorealg/CoreUtils/ParticleFilters.h"
 #include "larcore/Geometry/Geometry.h"
+#include "larcorealg/CoreUtils/ParticleFilters.h"
 
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
@@ -121,7 +121,7 @@ namespace larg4 {
     {
       // if we don't have favourite volumes, don't even bother creating a filter
       std::set<std::string> vol_names(fKeepParticlesInVolumes.begin(),
-				      fKeepParticlesInVolumes.end());
+                                      fKeepParticlesInVolumes.end());
 
       if (empty(vol_names)) fFilter = {};
 
@@ -136,27 +136,28 @@ namespace larg4 {
       //for each interesting volume, follow the node path and collect
       //total rotations and translations
       for (size_t iVolume = 0; iVolume < node_paths.size(); ++iVolume) {
-	std::vector<TGeoNode const*> path = node_paths[iVolume];
+        std::vector<TGeoNode const*> path = node_paths[iVolume];
 
-	auto pTransl = new TGeoTranslation(0., 0., 0.);
-	auto pRot = new TGeoRotation();
-	for (TGeoNode const* node : path) {
-	  TGeoTranslation thistranslate(*node->GetMatrix());
-	  TGeoRotation thisrotate(*node->GetMatrix());
-	  pTransl->Add(&thistranslate);
-	  *pRot = *pRot * thisrotate;
-	}
+        auto pTransl = new TGeoTranslation(0., 0., 0.);
+        auto pRot = new TGeoRotation();
+        for (TGeoNode const* node : path) {
+          TGeoTranslation thistranslate(*node->GetMatrix());
+          TGeoRotation thisrotate(*node->GetMatrix());
+          pTransl->Add(&thistranslate);
+          *pRot = *pRot * thisrotate;
+        }
 
-	// for some reason, pRot and pTransl don't have tr and rot bits set
-	// correctly make new translations and rotations so bits are set correctly
-	auto pTransl2 = new TGeoTranslation(pTransl->GetTranslation()[0], pTransl->GetTranslation()[1], pTransl->GetTranslation()[2]);
-	double phi = 0., theta = 0., psi = 0.;
-	pRot->GetAngles(phi, theta, psi);
-	auto pRot2 = new TGeoRotation();
-	pRot2->SetAngles(phi, theta, psi);
+        // for some reason, pRot and pTransl don't have tr and rot bits set
+        // correctly make new translations and rotations so bits are set correctly
+        auto pTransl2 = new TGeoTranslation(
+          pTransl->GetTranslation()[0], pTransl->GetTranslation()[1], pTransl->GetTranslation()[2]);
+        double phi = 0., theta = 0., psi = 0.;
+        pRot->GetAngles(phi, theta, psi);
+        auto pRot2 = new TGeoRotation();
+        pRot2->SetAngles(phi, theta, psi);
 
-	auto pTransf = new TGeoCombiTrans(*pTransl2, *pRot2);
-	GeoVolumePairs.emplace_back(node_paths[iVolume].back()->GetVolume(), pTransf);
+        auto pTransf = new TGeoCombiTrans(*pTransl2, *pRot2);
+        GeoVolumePairs.emplace_back(node_paths[iVolume].back()->GetVolume(), pTransf);
       }
 
       fFilter = std::make_unique<util::PositionInVolumeFilter>(std::move(GeoVolumePairs));
@@ -226,7 +227,8 @@ namespace larg4 {
     double fSparsifyMargin;        ///< set the sparsification margin
     bool fKeepTransportation;      ///< tell whether or not to keep the transportation process
     bool fKeepSecondToLast; ///< tell whether or not to force keeping the second to last point
-    std::vector<std::string> fKeepParticlesInVolumes;///<Only write particles that have trajectories through these volumes
+    std::vector<std::string>
+      fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
 
     std::vector<art::Handle<std::vector<simb::MCTruth>>> const*
       fMCLists; ///< MCTruthCollection input lists

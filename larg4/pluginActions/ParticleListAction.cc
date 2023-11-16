@@ -345,10 +345,10 @@ namespace larg4 {
           // adding trajectory points to it
           fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
           fCurrentParticle.clear();
-	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
-	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
-	    fMCTIndexMap[trackID] = it->second;
-	  }
+          // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+          if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+            fMCTIndexMap[trackID] = it->second;
+          }
           return;
         } // end if process matches an undesired process
       }   // end if keeping EM shower daughters
@@ -364,10 +364,10 @@ namespace larg4 {
         fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
         fTargetIDMap[trackID] = fCurrentTrackID;
-	// keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
-	if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
-	  fMCTIndexMap[trackID] = it->second;
-	}
+        // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+        if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+          fMCTIndexMap[trackID] = it->second;
+        }
         return;
       }
 
@@ -375,7 +375,7 @@ namespace larg4 {
       // if not, then see if it is possible to walk up the fParentIDMap to find the
       // ultimate parent of this particle.  Use that ID as the parent ID for this
       // particle
-      if (!fParticleList.KnownParticle(parentID) && fMCTIndexMap.count(parentID)==0) {
+      if (!fParticleList.KnownParticle(parentID) && fMCTIndexMap.count(parentID) == 0) {
         // do add the particle to the parent id map
         // just in case it makes a daughter that we have to track as well
         fParentIDMap[trackID] = parentID;
@@ -383,7 +383,7 @@ namespace larg4 {
 
         // if we still can't find the parent in the particle navigator,
         // we have to give up
-        if (!fParticleList.KnownParticle(pid) && fMCTIndexMap.count(pid)==0) {
+        if (!fParticleList.KnownParticle(pid) && fMCTIndexMap.count(pid) == 0) {
           MF_LOG_WARNING("ParticleListActionService")
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
@@ -747,7 +747,7 @@ namespace larg4 {
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
-	     MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
+            MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
             // this means it's primary but with no information; logic error!!
             throw art::Exception(art::errors::LogicError)
               << "Failed to match primary particle:\n"
