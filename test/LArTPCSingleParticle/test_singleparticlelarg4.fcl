@@ -132,6 +132,17 @@ ParticleListAction: {service_type: "ParticleListActionService"
                              # of the end of the track (the final step is defined to have 0 kinetic energy)
                              # --- This forces that true penultimate point to be saved, thus preserving the info
 }
+
+Geometry: {
+  SurfaceY:         690                  # in cm, vertical distance to the surface
+  Name:             "LArTPCdetector"
+  GDML:             "LArTPCdetector.gdml"
+  ROOT:             "LArTPCdetector.gdml"
+  DisableWiresInG4:  true
+  SortingParameters: {}
+ }
+ExptGeoInterfaceHelper: { service_provider : StandardGeometryHelper }
+GeometryConfigurationWriter: {}
 }
 
 outputs: {
