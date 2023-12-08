@@ -89,7 +89,9 @@ namespace larg4 {
                             aStep->GetPreStepPoint()->GetGlobalTime() / CLHEP::ns,
                             aStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::ns,
                             aStep->GetTrack()->GetTrackID(),
-                            aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding());
+                            aStep->GetTrack()->GetParticleDefinition()->GetPDGEncoding(),
+                            aStep->GetTrack()->GetTrackID() //original track id
+                            );
     hitCollection.push_back(newHit);
     return true;
   } // end ProcessHits
