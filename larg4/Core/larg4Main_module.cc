@@ -268,6 +268,7 @@ void larg4::larg4Main::produce(art::Event& e)
   art::ServiceHandle<larg4::MCTruthEventActionService>()->setInputCollections(mclists);
 
   art::ServiceHandle<larg4::ParticleListActionService> pla;
+  pla->ParticleFilter();
   pla->setInputCollections(mclists);
   auto const pid = e.getProductID<std::vector<simb::MCParticle>>();
   pla->setPtrInfo(pid, e.productGetter(pid));

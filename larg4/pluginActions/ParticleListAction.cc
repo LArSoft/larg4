@@ -77,6 +77,7 @@ namespace larg4 {
     , fSparsifyMargin(p.get<double>("SparsifyMargin", 0.015))
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
+    , fKeepParticlesInVolumes(p.get<std::vector<std::string>>("KeepParticlesInVolumes", {}))
   {
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
@@ -141,6 +142,7 @@ namespace larg4 {
     fMCTIndexToGeneratorMap.clear();
     fNotStoredCounterUMap.clear();
     fdroppedTracksMap.clear();
+    //
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -343,6 +345,10 @@ namespace larg4 {
           // adding trajectory points to it
           fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
           fCurrentParticle.clear();
+	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+	    fMCTIndexMap[trackID] = it->second;
+	  }
           return;
         } // end if process matches an undesired process
       }   // end if keeping EM shower daughters
@@ -358,6 +364,10 @@ namespace larg4 {
         fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
         fTargetIDMap[trackID] = fCurrentTrackID;
+	// keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+	if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+	  fMCTIndexMap[trackID] = it->second;
+	}
         return;
       }
 
@@ -365,7 +375,7 @@ namespace larg4 {
       // if not, then see if it is possible to walk up the fParentIDMap to find the
       // ultimate parent of this particle.  Use that ID as the parent ID for this
       // particle
-      if (!fParticleList.KnownParticle(parentID)) {
+      if (!fParticleList.KnownParticle(parentID) && fMCTIndexMap.count(parentID)==0) {
         // do add the particle to the parent id map
         // just in case it makes a daughter that we have to track as well
         fParentIDMap[trackID] = parentID;
@@ -373,7 +383,7 @@ namespace larg4 {
 
         // if we still can't find the parent in the particle navigator,
         // we have to give up
-        if (!fParticleList.KnownParticle(pid)) {
+        if (!fParticleList.KnownParticle(pid) && fMCTIndexMap.count(pid)==0) {
           MF_LOG_WARNING("ParticleListActionService")
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
@@ -428,6 +438,9 @@ namespace larg4 {
     // Save the particle in the ParticleList.
 
     if (track->GetProperTime() != 0) { return; }
+
+    // if we are not filtering, we have a decision already
+    if (!fFilter) fCurrentParticle.isInVolume = true;
 
     fParticleList.Add(fCurrentParticle.particle);
   }
@@ -488,6 +501,21 @@ namespace larg4 {
       else if (fSparsifyTrajectories) {
         fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin, fKeepSecondToLast);
       }
+    }
+
+    if (!fCurrentParticle.isInVolume) {
+      auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
+      fParticleList.erase(key_to_erase);
+      //
+      int const trackID = aTrack->GetTrackID() + fTrackIDOffset;
+      int parentID = aTrack->GetParentID() + fTrackIDOffset;
+      fdroppedTracksMap[parentID].insert(trackID);
+      fCurrentParticle.clear();
+      // do add the particle to the parent id map though
+      // and set the current track id to be it's ultimate parent
+      fParentIDMap[trackID] = parentID;
+      fCurrentTrackID = -1 * this->GetParentage(trackID);
+      fTargetIDMap[trackID] = fCurrentTrackID;
     }
 
     // store truth record pointer, only if it is available
@@ -670,6 +698,9 @@ namespace larg4 {
   {
     // Add the first point in the trajectory.
     fCurrentParticle.particle->AddTrajectoryPoint(pos, mom, process, fKeepTransportation);
+
+    // also see if we can decide to keep the particle
+    if (!fCurrentParticle.isInVolume) fCurrentParticle.isInVolume = fFilter->mustKeep(pos);
   }
 
   // Called at the end of each event. Call detectors to convert hits for the
@@ -716,7 +747,7 @@ namespace larg4 {
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
-            MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
+	     MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
             // this means it's primary but with no information; logic error!!
             throw art::Exception(art::errors::LogicError)
               << "Failed to match primary particle:\n"
