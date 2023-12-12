@@ -358,6 +358,11 @@ namespace larg4 {
             fCurrentParticle.clear();
             return;
           }
+	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+	    fMCTIndexMap[trackID] = it->second;
+	  }
+          return;
         } // end if process matches an undesired process
       }   // end if not keeping EM shower daughters
 
@@ -457,7 +462,6 @@ namespace larg4 {
       return;
     }
     // Save the particle in the ParticleList.
-
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.isInVolume = true;
 
@@ -823,7 +827,7 @@ namespace larg4 {
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
-            MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
+	     MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
             // this means it's primary but with no information; logic error!!
             throw art::Exception(art::errors::LogicError)
               << "Failed to match primary particle:\n"
