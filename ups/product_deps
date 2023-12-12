@@ -87,7 +87,7 @@
 #>  define_pythonpath
 ####################################
 parent		larg4
-defaultqual	e20
+defaultqual	e26
 ####################################
 
 ####################################
@@ -249,9 +249,9 @@ gdmldir	product_dir	gdml
 ####################################
 product		version		qual	flags		<table_format=2>
 artg4tk		v11_00_01	-
-larevt		v09_09_04	-
-nug4		v1_15_01	-
-nurandom	v1_10_01	-
+larevt		v09_09_08	-
+nug4		v1_15_02	-
+nurandom	v1_10_03	-
 cetmodules	v3_20_00	-	only_for_build
 end_product_list
 ####################################
@@ -310,12 +310,8 @@ end_product_list
 qualifier	artg4tk		larevt		nug4		nurandom
 c14:debug	c14:debug	c14:debug	c14:debug	c14:debug
 c14:prof	c14:prof	c14:prof	c14:prof	c14:prof
-c7:debug	c7:debug	c7:debug	c7:debug	c7:debug
-c7:prof		c7:prof		c7:prof		c7:prof		c7:prof
 e26:debug	e26:debug	e26:debug	e26:debug	e26:debug
 e26:prof	e26:prof	e26:prof	e26:prof	e26:prof
-e20:debug	e20:debug	e20:debug	e20:debug	e20:debug
-e20:prof	e20:prof	e20:prof	e20:prof	e20:prof
 end_qualifier_list
 ####################################
 

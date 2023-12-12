@@ -77,6 +77,9 @@ namespace larg4 {
     , fSparsifyMargin(p.get<double>("SparsifyMargin", 0.015))
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
+    , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
+    , fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() :
+                                                      nullptr)
     , fKeepParticlesInVolumes(p.get<std::vector<std::string>>("KeepParticlesInVolumes", {}))
   {
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
@@ -123,7 +126,10 @@ namespace larg4 {
     if (fSparsifyTrajectories)
       mf::LogInfo("ParticleListActionService")
         << "Trajectory sparsification enabled with SparsifyMargin : " << fSparsifyMargin << "\n";
-  }
+    // Specify dropped particle list
+    // fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() :
+    //                                                  nullptr);
+  } // end constructor
 
   //----------------------------------------------------------------------------
   // Begin the event
@@ -142,7 +148,7 @@ namespace larg4 {
     fMCTIndexToGeneratorMap.clear();
     fNotStoredCounterUMap.clear();
     fdroppedTracksMap.clear();
-    //
+    if (fdroppedParticleList) fdroppedParticleList->clear();
     // -- D.R. If a custom list of keepGenTrajectories is provided, use it, otherwise
     //    keep or drop decision made based storeTrajectories parameter. This preserves
     //    the behavior of the storeTrajectories fhicl param
@@ -249,6 +255,7 @@ namespace larg4 {
     std::string process_name = "unknown";
     std::string mct_primary_process = "unknown";
     bool isFromMCTProcessPrimary = false;
+    bool notstore = false;
 
     // Is there an MCTruth object associated with this G4Track?  We
     // have to go up a "chain" of information to find out:
@@ -314,7 +321,6 @@ namespace larg4 {
       // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
       if (!fKeepEMShowerDaughters) {
-        bool notstore = false;
         for (auto const& p : fNotStoredPhysics) {
           if (process_name.find(p) != std::string::npos) {
             notstore = true;
@@ -344,14 +350,21 @@ namespace larg4 {
           // clear current particle as we are not stepping this particle and
           // adding trajectory points to it
           fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
-          fCurrentParticle.clear();
+          // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+          if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+            fMCTIndexMap[trackID] = it->second;
+          }
+          if (!fStoreDroppedMCParticles) { //Only clear if not storing dropped particles
+            fCurrentParticle.clear();
+            return;
+          }
 	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
 	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
 	    fMCTIndexMap[trackID] = it->second;
 	  }
           return;
         } // end if process matches an undesired process
-      }   // end if keeping EM shower daughters
+      }   // end if not keeping EM shower daughters
 
       // Check the energy of the particle.  If it falls below the energy
       // cut, don't add it to our list.
@@ -364,10 +377,10 @@ namespace larg4 {
         fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
         fTargetIDMap[trackID] = fCurrentTrackID;
-	// keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
-	if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
-	  fMCTIndexMap[trackID] = it->second;
-	}
+        // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+        if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+          fMCTIndexMap[trackID] = it->second;
+        }
         return;
       }
 
@@ -375,7 +388,9 @@ namespace larg4 {
       // if not, then see if it is possible to walk up the fParentIDMap to find the
       // ultimate parent of this particle.  Use that ID as the parent ID for this
       // particle
-      if (!fParticleList.KnownParticle(parentID) && fMCTIndexMap.count(parentID)==0) {
+      if (!fParticleList.KnownParticle(parentID) &&
+          (fMCTIndexMap.count(parentID) == 0 ||
+           !(fdroppedParticleList && fdroppedParticleList->KnownParticle(parentID)))) {
         // do add the particle to the parent id map
         // just in case it makes a daughter that we have to track as well
         fParentIDMap[trackID] = parentID;
@@ -383,7 +398,9 @@ namespace larg4 {
 
         // if we still can't find the parent in the particle navigator,
         // we have to give up
-        if (!fParticleList.KnownParticle(pid) && fMCTIndexMap.count(pid)==0) {
+        if (!fParticleList.KnownParticle(pid) &&
+            (fMCTIndexMap.count(pid) == 0 ||
+             !(fdroppedParticleList && fdroppedParticleList->KnownParticle(parentID)))) {
           MF_LOG_WARNING("ParticleListActionService")
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
@@ -435,10 +452,16 @@ namespace larg4 {
     const G4ThreeVector& polarization = track->GetPolarization();
     fCurrentParticle.particle->SetPolarization(
       TVector3{polarization.x(), polarization.y(), polarization.z()});
-    // Save the particle in the ParticleList.
 
     if (track->GetProperTime() != 0) { return; }
 
+    // if KeepEMShowerDaughters = False and we decided to drop this particle,
+    // record it before throwing it away.
+    if (notstore) { // this bool checks if particle is eliminated by NotStoredPhysics
+      if (fdroppedParticleList) fdroppedParticleList->Add(fCurrentParticle.particle);
+      return;
+    }
+    // Save the particle in the ParticleList.
     // if we are not filtering, we have a decision already
     if (!fFilter) fCurrentParticle.isInVolume = true;
 
@@ -457,7 +480,7 @@ namespace larg4 {
       const G4StepPoint* postStepPoint = aTrack->GetStep()->GetPostStepPoint();
       if (!postStepPoint->GetProcessDefinedStep()) {
         // Now we get to do some awkward cleanup because the
-        // fparticleList was augmented during the
+        // fParticleList was augmented during the
         // preUserTrackingAction.  We cannot call 'Archive' because
         // that only sets the mapped type of the entry to
         // nullptr...which is really bad whenever we iterate through
@@ -465,6 +488,12 @@ namespace larg4 {
         // type.  We have to entirely erase the entry.
         auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
         fParticleList.erase(key_to_erase);
+        if (!fCurrentParticle.keepFullTrajectory && fdroppedParticleList) {
+          //fdroppedParticleList->erase(key_to_erase); // also erase from dropped list
+          fdroppedParticleList->Archive(
+            fCurrentParticle
+              .particle); //Archive in case LArG4 is configured to keep minimal version
+        }
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
         return;
@@ -681,6 +710,13 @@ namespace larg4 {
     for (auto pn = fParticleList.begin(); pn != fParticleList.end(); pn++)
       if ((*pn).first > highestID) highestID = (*pn).first;
 
+    // If we have stored dropped particles,
+    // include them in the offset.
+    if (fdroppedParticleList) {
+      for (auto pn = fdroppedParticleList->begin(); pn != fdroppedParticleList->end(); pn++)
+        if ((*pn).first > highestID) highestID = (*pn).first;
+    }
+
     //Only change the fTrackIDOffset if there is in fact a particle to add to the event
     if ((fParticleList.size()) != 0) {
       fTrackIDOffset = highestID + 1;
@@ -690,7 +726,43 @@ namespace larg4 {
 
     return std::move(fParticleList);
   } // ParticleList&& ParticleListActionService::YieldList()
+  //----------------------------------------------------------------------------
+  // Yields the (dropped) ParticleList accumulated during the current event.
+  sim::ParticleList&& ParticleListActionService::YieldDroppedList()
+  {
+    if (!fdroppedParticleList) {
+      throw cet::exception("ParticleListAction")
+        << "ParticleListAction::YieldDroppedList(): dropped particle list not build by user "
+           "request.\n";
+    }
+    // check if the ParticleNavigator has entries, and if
+    // so grab the highest track id value from it to
+    // add to the fTrackIDOffset
+    int highestID = 0;
+    for (auto pn = fParticleList.begin(); pn != fParticleList.end(); pn++)
+      if ((*pn).first > highestID) highestID = (*pn).first;
 
+    // If we have stored dropped particles,
+    // include them in the offset.
+    for (auto pn = fdroppedParticleList->begin(); pn != fdroppedParticleList->end(); pn++)
+      if ((*pn).first > highestID) highestID = (*pn).first;
+
+    //Only change the fTrackIDOffset if there is in fact a particle to add to the event
+    if ((fParticleList.size()) != 0) {
+      fTrackIDOffset = highestID + 1;
+      mf::LogDebug("YieldList:fTrackIDOffset")
+        << "highestID = " << highestID << "\nfTrackIDOffset= " << fTrackIDOffset;
+    }
+
+    return std::move(*fdroppedParticleList);
+  } // ParticleList&& ParticleListAction::YieldDroppedList()
+  //----------------------------------------------------------------------------
+  // Dropped particle test
+
+  bool ParticleListActionService::isDropped(simb::MCParticle const* p)
+  {
+    return !p || p->Trajectory().empty();
+  } // ParticleListAction::isDropped()
   //----------------------------------------------------------------------------
   void ParticleListActionService::AddPointToCurrentParticle(TLorentzVector const& pos,
                                                             TLorentzVector const& mom,
@@ -719,6 +791,7 @@ namespace larg4 {
 
     partCol_ = std::make_unique<std::vector<simb::MCParticle>>();
     droppedCol_ = std::make_unique<sim::ParticleAncestryMap>();
+    droppedPartCol_ = std::make_unique<std::vector<simb::MCParticle>>();
     tpassn_ =
       std::make_unique<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>();
     // Set up the utility class for the "for_each" algorithm.  (We only
@@ -734,6 +807,9 @@ namespace larg4 {
     unsigned int nGeneratedParticles = 0;
     unsigned int nMCTruths = 0;
     sim::ParticleList particleList = YieldList();
+    // Request a list of dropped particles
+    sim::ParticleList droppedParticleList;
+    if (fdroppedParticleList) { droppedParticleList = YieldDroppedList(); }
     for (size_t mcl = 0; mcl < fMCLists->size(); ++mcl) {
       auto const& mclistHandle = (*fMCLists)[mcl];
       MF_LOG_INFO("endOfEventAction") << "mclistHandle Size: " << mclistHandle->size();
@@ -743,6 +819,10 @@ namespace larg4 {
         for (simb::MCParticle* p : particleList | ranges::views::values) {
           auto gen_index = fMCTIndexMap[p->TrackId()];
           if (gen_index != nMCTruths) continue;
+          // if the particle has been marked as dropped, we don't save it
+          // (as of LArSoft ~v5.6 this does not ever happen because
+          // ParticleListAction has already taken care of deleting them)
+          // if (isDropped(p)) continue;
           assert(p->NumberTrajectoryPoints() != 0ull);
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
@@ -757,7 +837,16 @@ namespace larg4 {
           partCol_->push_back(std::move(*p));
           art::Ptr<simb::MCParticle> mcp_ptr{pid_, partCol_->size() - 1, productGetter_};
           tpassn_->addSingle(mct, mcp_ptr, truthInfo);
-        }
+
+        } // endfor p in particleList
+        if (fStoreDroppedMCParticles && droppedPartCol_) {
+          for (simb::MCParticle* p : droppedParticleList | ranges::views::values) {
+            if (isDropped(p)) continue;         //Is it dropped??
+            if (p->StatusCode() != 1) continue; //Is it a primary particle??
+
+            droppedPartCol_->push_back(std::move(*p));
+          } // for(droppedParticleList)
+        }   // if (fStoreDroppedMCParticles && droppedPartCol_)
         mf::LogDebug("Offset") << "nGeneratedParticles = " << nGeneratedParticles;
         droppedCol_->SetMap(fdroppedTracksMap);
         ++nMCTruths;
