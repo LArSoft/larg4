@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 find_package(cetmodules 3.10.00 REQUIRED) # For FindGeant4.cmake
-project(larg4 VERSION 09.16.07 LANGUAGES CXX)
+project(larg4 VERSION 09.16.09 LANGUAGES CXX)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -19,6 +19,7 @@ cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 find_package(larcore REQUIRED EXPORT)
+find_package(larcorealg REQUIRED EXPORT)
 find_package(lardataalg REQUIRED EXPORT)
 find_package(lardataobj REQUIRED EXPORT)
 
