@@ -203,11 +203,9 @@ std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
           << "Set stepLimit for volume: " << volume->GetName() << " from the GDML file.";
         setGDMLVolumes_.insert(std::make_pair(volume->GetName(), (float)(value / CLHEP::mm)));
       }
-      if(aux.type == "ExcitationEnergy")
-      {
+      if (aux.type == "ExcitationEnergy") {
         G4String ExcitationEnergy_category = "Energy";
-        if(provided_category == ExcitationEnergy_category)
-        {
+        if (provided_category == ExcitationEnergy_category) {
           G4cout << "Valid ExcitationEnergy unit category obtained: " << provided_category.c_str()
                  << G4endl;
           G4cout << " unit Value:" << val_unit << "  Value:  " << value << G4endl;
@@ -215,7 +213,7 @@ std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
                  << G4endl;
           volume->GetMaterial()->GetIonisation()->SetMeanExcitationEnergy(value);
           G4cout << " Mean Ionization energy:  "
-                 <<volume->GetMaterial()->GetIonisation()->GetMeanExcitationEnergy() << G4endl;
+                 << volume->GetMaterial()->GetIonisation()->GetMeanExcitationEnergy() << G4endl;
         }
       }
 
