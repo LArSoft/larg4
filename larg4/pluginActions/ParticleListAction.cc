@@ -78,10 +78,11 @@ namespace larg4 {
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
     , fKeepParticlesInVolumes(p.get<std::vector<std::string>>("KeepParticlesInVolumes", {}))
-    , fKeepDroppedParticlesInVolumes(p.get<std::vector<std::string>>("KeepDroppedParticlesInVolumes", {}))
+    , fKeepDroppedParticlesInVolumes(
+        p.get<std::vector<std::string>>("KeepDroppedParticlesInVolumes", {}))
     , fStoreDroppedMCParticles(!fKeepDroppedParticlesInVolumes.empty())
-    , fdroppedParticleList(!fKeepDroppedParticlesInVolumes.empty() ? std::make_unique<sim::ParticleList>() :
-                                                      nullptr)
+    , fdroppedParticleList(
+        !fKeepDroppedParticlesInVolumes.empty() ? std::make_unique<sim::ParticleList>() : nullptr)
   {
     //Assert that keepEMShowerDaughters and storeDroppedMCParticles are not both true
     if (fKeepEMShowerDaughters && fStoreDroppedMCParticles) {
@@ -324,7 +325,7 @@ namespace larg4 {
       // one of pair production, compton scattering, photoelectric effect
       // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
-      if (!fKeepEMShowerDaughters || !fStoreDroppedMCParticles) {
+      if (!fKeepEMShowerDaughters) {
         for (auto const& p : fNotStoredPhysics) {
           if (process_name.find(p) != std::string::npos) {
             notstore = true;
@@ -432,7 +433,7 @@ namespace larg4 {
 
     // Create the sim::Particle object.
     fCurrentParticle.clear();
-    fCurrentParticle.isDropped = notstore; //true for particles that are dropped from missing processes
+    fCurrentParticle.isDropped = notstore; //mark if the particle is dropped
     fCurrentParticle.particle =
       new simb::MCParticle{trackID, pdgCode, process_name, parentID, mass};
     fCurrentParticle.truthIndex = primaryIndex;
@@ -443,8 +444,9 @@ namespace larg4 {
 
     // -- determine whether full set of trajectorie points should be stored or only the start and end points
     fCurrentParticle.keepFullTrajectory =
-      (!fstoreTrajectories || (notstore && fStoreDroppedMCParticles)) ? //also don't store if dropped particle
-        false : /*don't want trajectory points at all, bail*/
+      (!fstoreTrajectories ||
+       (notstore && fStoreDroppedMCParticles)) ? //also don't store if dropped particle
+        false :                                  /*don't want trajectory points at all, bail*/
         (!(fMCTIndexToGeneratorMap[primarymctIndex].second)) ?
         false : /*particle is not from a storable generator*/
           (!fkeepOnlyPrimaryFullTraj) ?
@@ -465,7 +467,7 @@ namespace larg4 {
       return;
     }
     // Save the particle in the ParticleList.
-    
+
     // if we are not filtering, we have a decision already. The extra check is to see if we are dropping
     // particle from a process that is not stored. We don't do the same for dropped particles
     // since if it doesn't have a filter, we don't produce a separate list anyways
@@ -542,7 +544,7 @@ namespace larg4 {
       //Erase primaries
       if (!fCurrentParticle.isDropped) fParticleList.erase(key_to_erase);
       //Erase dropped particles
-      if (fdroppedParticleList && fCurrentParticle.isDropped){
+      if (fdroppedParticleList && fCurrentParticle.isDropped) {
         fdroppedParticleList->Archive(fCurrentParticle.particle);
       }
       //
@@ -782,8 +784,10 @@ namespace larg4 {
     fCurrentParticle.particle->AddTrajectoryPoint(pos, mom, process, fKeepTransportation);
 
     // also see if we can decide to keep the particle
-    if (!fCurrentParticle.isInVolume && !fCurrentParticle.isDropped) fCurrentParticle.isInVolume = fFilter->mustKeep(pos);
-    if (!fCurrentParticle.isInVolume && fCurrentParticle.isDropped) fCurrentParticle.isInVolume = fDroppedFilter->mustKeep(pos);
+    if (!fCurrentParticle.isInVolume && !fCurrentParticle.isDropped)
+      fCurrentParticle.isInVolume = fFilter->mustKeep(pos);
+    if (!fCurrentParticle.isInVolume && fCurrentParticle.isDropped)
+      fCurrentParticle.isInVolume = fDroppedFilter->mustKeep(pos);
   }
 
   // Called at the end of each event. Call detectors to convert hits for the
@@ -838,7 +842,7 @@ namespace larg4 {
           ++nGeneratedParticles;
           sim::GeneratedParticleInfo const truthInfo{GetPrimaryTruthIndex(p->TrackId())};
           if (!truthInfo.hasGeneratedParticleIndex() && p->Mother() == 0) {
-	     MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
+            MF_LOG_WARNING("endOfEventAction") << "No GeneratedParticleIndex()!";
             // this means it's primary but with no information; logic error!!
             throw art::Exception(art::errors::LogicError)
               << "Failed to match primary particle:\n"

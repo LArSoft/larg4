@@ -121,11 +121,11 @@ namespace larg4 {
     std::map<int, int> GetTargetIDMap() { return fTargetIDMap; }
 
     /// Grabs a particle filter
-    void CreateParticleFilter(std::vector<std::string> keepParticlesInVolumes, std::unique_ptr<util::PositionInVolumeFilter>& filter)
+    void CreateParticleFilter(std::vector<std::string> keepParticlesInVolumes,
+                              std::unique_ptr<util::PositionInVolumeFilter>& filter)
     {
       // if we don't have favourite volumes, don't even bother creating a filter
-      std::set<std::string> vol_names(keepParticlesInVolumes.begin(),
-                                      keepParticlesInVolumes.end());
+      std::set<std::string> vol_names(keepParticlesInVolumes.begin(), keepParticlesInVolumes.end());
 
       if (empty(vol_names)) filter = {};
 
@@ -166,9 +166,11 @@ namespace larg4 {
 
       filter = std::make_unique<util::PositionInVolumeFilter>(std::move(GeoVolumePairs));
     }
-  void ParticleFilter(){CreateParticleFilter(fKeepParticlesInVolumes, fFilter);}
-  void DroppedParticleFilter(){CreateParticleFilter(fKeepDroppedParticlesInVolumes, fDroppedFilter);}
-    
+    void ParticleFilter() { CreateParticleFilter(fKeepParticlesInVolumes, fFilter); }
+    void DroppedParticleFilter()
+    {
+      CreateParticleFilter(fKeepDroppedParticlesInVolumes, fDroppedFilter);
+    }
 
   private:
     struct ParticleInfo_t {
@@ -200,7 +202,8 @@ namespace larg4 {
       simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
 
       /// Print
-      void print(){
+      void print()
+      {
         std::cout << "ParticleInfo_t: " << std::endl;
         std::cout << "  particle: " << particle << std::endl;
         std::cout << "  keepFullTrajectory: " << keepFullTrajectory << std::endl;
@@ -256,11 +259,10 @@ namespace larg4 {
     std::vector<std::string>
       fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
 
-    std::vector<std::string> 
-      fKeepDroppedParticlesInVolumes; ///<Only write particles that have
+    std::vector<std::string> fKeepDroppedParticlesInVolumes; ///<Only write particles that have
                                                              ///<trajectories through these volumes
     bool
-     fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
 
     std::unique_ptr<sim::ParticleList>
       fdroppedParticleList; ///< The accumulated particle information for
@@ -295,7 +297,8 @@ namespace larg4 {
     art::ProductID pid_{art::ProductID::invalid()};
     art::EDProductGetter const* productGetter_{nullptr};
     std::unique_ptr<util::PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
-    std::unique_ptr<util::PositionInVolumeFilter> fDroppedFilter; ///< filter for dropped particles to be kept (if any)
+    std::unique_ptr<util::PositionInVolumeFilter>
+      fDroppedFilter; ///< filter for dropped particles to be kept (if any)
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
                                    TLorentzVector const& mom,
