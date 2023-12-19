@@ -278,7 +278,7 @@ void larg4::larg4Main::produce(art::Event& e)
   art::ServiceHandle<larg4::MCTruthEventActionService>()->setInputCollections(mclists);
 
   art::ServiceHandle<larg4::ParticleListActionService> pla;
-  pla->ParticleFilter(); //Create particle filter
+  pla->ParticleFilter();                                      //Create particle filter
   if (fStoreDroppedMCParticles) pla->DroppedParticleFilter(); //Create dropped particle filter
   pla->setInputCollections(mclists);
   auto const pid = e.getProductID<std::vector<simb::MCParticle>>();
