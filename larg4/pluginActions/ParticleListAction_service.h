@@ -126,9 +126,6 @@ namespace larg4 {
       // if we don't have favourite volumes, don't even bother creating a filter
       std::set<std::string> vol_names(keepParticlesInVolumes.begin(),
                                       keepParticlesInVolumes.end());
-      for (auto const& vol_name : vol_names) {
-        std::cout << "Keeping particles in volume " << vol_name << std::endl;
-      }
 
       if (empty(vol_names)) filter = {};
 
