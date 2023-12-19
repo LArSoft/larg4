@@ -121,13 +121,16 @@ namespace larg4 {
     std::map<int, int> GetTargetIDMap() { return fTargetIDMap; }
 
     /// Grabs a particle filter
-    void ParticleFilter()
+    void CreateParticleFilter(std::vector<std::string> keepParticlesInVolumes, std::unique_ptr<util::PositionInVolumeFilter>& filter)
     {
       // if we don't have favourite volumes, don't even bother creating a filter
-      std::set<std::string> vol_names(fKeepParticlesInVolumes.begin(),
-                                      fKeepParticlesInVolumes.end());
+      std::set<std::string> vol_names(keepParticlesInVolumes.begin(),
+                                      keepParticlesInVolumes.end());
+      for (auto const& vol_name : vol_names) {
+        std::cout << "Keeping particles in volume " << vol_name << std::endl;
+      }
 
-      if (empty(vol_names)) fFilter = {};
+      if (empty(vol_names)) filter = {};
 
       auto const& geom = *art::ServiceHandle<geo::Geometry const>();
 
@@ -164,14 +167,18 @@ namespace larg4 {
         GeoVolumePairs.emplace_back(node_paths[iVolume].back()->GetVolume(), pTransf);
       }
 
-      fFilter = std::make_unique<util::PositionInVolumeFilter>(std::move(GeoVolumePairs));
+      filter = std::make_unique<util::PositionInVolumeFilter>(std::move(GeoVolumePairs));
     }
+  void ParticleFilter(){CreateParticleFilter(fKeepParticlesInVolumes, fFilter);}
+  void DroppedParticleFilter(){CreateParticleFilter(fKeepDroppedParticlesInVolumes, fDroppedFilter);}
+    
 
   private:
     struct ParticleInfo_t {
       simb::MCParticle* particle = nullptr; ///< simple structure representing particle
       bool keepFullTrajectory = false;      ///< if there was decision to keep
       bool isInVolume = false;              ///< drop if not involume
+      bool isDropped = false;               ///< dropped by a physics process
 
       /// Index of the particle in the original generator truth record.
       simb::GeneratedParticleIndex_t truthIndex = simb::NoGeneratedParticleIndex;
@@ -182,6 +189,7 @@ namespace larg4 {
         particle = nullptr;
         keepFullTrajectory = false;
         isInVolume = false;
+        isDropped = false;
         truthIndex = simb::NoGeneratedParticleIndex;
       }
 
@@ -193,6 +201,16 @@ namespace larg4 {
 
       /// Returns the index of the particle in the generator truth record.
       simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
+
+      /// Print
+      void print(){
+        std::cout << "ParticleInfo_t: " << std::endl;
+        std::cout << "  particle: " << particle << std::endl;
+        std::cout << "  keepFullTrajectory: " << keepFullTrajectory << std::endl;
+        std::cout << "  isInVolume: " << isInVolume << std::endl;
+        std::cout << "  isDropped: " << isDropped << std::endl;
+        std::cout << "  truthIndex: " << truthIndex << std::endl;
+      }
 
     }; // ParticleInfo_t
 
@@ -237,14 +255,19 @@ namespace larg4 {
     double fSparsifyMargin;        ///< set the sparsification margin
     bool fKeepTransportation;      ///< tell whether or not to keep the transportation process
     bool fKeepSecondToLast; ///< tell whether or not to force keeping the second to last point
-    bool
-      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
-    std::unique_ptr<sim::ParticleList>
-      fdroppedParticleList; ///< The accumulated particle information for
-                            ///< all (dropped) particles in the event.
+
     std::vector<std::string>
       fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
 
+    std::vector<std::string> 
+      fKeepDroppedParticlesInVolumes; ///<Only write particles that have
+                                                             ///<trajectories through these volumes
+    bool
+     fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+
+    std::unique_ptr<sim::ParticleList>
+      fdroppedParticleList; ///< The accumulated particle information for
+                            ///< all (dropped) particles in the event.
     std::vector<art::Handle<std::vector<simb::MCTruth>>> const*
       fMCLists; ///< MCTruthCollection input lists
 
@@ -275,6 +298,7 @@ namespace larg4 {
     art::ProductID pid_{art::ProductID::invalid()};
     art::EDProductGetter const* productGetter_{nullptr};
     std::unique_ptr<util::PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
+    std::unique_ptr<util::PositionInVolumeFilter> fDroppedFilter; ///< filter for dropped particles to be kept (if any)
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
                                    TLorentzVector const& mom,

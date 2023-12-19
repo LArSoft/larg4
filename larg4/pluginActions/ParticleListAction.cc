@@ -77,16 +77,30 @@ namespace larg4 {
     , fSparsifyMargin(p.get<double>("SparsifyMargin", 0.015))
     , fKeepTransportation(p.get<bool>("KeepTransportation", false))
     , fKeepSecondToLast(p.get<bool>("KeepSecondToLast", false))
-    , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
-    , fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() :
-                                                      nullptr)
     , fKeepParticlesInVolumes(p.get<std::vector<std::string>>("KeepParticlesInVolumes", {}))
+    , fKeepDroppedParticlesInVolumes(p.get<std::vector<std::string>>("KeepDroppedParticlesInVolumes", {}))
+    , fStoreDroppedMCParticles(!fKeepDroppedParticlesInVolumes.empty())
+    , fdroppedParticleList(!fKeepDroppedParticlesInVolumes.empty() ? std::make_unique<sim::ParticleList>() :
+                                                      nullptr)
   {
+    //Assert that keepEMShowerDaughters and storeDroppedMCParticles are not both true
+    if (fKeepEMShowerDaughters && fStoreDroppedMCParticles) {
+      throw art::Exception(art::errors::Configuration)
+        << "ParticleListActionService: keepEMShowerDaughters and storeDroppedMCParticles cannot "
+           "both be true.\n";
+    }
     // -- D.R. If a custom list of not storable physics is provided, use it, otherwise
     //    use the default list. This preserves the behavior of the keepEmShowerDaughters
     //    parameter
+    std::cout<<"fStoreDroppedMCParticles = "<<fStoreDroppedMCParticles<<std::endl;
+    for (auto const& vol : fKeepParticlesInVolumes) {
+      std::cout<<"fKeepParticlesInVolumes = "<<vol<<std::endl;
+    }
+    for (auto const& vol : fKeepDroppedParticlesInVolumes) {
+      std::cout<<"fKeepDroppedParticlesInVolumes = "<<vol<<std::endl;
+    }
     bool customNotStored = not fNotStoredPhysics.empty();
-    if (!fKeepEMShowerDaughters) {
+    if (!fKeepEMShowerDaughters || !fStoreDroppedMCParticles) {
       // -- Don't keep all processes
       if (!customNotStored) // -- Don't keep but haven't provided a list
       {                     // -- default list of not stored physics
@@ -126,9 +140,6 @@ namespace larg4 {
     if (fSparsifyTrajectories)
       mf::LogInfo("ParticleListActionService")
         << "Trajectory sparsification enabled with SparsifyMargin : " << fSparsifyMargin << "\n";
-    // Specify dropped particle list
-    // fdroppedParticleList(fStoreDroppedMCParticles ? std::make_unique<sim::ParticleList>() :
-    //                                                  nullptr);
   } // end constructor
 
   //----------------------------------------------------------------------------
@@ -320,9 +331,12 @@ namespace larg4 {
       // one of pair production, compton scattering, photoelectric effect
       // bremstrahlung, annihilation, or ionization
       process_name = track->GetCreatorProcess()->GetProcessName();
-      if (!fKeepEMShowerDaughters) {
+      if (!fKeepEMShowerDaughters || !fStoreDroppedMCParticles) {
         for (auto const& p : fNotStoredPhysics) {
+          // std::cout << "Checking if process_name contains: '" << p << "' (size: " << p.size() << ")" << std::endl;
+          // std::cout << "Current process_name: '" << process_name << "' (size: " << process_name.size() << ")" << std::endl;
           if (process_name.find(p) != std::string::npos) {
+            // std::cout<<"Found process : " << process_name << std::endl;
             notstore = true;
             mf::LogDebug("NotStoredPhysics") << "Found process : " << process_name;
 
@@ -330,6 +344,7 @@ namespace larg4 {
             auto search = fNotStoredCounterUMap.find(p);
             if (search != fNotStoredCounterUMap.end()) { old = search->second; }
             fNotStoredCounterUMap.insert_or_assign(p, (old + 1));
+            // std::cout<<"notstore = "<<notstore<< std::endl;
             break;
           }
         }
@@ -354,15 +369,15 @@ namespace larg4 {
           if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
             fMCTIndexMap[trackID] = it->second;
           }
+          // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
+          if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
+            fMCTIndexMap[trackID] = it->second;
+          }
+          // std::cout<<"fStoreDroppedMCParticles = "<<fStoreDroppedMCParticles<<std::endl;
           if (!fStoreDroppedMCParticles) { //Only clear if not storing dropped particles
             fCurrentParticle.clear();
             return;
           }
-	  // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter
-	  if (auto it = fMCTIndexMap.find(parentID); it != cend(fMCTIndexMap)) {
-	    fMCTIndexMap[trackID] = it->second;
-	  }
-          return;
         } // end if process matches an undesired process
       }   // end if not keeping EM shower daughters
 
@@ -429,6 +444,7 @@ namespace larg4 {
 
     // Create the sim::Particle object.
     fCurrentParticle.clear();
+    fCurrentParticle.isDropped = notstore; //true for particles that are dropped from missing processes
     fCurrentParticle.particle =
       new simb::MCParticle{trackID, pdgCode, process_name, parentID, mass};
     fCurrentParticle.truthIndex = primaryIndex;
@@ -439,7 +455,7 @@ namespace larg4 {
 
     // -- determine whether full set of trajectorie points should be stored or only the start and end points
     fCurrentParticle.keepFullTrajectory =
-      (!fstoreTrajectories) ?
+      (!fstoreTrajectories || (notstore && fStoreDroppedMCParticles)) ? //also don't store if dropped particle
         false : /*don't want trajectory points at all, bail*/
         (!(fMCTIndexToGeneratorMap[primarymctIndex].second)) ?
         false : /*particle is not from a storable generator*/
@@ -457,14 +473,26 @@ namespace larg4 {
 
     // if KeepEMShowerDaughters = False and we decided to drop this particle,
     // record it before throwing it away.
+    // std::cout << "notstore = " << notstore 
+    // << " fCurrentParticle.isDropped = " << fCurrentParticle.isDropped
+    // << " fStoreDroppedMCParticles = " << fStoreDroppedMCParticles
+    // << " fKeepEMShowerDaughters = " << fKeepEMShowerDaughters
+    // << std::endl;
+    // if (fdroppedParticleList) std::cout << "fdroppedParticleList->size() = " << fdroppedParticleList->size() << std::endl;
+    // std::cout << "storing dropped particle " << std::endl;
     if (notstore) { // this bool checks if particle is eliminated by NotStoredPhysics
+      // fCurrentParticle.print();
       if (fdroppedParticleList) fdroppedParticleList->Add(fCurrentParticle.particle);
       return;
     }
     // Save the particle in the ParticleList.
-    // if we are not filtering, we have a decision already
-    if (!fFilter) fCurrentParticle.isInVolume = true;
-
+    
+    // if we are not filtering, we have a decision already. The extra check is to see if we are dropping
+    // particle from a process that is not stored. We don't do the same for dropped particles
+    // since if it doesn't have a filter, we don't produce a separate list anyways
+    if (!fFilter && !fCurrentParticle.isDropped) fCurrentParticle.isInVolume = true;
+    //std::cout << "adding particle "<<std::endl;
+    //fCurrentParticle.print();
     fParticleList.Add(fCurrentParticle.particle);
   }
 
@@ -534,7 +562,12 @@ namespace larg4 {
 
     if (!fCurrentParticle.isInVolume) {
       auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
-      fParticleList.erase(key_to_erase);
+      //Erase primaries
+      if (!fCurrentParticle.isDropped) fParticleList.erase(key_to_erase);
+      //Erase dropped particles
+      if (fdroppedParticleList && fCurrentParticle.isDropped){
+        fdroppedParticleList->Archive(fCurrentParticle.particle);
+      }
       //
       int const trackID = aTrack->GetTrackID() + fTrackIDOffset;
       int parentID = aTrack->GetParentID() + fTrackIDOffset;
@@ -768,11 +801,16 @@ namespace larg4 {
                                                             TLorentzVector const& mom,
                                                             std::string const& process)
   {
+    //std::cout<<"adding point to current particle"<<std::endl;
     // Add the first point in the trajectory.
     fCurrentParticle.particle->AddTrajectoryPoint(pos, mom, process, fKeepTransportation);
 
     // also see if we can decide to keep the particle
-    if (!fCurrentParticle.isInVolume) fCurrentParticle.isInVolume = fFilter->mustKeep(pos);
+    // fCurrentParticle.print();
+    if (!fCurrentParticle.isInVolume && !fCurrentParticle.isDropped) fCurrentParticle.isInVolume = fFilter->mustKeep(pos);
+    if (!fCurrentParticle.isInVolume && fCurrentParticle.isDropped) fCurrentParticle.isInVolume = fDroppedFilter->mustKeep(pos);
+    // std::cout<<"pos = "<<pos.X()<<" "<<pos.Y()<<" "<<pos.Z()<<std::endl;
+    // std::cout<<"fCurrentParticle.isInVolume = "<<fCurrentParticle.isInVolume<<std::endl;
   }
 
   // Called at the end of each event. Call detectors to convert hits for the
