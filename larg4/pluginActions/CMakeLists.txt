@@ -30,6 +30,8 @@ cet_build_plugin(ParticleListAction artg4tk::ActionService
   messagefacility::MF_MessageLogger
   Geant4::G4global
   ROOT::Core
+  larcorealg::headers
+  larcore::Geometry_Geometry_service
   PRIVATE
   fhiclcpp::fhiclcpp
   ROOT::Physics
