@@ -171,6 +171,8 @@ namespace larg4 {
     {
       CreateParticleFilter(fKeepDroppedParticlesInVolumes, fDroppedFilter);
     }
+    /// Return whether dropped particles are stored
+    bool storeDropped() const { return fStoreDroppedMCParticles; }
 
   private:
     struct ParticleInfo_t {
@@ -262,7 +264,7 @@ namespace larg4 {
     std::vector<std::string> fKeepDroppedParticlesInVolumes; ///<Only write particles that have
                                                              ///<trajectories through these volumes
     bool
-      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticleLite` list of dropped particles
+      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticle` list of dropped particles
 
     std::unique_ptr<sim::ParticleList>
       fdroppedParticleList; ///< The accumulated particle information for

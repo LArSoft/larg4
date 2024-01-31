@@ -119,8 +119,8 @@ namespace larg4 {
     static bool initializeDetectors_;
     static std::atomic<int> processingRun_;
 
-    bool
-      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticle` list of dropped particles
+    art::ServiceHandle<larg4::ParticleListActionService> pla;
+    bool fStoreDroppedMCParticles; ///< Store dropped particles
     std::string fDroppedParticleInstanceName; ///< Name of the dropped particle collection
   };
 }
@@ -140,10 +140,11 @@ larg4::larg4Main::larg4Main(fhicl::ParameterSet const& p)
   , rmvlevel_(p.get<int>("rmvlevel", 0))
   , uiAtBeginRun_(p.get<bool>("uiAtBeginRun", false))
   , afterEvent_(p.get<std::string>("afterEvent", "pass"))
-  , fStoreDroppedMCParticles(p.get<bool>("StoreDroppedMCParticles", false))
   , fDroppedParticleInstanceName(
       p.get<std::string>("DroppedParticleInstanceName", "droppedMCParticles"))
 {
+
+  fStoreDroppedMCParticles = pla->storeDropped(); //Store dropped particles if requested
   produces<sim::ParticleAncestryMap>();
   produces<std::vector<simb::MCParticle>>();
   if (fStoreDroppedMCParticles) {
@@ -277,7 +278,6 @@ void larg4::larg4Main::produce(art::Event& e)
   auto const mclists = inputCollections(e);
   art::ServiceHandle<larg4::MCTruthEventActionService>()->setInputCollections(mclists);
 
-  art::ServiceHandle<larg4::ParticleListActionService> pla;
   pla->ParticleFilter();                                      //Create particle filter
   if (fStoreDroppedMCParticles) pla->DroppedParticleFilter(); //Create dropped particle filter
   pla->setInputCollections(mclists);
