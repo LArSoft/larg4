@@ -8,7 +8,7 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-find_package(cetmodules 3.10.00 REQUIRED) # For FindGeant4.cmake
+find_package(cetmodules 3.24.00 REQUIRED)
 project(larg4 VERSION 09.17.00 LANGUAGES CXX)
 
 include(CetCMakeEnv)
@@ -31,7 +31,6 @@ find_package(nurandom REQUIRED EXPORT)
 
 find_package(art_root_io REQUIRED EXPORT)
 find_package(art REQUIRED EXPORT)
-find_package(canvas_root_io REQUIRED)
 find_package(canvas REQUIRED EXPORT)
 find_package(messagefacility REQUIRED EXPORT)
 find_package(fhiclcpp REQUIRED EXPORT)
@@ -43,7 +42,6 @@ find_package(Geant4 REQUIRED EXPORT)
 find_package(ROOT COMPONENTS Core EG Tree Hist Physics RIO REQUIRED EXPORT)
 find_package(Range-v3 REQUIRED EXPORT)
 
-include(ArtDictionary)
 include(CetMake)
 include(BuildPlugins)
 
