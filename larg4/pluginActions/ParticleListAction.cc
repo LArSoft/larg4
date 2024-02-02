@@ -496,10 +496,11 @@ namespace larg4 {
         auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
         fParticleList.erase(key_to_erase);
         if (!fCurrentParticle.keepFullTrajectory && fdroppedParticleList) {
-          //fdroppedParticleList->erase(key_to_erase); // also erase from dropped list
-          fdroppedParticleList->Archive(
-            fCurrentParticle
-              .particle); //Archive in case LArG4 is configured to keep minimal version
+          //Check if particle is in dropped list - edge case
+          if (fdroppedParticleList->KnownParticle(fCurrentParticle.particle->TrackId())) {
+            //If it is, archive it
+            fdroppedParticleList->Archive(fCurrentParticle.particle);
+          }
         }
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
