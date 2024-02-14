@@ -478,9 +478,7 @@ namespace larg4 {
   //----------------------------------------------------------------------------
   void ParticleListActionService::postUserTrackingAction(const G4Track* aTrack)
   {
-    if (!fCurrentParticle.hasParticle()) {
-      return;
-    }
+    if (!fCurrentParticle.hasParticle()) { return; }
 
     if (aTrack) {
       fCurrentParticle.particle->SetWeight(aTrack->GetWeight());
@@ -658,7 +656,6 @@ namespace larg4 {
 
       // Add another point in the trajectory.
       AddPointToCurrentParticle(fourPos, fourMom, std::string(process));
-    
     }
   }
 
