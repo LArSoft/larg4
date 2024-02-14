@@ -478,7 +478,9 @@ namespace larg4 {
   //----------------------------------------------------------------------------
   void ParticleListActionService::postUserTrackingAction(const G4Track* aTrack)
   {
-    if (!fCurrentParticle.hasParticle()) return;
+    if (!fCurrentParticle.hasParticle()) {
+      return;
+    }
 
     if (aTrack) {
       fCurrentParticle.particle->SetWeight(aTrack->GetWeight());
@@ -496,16 +498,16 @@ namespace larg4 {
         auto key_to_erase = fParticleList.key(fCurrentParticle.particle);
         fParticleList.erase(key_to_erase);
         if (!fCurrentParticle.keepFullTrajectory && fdroppedParticleList) {
-          //fdroppedParticleList->erase(key_to_erase); // also erase from dropped list
-          fdroppedParticleList->Archive(
-            fCurrentParticle
-              .particle); //Archive in case LArG4 is configured to keep minimal version
+          //Check if particle is in dropped list - edge case
+          if (fdroppedParticleList->KnownParticle(fCurrentParticle.particle->TrackId())) {
+            //If it is, archive it
+            fdroppedParticleList->Archive(fCurrentParticle.particle);
+          }
         }
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
         return;
       }
-
       G4String process = postStepPoint->GetProcessDefinedStep()->GetProcessName();
       fCurrentParticle.particle->SetEndProcess(process);
 
@@ -563,7 +565,6 @@ namespace larg4 {
     if (fCurrentParticle.isPrimary()) {
       fPrimaryTruthMap[fCurrentParticle.particle->TrackId()] = fCurrentParticle.truthInfoIndex();
     }
-
     return;
   }
 
@@ -657,6 +658,7 @@ namespace larg4 {
 
       // Add another point in the trajectory.
       AddPointToCurrentParticle(fourPos, fourMom, std::string(process));
+    
     }
   }
 
@@ -735,7 +737,6 @@ namespace larg4 {
       mf::LogDebug("YieldList:fTrackIDOffset")
         << "highestID = " << highestID << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
-
     return std::move(fParticleList);
   } // ParticleList&& ParticleListActionService::YieldList()
   //----------------------------------------------------------------------------
@@ -765,7 +766,6 @@ namespace larg4 {
       mf::LogDebug("YieldList:fTrackIDOffset")
         << "highestID = " << highestID << "\nfTrackIDOffset= " << fTrackIDOffset;
     }
-
     return std::move(*fdroppedParticleList);
   } // ParticleList&& ParticleListAction::YieldDroppedList()
   //----------------------------------------------------------------------------

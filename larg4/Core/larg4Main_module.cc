@@ -120,7 +120,7 @@ namespace larg4 {
     static std::atomic<int> processingRun_;
 
     art::ServiceHandle<larg4::ParticleListActionService> pla;
-    bool fStoreDroppedMCParticles; ///< Store dropped particles
+    bool fStoreDroppedMCParticles;            ///< Store dropped particles
     std::string fDroppedParticleInstanceName; ///< Name of the dropped particle collection
   };
 }
