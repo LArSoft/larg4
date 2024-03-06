@@ -40,7 +40,10 @@ namespace larg4 {
 
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-  void SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE) { hitCollection.clear(); }
+  void SimEnergyDepositSD::Initialize(G4HCofThisEvent* HCE)
+  {
+    hitCollection.clear();
+  }
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
   G4bool SimEnergyDepositSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
