@@ -28,6 +28,9 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/simb.h" // simb::GeneratedParticleIndex_t
 
+#include "larcore/Geometry/Geometry.h"
+#include "larcorealg/CoreUtils/ParticleFilters.h"
+
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 
@@ -100,6 +103,10 @@ namespace larg4 {
     {
       return std::move(partCol_);
     }
+    std::unique_ptr<std::vector<simb::MCParticle>> DroppedParticleCollection()
+    {
+      return std::move(droppedPartCol_);
+    }
     std::unique_ptr<sim::ParticleAncestryMap> DroppedTracksCollection()
     {
       return std::move(droppedCol_);
@@ -113,10 +120,66 @@ namespace larg4 {
 
     std::map<int, int> GetTargetIDMap() { return fTargetIDMap; }
 
+    /// Grabs a particle filter
+    void CreateParticleFilter(std::vector<std::string> keepParticlesInVolumes,
+                              std::unique_ptr<util::PositionInVolumeFilter>& filter)
+    {
+      // if we don't have favourite volumes, don't even bother creating a filter
+      std::set<std::string> vol_names(keepParticlesInVolumes.begin(), keepParticlesInVolumes.end());
+
+      if (empty(vol_names)) filter = {};
+
+      auto const& geom = *art::ServiceHandle<geo::Geometry const>();
+
+      std::vector<std::vector<TGeoNode const*>> node_paths = geom.FindAllVolumePaths(vol_names);
+
+      // collection of interesting volumes
+      util::PositionInVolumeFilter::AllVolumeInfo_t GeoVolumePairs;
+      GeoVolumePairs.reserve(node_paths.size()); // because we are obsessed
+
+      //for each interesting volume, follow the node path and collect
+      //total rotations and translations
+      for (size_t iVolume = 0; iVolume < node_paths.size(); ++iVolume) {
+        std::vector<TGeoNode const*> path = node_paths[iVolume];
+
+        auto pTransl = new TGeoTranslation(0., 0., 0.);
+        auto pRot = new TGeoRotation();
+        for (TGeoNode const* node : path) {
+          TGeoTranslation thistranslate(*node->GetMatrix());
+          TGeoRotation thisrotate(*node->GetMatrix());
+          pTransl->Add(&thistranslate);
+          *pRot = *pRot * thisrotate;
+        }
+
+        // for some reason, pRot and pTransl don't have tr and rot bits set
+        // correctly make new translations and rotations so bits are set correctly
+        auto pTransl2 = new TGeoTranslation(
+          pTransl->GetTranslation()[0], pTransl->GetTranslation()[1], pTransl->GetTranslation()[2]);
+        double phi = 0., theta = 0., psi = 0.;
+        pRot->GetAngles(phi, theta, psi);
+        auto pRot2 = new TGeoRotation();
+        pRot2->SetAngles(phi, theta, psi);
+
+        auto pTransf = new TGeoCombiTrans(*pTransl2, *pRot2);
+        GeoVolumePairs.emplace_back(node_paths[iVolume].back()->GetVolume(), pTransf);
+      }
+
+      filter = std::make_unique<util::PositionInVolumeFilter>(std::move(GeoVolumePairs));
+    }
+    void ParticleFilter() { CreateParticleFilter(fKeepParticlesInVolumes, fFilter); }
+    void DroppedParticleFilter()
+    {
+      CreateParticleFilter(fKeepDroppedParticlesInVolumes, fDroppedFilter);
+    }
+    /// Return whether dropped particles are stored
+    bool storeDropped() const { return fStoreDroppedMCParticles; }
+
   private:
     struct ParticleInfo_t {
       simb::MCParticle* particle = nullptr; ///< simple structure representing particle
       bool keepFullTrajectory = false;      ///< if there was decision to keep
+      bool isInVolume = false;              ///< drop if not involume
+      bool isDropped = false;               ///< dropped by a physics process
 
       /// Index of the particle in the original generator truth record.
       simb::GeneratedParticleIndex_t truthIndex = simb::NoGeneratedParticleIndex;
@@ -126,6 +189,8 @@ namespace larg4 {
       {
         particle = nullptr;
         keepFullTrajectory = false;
+        isInVolume = false;
+        isDropped = false;
         truthIndex = simb::NoGeneratedParticleIndex;
       }
 
@@ -138,10 +203,27 @@ namespace larg4 {
       /// Returns the index of the particle in the generator truth record.
       simb::GeneratedParticleIndex_t truthInfoIndex() const { return truthIndex; }
 
+      /// Print
+      void print()
+      {
+        std::cout << "ParticleInfo_t: " << std::endl;
+        std::cout << "  particle: " << particle << std::endl;
+        std::cout << "  keepFullTrajectory: " << keepFullTrajectory << std::endl;
+        std::cout << "  isInVolume: " << isInVolume << std::endl;
+        std::cout << "  isDropped: " << isDropped << std::endl;
+        std::cout << "  truthIndex: " << truthIndex << std::endl;
+      }
+
     }; // ParticleInfo_t
+
+    // Returns whether the particle was dropped
+    bool isDropped(simb::MCParticle const* p);
 
     // Yields the ParticleList accumulated during the current event.
     sim::ParticleList&& YieldList();
+
+    // Yields the (dropped) ParticleList accumulated during the current event.
+    sim::ParticleList&& YieldDroppedList();
 
     // this method will loop over the fParentIDMap to get the
     // parentage of the provided trackid
@@ -176,6 +258,17 @@ namespace larg4 {
     bool fKeepTransportation;      ///< tell whether or not to keep the transportation process
     bool fKeepSecondToLast; ///< tell whether or not to force keeping the second to last point
 
+    std::vector<std::string>
+      fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
+
+    std::vector<std::string> fKeepDroppedParticlesInVolumes; ///<Only write particles that have
+                                                             ///<trajectories through these volumes
+    bool
+      fStoreDroppedMCParticles; ///< Whether to keep a `sim::MCParticle` list of dropped particles
+
+    std::unique_ptr<sim::ParticleList>
+      fdroppedParticleList; ///< The accumulated particle information for
+                            ///< all (dropped) particles in the event.
     std::vector<art::Handle<std::vector<simb::MCTruth>>> const*
       fMCLists; ///< MCTruthCollection input lists
 
@@ -198,11 +291,16 @@ namespace larg4 {
     std::map<int, std::set<int>> fdroppedTracksMap;
 
     std::unique_ptr<std::vector<simb::MCParticle>> partCol_;
+    /// This collection will hold the MCParticleLite objects created from dropped particles
+    std::unique_ptr<std::vector<simb::MCParticle>> droppedPartCol_;
     std::unique_ptr<sim::ParticleAncestryMap> droppedCol_;
     std::unique_ptr<art::Assns<simb::MCTruth, simb::MCParticle, sim::GeneratedParticleInfo>>
       tpassn_;
     art::ProductID pid_{art::ProductID::invalid()};
     art::EDProductGetter const* productGetter_{nullptr};
+    std::unique_ptr<util::PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
+    std::unique_ptr<util::PositionInVolumeFilter>
+      fDroppedFilter; ///< filter for dropped particles to be kept (if any)
     /// Adds a trajectory point to the current particle, and runs the filter
     void AddPointToCurrentParticle(TLorentzVector const& pos,
                                    TLorentzVector const& mom,
