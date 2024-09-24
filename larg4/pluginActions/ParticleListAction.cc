@@ -405,7 +405,7 @@ namespace larg4 {
         if (!fParticleList.KnownParticle(pid) &&
             (fMCTIndexMap.count(pid) == 0 ||
              !(fdroppedParticleList && fdroppedParticleList->KnownParticle(parentID)))) {
-          MF_LOG_WARNING("ParticleListActionService")
+          MF_LOG_DEBUG("ParticleListActionService")
             << "can't find parent id: " << parentID << " in the particle list, or fParentIDMap."
             << " Make " << parentID << " the mother ID for"
             << " track ID " << fCurrentTrackID << " in the hope that it will aid debugging.";
