@@ -14,7 +14,10 @@ project(larg4 VERSION 10.00.01 LANGUAGES CXX)
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
+cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED 
+                       EXTRA_FLAGS -pedantic
+                                   -Wno-deprecated-declarations
+)
 
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
