@@ -626,7 +626,7 @@ namespace larg4 {
     // the track passes through, but we don't want to update the
     // trajectory information if the step  was defined by the StepLimiter.
     G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-    G4bool ignoreProcess = process.contains("StepLimiter");
+    G4bool ignoreProcess = G4StrUtil::contains(process,"StepLimiter");
 
     // We store the initial creation point of the particle
     // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
