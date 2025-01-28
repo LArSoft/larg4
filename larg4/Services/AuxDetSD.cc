@@ -30,7 +30,10 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 namespace larg4 {
 
-  AuxDetSD::AuxDetSD(G4String name) : G4VSensitiveDetector(name) { hitCollection.clear(); }
+  AuxDetSD::AuxDetSD(G4String name) : G4VSensitiveDetector(name)
+  {
+    hitCollection.clear();
+  }
 
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

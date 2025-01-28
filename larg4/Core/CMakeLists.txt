@@ -1,5 +1,6 @@
 cet_build_plugin(larg4Main art::EDProducer
   LIBRARIES PRIVATE
+  lardataobj::MCBase
   larg4::pluginActions_MCTruthEventAction_service
   larg4::pluginActions_ParticleListAction_service
   lardataalg::MCDumpers
@@ -21,6 +22,7 @@ cet_build_plugin(larg4Main art::EDProducer
 
 cet_build_plugin(larg4SingleGen art::EDProducer
   LIBRARIES PRIVATE
+  lardataobj::MCBase
   nusimdata::SimulationBase
   nurandom::RandomUtils_NuRandomService_service
   art::Framework_Services_Registry

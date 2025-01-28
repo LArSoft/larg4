@@ -8,8 +8,8 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-find_package(cetmodules 3.24.00 REQUIRED)
-project(larg4 VERSION 09.17.00 LANGUAGES CXX)
+find_package(cetmodules 3.24.00 REQUIRED)  # For FindGeant4.cmake
+project(larg4 VERSION 10.00.03 LANGUAGES CXX)
 
 include(CetCMakeEnv)
 cet_cmake_env()
