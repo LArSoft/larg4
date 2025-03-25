@@ -9,9 +9,10 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 find_package(cetmodules 3.24.00 REQUIRED)  # For FindGeant4.cmake
-project(larg4 VERSION 10.00.06 LANGUAGES CXX)
+project(larg4 LANGUAGES CXX)
 
 include(CetCMakeEnv)
+set(${PROJECT_NAME}_CMAKE_PROJECT_VERSION_STRING 10.21.00-rc0)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
