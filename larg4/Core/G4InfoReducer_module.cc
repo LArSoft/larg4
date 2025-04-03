@@ -49,6 +49,7 @@ private:
   art::InputTag fSedLabel;    ///< module making the SimEnergyDeposit
   double fMinX, fMinY, fMinZ; ///< bottom left coordinate of union of all TPC active volumes
   double fVoxelSizeX, fVoxelSizeY, fVoxelSizeZ; ///< size of a voxel (cm)
+  double fElectronDriftVel; ///< electron drift velocity (cm/us)
   bool fUseOrigTrackID;                         //Use orig track ID boolean
   //services
   const geo::GeometryCore& fGeometry;
@@ -64,6 +65,9 @@ G4InfoReducer::G4InfoReducer(fhicl::ParameterSet const& p)
   fVoxelSizeX = p.get<double>("VoxelSizeX", 0.3);
   fVoxelSizeY = p.get<double>("VoxelSizeY", 0.3);
   fVoxelSizeZ = p.get<double>("VoxelSizeZ", 0.3);
+
+  //Ionization electrons travel at ~1.6mm/us at 500 V/cm electric field --> 1.6/10 cm/us
+  fElectronDriftVel = p.get<double>("ElectronDriftVel", 0.16); //cm/us
 
   //Use orig track id
   fUseOrigTrackID = p.get<bool>("useOrigTrackID", true);
@@ -84,8 +88,7 @@ G4InfoReducer::G4InfoReducer(fhicl::ParameterSet const& p)
   }
   auto const clockData = art::ServiceHandle<detinfo::DetectorClocksService const>()->DataForJob();
   // Take into account TPC readout window size
-  // Ionization electrons travel at ~1.6mm/us at 500 V/cm electric field
-  fMinX = min_x + clockData.TriggerOffsetTPC() * 1.6 / 10;
+  fMinX = min_x + clockData.TriggerOffsetTPC() * fElectronDriftVel;
   fMinY = min_y;
   fMinZ = min_z;
   //std::cout << "G4InfoReducer " << fMinX << " " << fMinY << " " << fMinZ << std::endl;
