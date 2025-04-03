@@ -17,18 +17,17 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "larcore/CoreUtils/ServiceUtil.h" // for lar::providerFrom
 #include "larcore/Geometry/Geometry.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "lardata/DetectorInfoServices/DetectorPropertiesServiceStandard.h" // for DetectorClocksService
 #include "lardataobj/Simulation/SimEnergyDeposit.h"
 #include "lardataobj/Simulation/SimEnergyDepositLite.h"
-#include "larcore/CoreUtils/ServiceUtil.h" // for lar::providerFrom
-#include "lardata/DetectorInfoServices/DetectorPropertiesServiceStandard.h" // for DetectorClocksService
 
 #include <memory>
 #include <set>
 
 class G4InfoReducer;
-
 
 class G4InfoReducer : public art::EDProducer {
 public:
@@ -46,19 +45,17 @@ public:
   void produce(art::Event& e) override;
 
 private:
-
   // Declare member data here.
-  art::InputTag fSedLabel; ///< module making the SimEnergyDeposit
+  art::InputTag fSedLabel;    ///< module making the SimEnergyDeposit
   double fMinX, fMinY, fMinZ; ///< bottom left coordinate of union of all TPC active volumes
   double fVoxelSizeX, fVoxelSizeY, fVoxelSizeZ; ///< size of a voxel (cm)
-  bool fUseOrigTrackID; //Use orig track ID boolean
+  bool fUseOrigTrackID;                         //Use orig track ID boolean
   //services
   const geo::GeometryCore& fGeometry;
 };
 
-
 G4InfoReducer::G4InfoReducer(fhicl::ParameterSet const& p)
-  : EDProducer{p}  // ,
+  : EDProducer{p} // ,
   , fGeometry(*lar::providerFrom<geo::Geometry>())
 {
   fSedLabel = p.get<art::InputTag>("SimEnergyDepositLabel", "largeant:TPCActive");
@@ -69,7 +66,7 @@ G4InfoReducer::G4InfoReducer(fhicl::ParameterSet const& p)
   fVoxelSizeZ = p.get<double>("VoxelSizeZ", 0.3);
 
   //Use orig track id
-  fUseOrigTrackID = p.get<bool>("useOrigTrackID",true);
+  fUseOrigTrackID = p.get<bool>("useOrigTrackID", true);
 
   if (fVoxelSizeX <= 0. || fVoxelSizeY <= 0. || fVoxelSizeZ <= 0.) {
     std::cerr << "Voxel size must be strictly greater than zero." << std::endl;
@@ -79,7 +76,7 @@ G4InfoReducer::G4InfoReducer(fhicl::ParameterSet const& p)
   double min_x = std::numeric_limits<double>::max();
   double min_y = std::numeric_limits<double>::max();
   double min_z = std::numeric_limits<double>::max();
-  for(geo::TPCGeo const& tpc: fGeometry.Iterate<geo::TPCGeo>()) {
+  for (geo::TPCGeo const& tpc : fGeometry.Iterate<geo::TPCGeo>()) {
     auto const& tpcabox = tpc.ActiveBoundingBox();
     min_x = std::min(min_x, tpcabox.MinX());
     min_y = std::min(min_y, tpcabox.MinY());
@@ -114,7 +111,8 @@ void G4InfoReducer::produce(art::Event& e)
   }
 
   struct comp {
-    bool operator() (sim::SimEnergyDepositLite lhs, sim::SimEnergyDepositLite rhs) const {
+    bool operator()(sim::SimEnergyDepositLite lhs, sim::SimEnergyDepositLite rhs) const
+    {
       if (lhs.X() < rhs.X()) return true;
       if (lhs.X() > rhs.X()) return false;
       if (lhs.Y() < rhs.Y()) return true;
@@ -128,7 +126,6 @@ void G4InfoReducer::produce(art::Event& e)
   sim::SimEnergyDepositLite sed_lite;
   sim::SimEnergyDepositLite new_sed_lite;
 
-
   auto const& sed_v = *handle;
 
   /*double total_edep = 0.;
@@ -140,32 +137,34 @@ void G4InfoReducer::produce(art::Event& e)
   for (size_t idx = 0; idx < sed_v.size(); ++idx) {
     auto const& sed = sed_v[idx];
     // Voxelize coordinates to closest coordinate using fVoxelSize
-    double x = sed.X() - std::fmod(sed.X() - fMinX, fVoxelSizeX) + fVoxelSizeX/2.;
-    double y = sed.Y() - std::fmod(sed.Y() - fMinY, fVoxelSizeY) + fVoxelSizeY/2.;
-    double z = sed.Z() - std::fmod(sed.Z() - fMinZ, fVoxelSizeZ) + fVoxelSizeZ/2.;
+    double x = sed.X() - std::fmod(sed.X() - fMinX, fVoxelSizeX) + fVoxelSizeX / 2.;
+    double y = sed.Y() - std::fmod(sed.Y() - fMinY, fVoxelSizeY) + fVoxelSizeY / 2.;
+    double z = sed.Z() - std::fmod(sed.Z() - fMinZ, fVoxelSizeZ) + fVoxelSizeZ / 2.;
 
     // Copy info to SimEnergyDepositLite
-    if (fUseOrigTrackID){
-      sed_lite = sim::SimEnergyDepositLite(sed.E(), geo::Point_t(x, y, z), sed.T(), sed.OrigTrackID());
+    if (fUseOrigTrackID) {
+      sed_lite =
+        sim::SimEnergyDepositLite(sed.E(), geo::Point_t(x, y, z), sed.T(), sed.OrigTrackID());
     }
-    else{
+    else {
       sed_lite = sim::SimEnergyDepositLite(sed.E(), geo::Point_t(x, y, z), sed.T(), sed.TrackID());
     }
     auto it = sedlite_v2.find(sed_lite);
     // Attempt to insert, if already exist we sum up energy deposit
-    
-    if (it!=sedlite_v2.end()) {
+
+    if (it != sedlite_v2.end()) {
       double new_energy = sed_lite.E() + it->E();
       double new_time = std::min(sed_lite.T(), it->T());
       sedlite_v2.erase(it);
-      if (fUseOrigTrackID){
-        new_sed_lite = sim::SimEnergyDepositLite(new_energy, geo::Point_t(x, y, z), new_time, sed.OrigTrackID());
+      if (fUseOrigTrackID) {
+        new_sed_lite =
+          sim::SimEnergyDepositLite(new_energy, geo::Point_t(x, y, z), new_time, sed.OrigTrackID());
       }
-      else{
-        new_sed_lite = sim::SimEnergyDepositLite(new_energy, geo::Point_t(x, y, z), new_time, sed.TrackID());
+      else {
+        new_sed_lite =
+          sim::SimEnergyDepositLite(new_energy, geo::Point_t(x, y, z), new_time, sed.TrackID());
       }
       sedlite_v2.insert(new_sed_lite);
-      
     }
     else {
       sedlite_v2.insert(std::move(sed_lite));
@@ -183,11 +182,11 @@ void G4InfoReducer::produce(art::Event& e)
   */
 
   // Create vector for SEDLite
-  std::unique_ptr<std::vector<sim::SimEnergyDepositLite>> sedlite_v(new std::vector<sim::SimEnergyDepositLite>(sedlite_v2.begin(), sedlite_v2.end()));
+  std::unique_ptr<std::vector<sim::SimEnergyDepositLite>> sedlite_v(
+    new std::vector<sim::SimEnergyDepositLite>(sedlite_v2.begin(), sedlite_v2.end()));
 
   // Store SEDLite in event
   e.put(std::move(sedlite_v));
-
 }
 
 DEFINE_ART_MODULE(G4InfoReducer)
