@@ -49,7 +49,7 @@ private:
   art::InputTag fSedLabel;    ///< module making the SimEnergyDeposit
   double fMinX, fMinY, fMinZ; ///< bottom left coordinate of union of all TPC active volumes
   double fVoxelSizeX, fVoxelSizeY, fVoxelSizeZ; ///< size of a voxel (cm)
-  double fElectronDriftVel; ///< electron drift velocity (cm/us)
+  double fElectronDriftVel;                     ///< electron drift velocity (cm/us)
   bool fUseOrigTrackID;                         //Use orig track ID boolean
   //services
   const geo::GeometryCore& fGeometry;
