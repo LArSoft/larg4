@@ -1,0 +1,23 @@
+BEGIN_PROLOG
+
+sbn_largeant_info_reducer: {
+	module_type: "G4InfoReducer"
+	SimEnergyDepositLabel: "largeant:TPCActive"
+	VoxelSizeX: 0.3
+	VoxelSizeY: 0.3
+	VoxelSizeZ: 0.3
+        ElectronDriftVel:  0.16
+	useOrigTrackID: true
+}
+
+dune_largeant_info_reducer: {
+        module_type: "G4InfoReducer"
+        SimEnergyDepositLabel: "largeant:LArG4DetectorServicevolTPCActiveInner"
+        VoxelSizeX: 0.47
+        VoxelSizeY: 0.47
+        VoxelSizeZ: 0.47
+        ElectronDriftVel:  0.16
+        useOrigTrackID: true
+}
+
+END_PROLOG
