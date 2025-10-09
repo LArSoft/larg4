@@ -14,17 +14,9 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/InputTag.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
-// #include <utility>
 
-#include "larcorealg/CoreUtils/enumerate.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 class SimpleMerge;
@@ -48,7 +40,6 @@ private:
   // Declare member data here.
   std::vector<art::InputTag> const fInputSourcesLabels;
   std::vector<int> fResetMotherIDs;
-  bool fResetMotherID;
 };
 
 SimpleMerge::SimpleMerge(fhicl::ParameterSet const& p)
@@ -61,24 +52,21 @@ SimpleMerge::SimpleMerge(fhicl::ParameterSet const& p)
   for (art::InputTag const& tag : fInputSourcesLabels) {
     consumes<std::vector<simb::MCParticle>>(tag);
   }
-  fResetMotherID = fResetMotherIDs.size() > 0;
 }
 
 void SimpleMerge::produce(art::Event& e)
 {
   auto partCol = std::make_unique<std::vector<simb::MCParticle>>();
-  for (auto const& [i_source, input_label] : util::enumerate(fInputSourcesLabels)) {
+  for (auto const& input_label : fInputSourcesLabels) {
     auto const& parts = e.getProduct<std::vector<simb::MCParticle>>(input_label);
     for (auto part : parts) {
-      if (fResetMotherID) {
-        for (int offset : fResetMotherIDs) {
-          if (part.Mother() == offset) {
-            part.SetMother(0);
-            break;
-          } // if part.Mother
-        }   // for offsets
-      }     // if fResetMotherID
-      partCol->push_back(part);
+      for (int offset : fResetMotherIDs) {
+        if (part.Mother() == offset) {
+          part.SetMother(0);
+          break;
+        } // if part.Mother
+      }   // for offsets
+      partCol->push_back(std::move(part));
     } // for parts
   }   // for input_label
   e.put(std::move(partCol));
