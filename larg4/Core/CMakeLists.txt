@@ -38,5 +38,22 @@ cet_build_plugin(larg4SingleGen art::EDProducer
   CLHEP::Random
 )
 
+cet_build_plugin(G4InfoReducer art::EDProducer
+  LIBRARIES PRIVATE
+  lardata::DetectorInfoServices_DetectorPropertiesServiceStandard_service
+  larcore::ServiceUtil
+  larcorealg::Geometry
+  canvas::canvas
+  art::Framework_Services_Registry
+  messagefacility::MF_MessageLogger
+  fhiclcpp::fhiclcpp
+)
+
+cet_build_plugin(SimpleMerge art::EDProducer
+  LIBRARIES PRIVATE
+  nusimdata::SimulationBase
+  art::Framework_Services_Registry
+)
+
 install_headers()
 install_source()
