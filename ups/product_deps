@@ -249,7 +249,7 @@ gdmldir	product_dir	gdml
 ####################################
 product		version		qual	flags		<table_format=2>
 artg4tk		v12_00_03	-
-larevt		v10_00_16	-
+larevt		v10_00_17	-
 nug4		v1_16_11	-
 nurandom	v1_11_05	-
 cetmodules	v3_24_01	-	only_for_build
