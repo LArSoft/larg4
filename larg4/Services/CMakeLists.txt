@@ -21,7 +21,7 @@ cet_build_plugin(LArG4Detector artg4tk::DetectorService
   Geant4::G4geometry
   Geant4::G4global
   Geant4::G4graphics_reps
-  Geant4::G4persistency
+  Geant4::G4gdml
   Geant4::G4processes
   Geant4::G4run
   Geant4::G4track
