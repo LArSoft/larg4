@@ -393,7 +393,7 @@ std::string larg4::LArG4DetectorService::instanceName(std::string const& volume_
 
   std::string result = myName() + volume_name;
   size_t pos = 0;
-  while((pos = result.find('_', pos)) != std::string::npos)
+  while ((pos = result.find('_', pos)) != std::string::npos)
     result.erase(pos, 1);
   return result;
 }
