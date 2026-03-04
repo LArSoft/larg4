@@ -389,7 +389,13 @@ void larg4::LArG4DetectorService::setStepLimits()
 
 std::string larg4::LArG4DetectorService::instanceName(std::string const& volume_name) const
 {
-  return myName() + volume_name;
+  // Remove underscores from volume name because they are invalid in art instance names.
+
+  std::string result = myName() + volume_name;
+  size_t pos = 0;
+  while ((pos = result.find('_', pos)) != std::string::npos)
+    result.erase(pos, 1);
+  return result;
 }
 
 void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector)
