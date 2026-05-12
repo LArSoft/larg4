@@ -250,7 +250,7 @@ gdmldir	product_dir	gdml
 product		version		qual	flags		<table_format=2>
 artg4tk		v13_00_00	-
 larevt		v10_00_19	-
-nug4		v1_17_03	-
+nug4		v1_19_00	-
 nurandom	v1_11_06	-
 cetmodules	v3_27_04	-	only_for_build
 end_product_list
@@ -312,6 +312,8 @@ c14:debug	c14:debug	c14:debug	c14:debug	c14:debug
 c14:prof	c14:prof	c14:prof	c14:prof	c14:prof
 e26:debug	e26:debug	e26:debug	e26:debug	e26:debug
 e26:prof	e26:prof	e26:prof	e26:prof	e26:prof
+e28:debug	e28:debug	e28:debug	e28:debug	e28:debug
+e28:prof	e28:prof	e28:prof	e28:prof	e28:prof
 end_qualifier_list
 ####################################
 
