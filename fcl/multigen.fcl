@@ -124,9 +124,16 @@ services: {
 
     PhysicsListHolder: {}
     PhysicsList: {
-    PhysicsListName: "FTFP_BERT"
-    DumpList: false
-      enableNeutronLimit: false
+      PhysicsListName: "FTFP_BERT"
+      DumpList: false
+      enableNeutronLimit: false # no special killing of neutrons
+      # NeutronTimeLimit:   10000 # kill after, value in ns ... 10 microsec
+      # NeutronKinELimit:       0 # kill below (MeV)
+      # enableStepLimit: false
+      # enableNuDEX: false
+      # enableBertiniAngularEmissionsAs112: false
+      # enableBertiniNucleiModelAs112:      false
+      # enableOptical: false
       enableCerenkov: false
       enableScintillation: false
       ScintillationByParticleType: false
