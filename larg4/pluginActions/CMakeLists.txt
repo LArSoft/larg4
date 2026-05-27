@@ -3,6 +3,7 @@ cet_build_plugin(MCTruthEventAction artg4tk::ActionService
   PUBLIC
   nug4::ParticleNavigation
   nug4::G4Base
+  nug4::AdditionalG4Physics
   nusimdata::SimulationBase
   art::Framework_Principal
   art::Framework_Services_Registry
