@@ -61,6 +61,8 @@
 #include "Geant4/globals.hh"
 
 // C++ includes
+#include <fnmatch.h>
+#include <optional>
 #include <unordered_map>
 
 using std::string;
@@ -105,13 +107,13 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
       << "Reading stepLimit(s) from the configuration file, for volume(s):";
   }
   for (size_t i = 0; i < inputVolumes_; ++i) {
-    if (stepLimits_[i] < 0) {
+    if (stepLimits_[i] <= 0) {
       throw cet::exception("LArG4DetectorService")
         << "Invalid stepLimits found. Step limits must be"
         << " positive! Bad value : stepLimits[" << i << "] = " << stepLimits_.at(i) << " [mm]\n";
     }
 
-    overrideGDMLStepLimit_Map.emplace(volumeNames_[i], stepLimits_[i] * CLHEP::mm);
+    overrideGDMLStepLimits_.emplace_back(volumeNames_[i], stepLimits_[i] * CLHEP::mm);
     mf::LogInfo("LArG4DetectorService::Ctr")
       << "Volume: " << volumeNames_[i] << ", stepLimit: " << stepLimits_[i];
   } //--loop over inputVolumes
@@ -339,24 +341,63 @@ void larg4::LArG4DetectorService::setStepLimits()
     << " that stepLimits are only active if enabled in the physicsListService via the"
     << " appropriate parameter.";
 
-  std::string volumeName = "";
-  G4LogicalVolume* setVol = nullptr;
-  for (auto const& [name, newStepLimit] : overrideGDMLStepLimit_Map) {
-    G4double previousStepLimit = 0.;
-
-    // -- Check whether the volumeName provided corresponds to a valid volumeName in the geometry
-    if (setVol = G4LogicalVolumeStore::GetInstance()->GetVolume(name, false); !setVol) {
-      throw cet::exception("invalidInputVolumeName")
-        << "Provided volume name : " << name << " not found!\n";
+  // -- Each configured name may be a glob pattern. For every logical volume pick the entry that
+  //    applies: an exact name beats a pattern, and among entries of the same kind the later one
+  //    in the configuration wins.
+  std::vector<std::vector<std::string>> matchedNames(overrideGDMLStepLimits_.size());
+  std::vector<std::pair<G4LogicalVolume*, std::size_t>> selected;
+  for (G4LogicalVolume* lv : *G4LogicalVolumeStore::GetInstance()) {
+    std::string const lvName = lv->GetName();
+    std::optional<std::size_t> best;
+    bool bestIsExact = false;
+    std::vector<std::size_t> candidates;
+    for (std::size_t i = 0; i < overrideGDMLStepLimits_.size(); ++i) {
+      auto const& pattern = overrideGDMLStepLimits_[i].first;
+      if (fnmatch(pattern.c_str(), lvName.c_str(), 0) != 0) { continue; }
+      matchedNames[i].push_back(lvName);
+      candidates.push_back(i);
+      bool const exact = (pattern == lvName);
+      if (!best || exact || !bestIsExact) {
+        best = i;
+        bestIsExact = exact;
+      }
     }
+    if (!best) { continue; }
+    if (candidates.size() > 1) {
+      mf::LogInfo log("LArG4DetectorService::setStepLimits");
+      log << "Volume " << lvName << " matches " << candidates.size() << " entries:";
+      for (auto const i : candidates) {
+        log << " '" << overrideGDMLStepLimits_[i].first << "'";
+      }
+      log << "; using '" << overrideGDMLStepLimits_[*best].first << "'";
+    }
+    selected.emplace_back(lv, *best);
+  }
 
-    // -- get the G4LogicalVolume corresponding to the selectedVolume
-    volumeName = setVol->GetName();
-    MF_LOG_DEBUG("LArG4DetectorService::setStepLimits")
-      << "Got logical volume with name: " << volumeName;
+  // -- Every configured entry must match at least one volume in the geometry
+  std::string unmatched;
+  for (std::size_t i = 0; i < overrideGDMLStepLimits_.size(); ++i) {
+    auto const& names = matchedNames[i];
+    if (names.empty()) {
+      unmatched += " '" + overrideGDMLStepLimits_[i].first + "'";
+      continue;
+    }
+    mf::LogInfo log("LArG4DetectorService::setStepLimits");
+    log << "Entry '" << overrideGDMLStepLimits_[i].first << "' matched " << names.size()
+        << " volume(s):";
+    for (auto const& name : names) {
+      log << " " << name;
+    }
+  }
+  if (!unmatched.empty()) {
+    throw cet::exception("invalidInputVolumeName")
+      << "Provided volume name(s) or pattern(s) not found in the geometry:" << unmatched << "\n";
+  }
 
-    G4UserLimits* fStepLimitOverride = new G4UserLimits();
-    G4AutoDelete::Register(fStepLimitOverride);
+  for (auto const& [setVol, entry] : selected) {
+    G4double const newStepLimit = overrideGDMLStepLimits_[entry].second;
+    G4double previousStepLimit = 0.;
+    std::string const volumeName = setVol->GetName();
 
     // -- check if a stepLimit for this volume has been set before:
     auto search = setGDMLVolumes_.find(volumeName);
@@ -377,6 +418,8 @@ void larg4::LArG4DetectorService::setStepLimits()
       }
     } //--check if new steplimit differs from a previously set value
 
+    G4UserLimits* fStepLimitOverride = new G4UserLimits();
+    G4AutoDelete::Register(fStepLimitOverride);
     fStepLimitOverride->SetMaxAllowedStep(newStepLimit); // -- !
     mf::LogInfo("LArG4DetectorService::setStepLimits")
       << "fStepLimitOverride:  " << newStepLimit / CLHEP::mm << " mm " << newStepLimit / CLHEP::cm
@@ -475,6 +518,9 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
+      // NOTE: tmap[] inserts and returns 0 for a track ID that is not in the target map, so
+      //       such hits end up with TrackID 0 rather than keeping their original Geant4 ID.
+      //       Use tmap.find() instead if the original ID should be kept.
       if (updateSimEnergyDeposits_) {
         for (auto& hit : hitCollection) {
           hit.setTrackID(tmap[hit.TrackID()]);
@@ -486,12 +532,13 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);
       sim::AuxDetHitCollection hitCollection = auxsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
+      // NOTE: as for SimEnergyDeposit above, a track ID missing from tmap becomes 0.
       if (updateAuxDetHits_) {
         for (auto& hit : hitCollection) {
           hit.SetTrackID(tmap[hit.GetTrackID()]);
         }
       }
-      e.put(make_product(auxsd->GetHits()), instanceName(volume_name));
+      e.put(make_product(std::move(hitCollection)), instanceName(volume_name));
     }
     else if (sd_name == "Calorimeter") {
       auto calsd = dynamic_cast<artg4tk::CalorimeterSD*>(sd);
