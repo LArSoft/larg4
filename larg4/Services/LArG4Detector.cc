@@ -92,7 +92,6 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
   // Make sure units are defined.
   G4UnitDefinition::GetUnitsTable();
 
-
   // -- D.R. : Check for valid volume, steplimit pairs
   if (inputVolumes_ != size(stepLimits_)) {
     throw cet::exception("LArG4Detector")
@@ -111,8 +110,7 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
     if (stepLimits_[i] <= 0) {
       throw cet::exception("LArG4Detector")
         << "Invalid stepLimits found. Step limits must be"
-        << " positive! Bad value : stepLimits[" << i << "] = "
-        << stepLimits_.at(i) << " [mm]\n";
+        << " positive! Bad value : stepLimits[" << i << "] = " << stepLimits_.at(i) << " [mm]\n";
     }
 
     overrideGDMLStepLimits_.emplace_back(volumeNames_[i], stepLimits_[i] * CLHEP::mm);
@@ -387,19 +385,17 @@ void larg4::LArG4DetectorService::setStepLimits()
       continue;
     }
     mf::LogInfo("LArG4DetectorService::setStepLimits")
-      << "Entry '" << overrideGDMLStepLimits_[i].first << "' matched "
-      << names.size() << " volume(s):";
+      << "Entry '" << overrideGDMLStepLimits_[i].first << "' matched " << names.size()
+      << " volume(s):";
     std::string nameList;
     for (auto const& name : names) {
       nameList += " " + name;
     }
-    mf::LogDebug("LArG4DetectorService::setStepLimits")
-      << "match nameList: " << nameList;
+    mf::LogDebug("LArG4DetectorService::setStepLimits") << "match nameList: " << nameList;
   }
   if (!unmatched.empty()) {
     throw cet::exception("invalidInputVolumeName")
-      << "Provided volume name(s) or pattern(s) not found in the geometry:"
-      << unmatched << "\n";
+      << "Provided volume name(s) or pattern(s) not found in the geometry:" << unmatched << "\n";
   }
 
   std::stringstream ss;
@@ -414,8 +410,8 @@ void larg4::LArG4DetectorService::setStepLimits()
       if (newStepLimit != previousStepLimit) {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits")
           << "OVERRIDING PREVIOUSLY SET"
-          << " STEPLIMIT FOR VOLUME : " << volumeName << " FROM "
-          << previousStepLimit << " mm TO " << newStepLimit << " mm";
+          << " STEPLIMIT FOR VOLUME : " << volumeName << " FROM " << previousStepLimit << " mm TO "
+          << newStepLimit << " mm";
       }
       else {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits")
