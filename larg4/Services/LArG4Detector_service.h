@@ -78,15 +78,18 @@ namespace larg4 {
       updateSimEnergyDeposits_; // enable/disable change of TrackID  for Tracks where no MCParticle was created
     bool
       updateAuxDetHits_; // enable/disable change of TrackID  for Tracks where no MCParticle was created
-    std::vector<std::string>
-      volumeNames_; // list of volume names for which step limits should be set
+    // list of logical volume names for which step limits should be set; each entry may be a
+    // glob pattern (*, ?, [...]). An exact name beats a pattern; among matching patterns the
+    // later entry wins. Every entry must match at least one volume.
+    std::vector<std::string> volumeNames_;
     std::vector<float>
       stepLimits_; // corresponding step limits to be set for each volume in the list of volumeNames, [mm]
     size_t inputVolumes_; // number of stepLimits to be set
     bool dumpMP_;         // enable/disable dump of material properties
 
     std::vector<std::pair<std::string, std::string>> detectors_{};
-    std::map<std::string, G4double> overrideGDMLStepLimit_Map{};
+    std::vector<std::pair<std::string, G4double>>
+      overrideGDMLStepLimits_{}; // <volume name or pattern, stepLimit>, in configuration order
     std::unordered_map<std::string, float>
       setGDMLVolumes_{}; // holds all <volume, steplimit> pairs set from the GDML file
   };
