@@ -92,31 +92,33 @@ larg4::LArG4DetectorService::LArG4DetectorService(fhicl::ParameterSet const& p)
   // Make sure units are defined.
   G4UnitDefinition::GetUnitsTable();
 
+
   // -- D.R. : Check for valid volume, steplimit pairs
   if (inputVolumes_ != size(stepLimits_)) {
-    throw cet::exception("LArG4DetectorService") << "Configuration error: volumeNames:[] and"
-                                                 << " stepLimits:[] have different sizes!"
-                                                 << "\n";
+    throw cet::exception("LArG4Detector")
+      << "Configuration error: volumeNames[" << inputVolumes_ << "] and"
+      << " stepLimits[" << size(stepLimits_) << "] have different sizes!\n";
   }
 
   //-- define commonly used units, that we might need
   new G4UnitDefinition("volt/cm", "V/cm", "Electric field", CLHEP::volt / CLHEP::cm);
 
+  std::stringstream ss;
   if (inputVolumes_ > 0) {
-    mf::LogInfo("LArG4DetectorService::Ctr")
-      << "Reading stepLimit(s) from the configuration file, for volume(s):";
+    ss << "Reading stepLimit(s) from the configuration file, for volume(s):";
   }
   for (size_t i = 0; i < inputVolumes_; ++i) {
     if (stepLimits_[i] <= 0) {
-      throw cet::exception("LArG4DetectorService")
+      throw cet::exception("LArG4Detector")
         << "Invalid stepLimits found. Step limits must be"
-        << " positive! Bad value : stepLimits[" << i << "] = " << stepLimits_.at(i) << " [mm]\n";
+        << " positive! Bad value : stepLimits[" << i << "] = "
+        << stepLimits_.at(i) << " [mm]\n";
     }
 
     overrideGDMLStepLimits_.emplace_back(volumeNames_[i], stepLimits_[i] * CLHEP::mm);
-    mf::LogInfo("LArG4DetectorService::Ctr")
-      << "Volume: " << volumeNames_[i] << ", stepLimit: " << stepLimits_[i];
+    ss << "Volume: " << volumeNames_[i] << ": stepLimit: " << stepLimits_[i] << "\n";
   } //--loop over inputVolumes
+  mf::LogInfo("LArG4DetectorService") << ss.str();
 } //--Ctor
 
 // Destructor
@@ -182,7 +184,7 @@ std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
           value = (value / CLHEP::mm) * CLHEP::mm;
           fStepLimit->SetMaxAllowedStep(value);
           mf::LogInfo("fStepLimit")
-            << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm\n";
+            << "fStepLimit:  " << value << "  " << value / CLHEP::mm << " mm\n";
         }
         else if (provided_category ==
                  "NONE") { //--no unit category provided, use the default CLHEP::mm
@@ -190,8 +192,7 @@ std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
                                           << " Defaulting to mm...";
           value *= CLHEP::mm;
           fStepLimit->SetMaxAllowedStep(value);
-          mf::LogInfo("fStepLimit")
-            << "fStepLimit:  " << value << "  " << value / CLHEP::cm << " cm\n";
+          mf::LogInfo("fStepLimit") << "fStepLimit:  " << value << "mm";
         }
         else { //--wrong unit category provided
           throw cet::exception("StepLimitUnit")
@@ -201,7 +202,7 @@ std::vector<G4LogicalVolume*> larg4::LArG4DetectorService::doBuildLVs()
 
         volume->SetUserLimits(fStepLimit);
         // -- D.R. insert into map <volName,stepLimit> to cross-check later
-        MF_LOG_DEBUG("LArG4DetectorService::")
+        MF_LOG_DEBUG("LArG4DetectorService:")
           << "Set stepLimit for volume: " << volume->GetName() << " from the GDML file.";
         setGDMLVolumes_.insert(std::make_pair(volume->GetName(), (float)(value / CLHEP::mm)));
       }
@@ -331,21 +332,24 @@ std::vector<G4VPhysicalVolume*> larg4::LArG4DetectorService::doPlaceToPVs(
 
 void larg4::LArG4DetectorService::setStepLimits()
 {
-  // -- D. Rivera : This function sets step limits for volumes provided in the configuration file
-  //                and overrides the step limit (if any) set for the same volumes but from the GMDL
-  //                geometry file. The GDML step limit (if provided in the gdml file) is set first
-  //                and later overriden by this method if a valid volumeName,setStepLimit is provided.
+  // -- D. Rivera :
+  // This function sets step limits for volumes provided in the configuration
+  // file and overrides the step limit (if any) set for the same volumes
+  // but from the GMDL geometry file. The GDML step limit (if provided in
+  // the gdml file) is set first and later overriden by this method if a
+  // valid volumeName,setStepLimit is provided.
   MF_LOG_WARNING("LArG4DetectorService::setStepLimits")
-    << "Setting step limits from configuration"
-    << " file. This will OVERRIDE redundant stepLimit(s) set in the GDML file. Note"
-    << " that stepLimits are only active if enabled in the physicsListService via the"
+    << "Setting step limits from configuration file. "
+    << "This will OVERRIDE redundant stepLimit(s) set in the GDML file.\n"
+    << "Note that stepLimits are only active if enabled in the physicsListService via the"
     << " appropriate parameter.";
 
-  // -- Each configured name may be a glob pattern. For every logical volume pick the entry that
-  //    applies: an exact name beats a pattern, and among entries of the same kind the later one
-  //    in the configuration wins.
+  // -- Each configured name may be a glob pattern. For every logical volume
+  // pick the entry that applies: an exact name beats a pattern, and among
+  // entries of the same kind the later one in the configuration wins.
   std::vector<std::vector<std::string>> matchedNames(overrideGDMLStepLimits_.size());
-  std::vector<std::pair<G4LogicalVolume*, std::size_t>> selected;
+  // the logical volume and its new stepping limit
+  std::vector<std::pair<G4LogicalVolume*, G4double>> selected;
   for (G4LogicalVolume* lv : *G4LogicalVolumeStore::GetInstance()) {
     std::string const lvName = lv->GetName();
     std::optional<std::size_t> best;
@@ -371,7 +375,7 @@ void larg4::LArG4DetectorService::setStepLimits()
       }
       log << "; using '" << overrideGDMLStepLimits_[*best].first << "'";
     }
-    selected.emplace_back(lv, *best);
+    selected.emplace_back(lv, overrideGDMLStepLimits_[*best].second);
   }
 
   // -- Every configured entry must match at least one volume in the geometry
@@ -382,20 +386,25 @@ void larg4::LArG4DetectorService::setStepLimits()
       unmatched += " '" + overrideGDMLStepLimits_[i].first + "'";
       continue;
     }
-    mf::LogInfo log("LArG4DetectorService::setStepLimits");
-    log << "Entry '" << overrideGDMLStepLimits_[i].first << "' matched " << names.size()
-        << " volume(s):";
+    mf::LogInfo("LArG4DetectorService::setStepLimits")
+      << "Entry '" << overrideGDMLStepLimits_[i].first << "' matched "
+      << names.size() << " volume(s):";
+    std::string nameList;
     for (auto const& name : names) {
-      log << " " << name;
+      nameList += " " + name;
     }
+    // rhatcher make this Debug
+    mf::LogInfo("LArG4DetectorService::setStepLimits")
+      << "match nameList: " << nameList;
   }
   if (!unmatched.empty()) {
     throw cet::exception("invalidInputVolumeName")
-      << "Provided volume name(s) or pattern(s) not found in the geometry:" << unmatched << "\n";
+      << "Provided volume name(s) or pattern(s) not found in the geometry:"
+      << unmatched << "\n";
   }
 
-  for (auto const& [setVol, entry] : selected) {
-    G4double const newStepLimit = overrideGDMLStepLimits_[entry].second;
+  std::stringstream ss;
+  for (auto const& [setVol, newStepLimit] : selected) {
     G4double previousStepLimit = 0.;
     std::string const volumeName = setVol->GetName();
 
@@ -406,8 +415,8 @@ void larg4::LArG4DetectorService::setStepLimits()
       if (newStepLimit != previousStepLimit) {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits")
           << "OVERRIDING PREVIOUSLY SET"
-          << " STEPLIMIT FOR VOLUME : " << volumeName << " FROM " << previousStepLimit << " mm TO "
-          << newStepLimit << " mm";
+          << " STEPLIMIT FOR VOLUME : " << volumeName << " FROM "
+          << previousStepLimit << " mm TO " << newStepLimit << " mm";
       }
       else {
         MF_LOG_WARNING("LArG4DetectorService::setStepLimits")
@@ -421,18 +430,17 @@ void larg4::LArG4DetectorService::setStepLimits()
     G4UserLimits* fStepLimitOverride = new G4UserLimits();
     G4AutoDelete::Register(fStepLimitOverride);
     fStepLimitOverride->SetMaxAllowedStep(newStepLimit); // -- !
-    mf::LogInfo("LArG4DetectorService::setStepLimits")
-      << "fStepLimitOverride:  " << newStepLimit / CLHEP::mm << " mm " << newStepLimit / CLHEP::cm
-      << " cm "
-      << "for volume: " << volumeName << "\n"
-      << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+    ss << "StepLimitOverride:  " << newStepLimit / CLHEP::mm << " mm "
+       << "for volume: " << volumeName << "\n";
     setVol->SetUserLimits(fStepLimitOverride);
   } //--loop over input volumes
+  mf::LogInfo("LArG4Detector::setStepLimits") << ss.str();
 } //--end of setStepLimit()
 
 std::string larg4::LArG4DetectorService::instanceName(std::string const& volume_name) const
 {
-  // Remove underscores from volume name because they are invalid in art instance names.
+  // Remove underscores from volume name because they are invalid in
+  // art instance names.
 
   std::string result = myName() + volume_name;
   size_t pos = 0;
@@ -443,7 +451,7 @@ std::string larg4::LArG4DetectorService::instanceName(std::string const& volume_
 
 void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& collector)
 {
-  // Tell Art what we produce, and label the entries
+  // Tell art what we produce, and label the entries
   for (auto const& [volume_name, sd_name] : detectors_) {
     if (sd_name == "DRCalorimeter") {
       auto const instance = instanceName(volume_name);
@@ -479,8 +487,9 @@ void larg4::LArG4DetectorService::doCallArtProduces(art::ProducesCollector& coll
 void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
 {
   //
-  // NOTE(JVY): 1st hadronic interaction will be fetched as-is from HadInteractionSD
-  //            a copy (via copy ctor) will be placed directly into art::Event
+  // NOTE(JVY):
+  //    1st hadronic interaction will be fetched as-is from HadInteractionSD
+  //    a copy (via copy ctor) will be placed directly into art::Event
   //
   G4SDManager* sdman = G4SDManager::GetSDMpointer();
   art::ServiceHandle<artg4tk::DetectorHolderService> detectorHolder;
@@ -518,9 +527,10 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto sedsd = dynamic_cast<SimEnergyDepositSD*>(sd);
       sim::SimEnergyDepositCollection hitCollection = sedsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
-      // NOTE: tmap[] inserts and returns 0 for a track ID that is not in the target map, so
-      //       such hits end up with TrackID 0 rather than keeping their original Geant4 ID.
-      //       Use tmap.find() instead if the original ID should be kept.
+      // NOTE: tmap[] inserts and returns 0 for a track ID that is not in
+      // the target map, so such hits end up with TrackID 0 rather than
+      // keeping their original Geant4 ID.
+      // Use tmap.find() instead if the original ID should be kept.
       if (updateSimEnergyDeposits_) {
         for (auto& hit : hitCollection) {
           hit.setTrackID(tmap[hit.TrackID()]);
@@ -532,7 +542,8 @@ void larg4::LArG4DetectorService::doFillEventWithArtHits(G4HCofThisEvent* myHC)
       auto auxsd = dynamic_cast<AuxDetSD*>(sd);
       sim::AuxDetHitCollection hitCollection = auxsd->GetHits();
       std::map<int, int> tmap = particleListAction->GetTargetIDMap();
-      // NOTE: as for SimEnergyDeposit above, a track ID missing from tmap becomes 0.
+      // NOTE: as for SimEnergyDeposit above, a track ID missing from
+      // tmap becomes 0.
       if (updateAuxDetHits_) {
         for (auto& hit : hitCollection) {
           hit.SetTrackID(tmap[hit.GetTrackID()]);
