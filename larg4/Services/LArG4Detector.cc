@@ -393,8 +393,7 @@ void larg4::LArG4DetectorService::setStepLimits()
     for (auto const& name : names) {
       nameList += " " + name;
     }
-    // rhatcher make this Debug
-    mf::LogInfo("LArG4DetectorService::setStepLimits")
+    mf::LogDebug("LArG4DetectorService::setStepLimits")
       << "match nameList: " << nameList;
   }
   if (!unmatched.empty()) {
