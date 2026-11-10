@@ -485,7 +485,7 @@ namespace larg4 {
 
       // Get the post-step information from the G4Step.
       const G4StepPoint* postStepPoint = aTrack->GetStep()->GetPostStepPoint();
-      if (!postStepPoint->GetProcessDefinedStep()) {
+      if (!postStepPoint->GetProcessDefinedStep() && aTrack->GetParentID() != 0) {
         // Now we get to do some awkward cleanup because the
         // fParticleList was augmented during the
         // preUserTrackingAction.  We cannot call 'Archive' because
@@ -506,36 +506,56 @@ namespace larg4 {
         fCurrentParticle.clear();
         return;
       }
-      G4String process = postStepPoint->GetProcessDefinedStep()->GetProcessName();
-      fCurrentParticle.particle->SetEndProcess(process);
-
-      // -- D.R. Store the final point only for particles that have not had intermediate trajectory
-      //    points saved. This avoids double counting the final trajectory point for particles from
-      //    generators with storable trajectory points.
-
-      if (!fCurrentParticle.keepFullTrajectory) {
-        const G4ThreeVector position = postStepPoint->GetPosition();
-        G4double time = postStepPoint->GetGlobalTime();
-
-        // Remember that LArSoft uses cm, ns, GeV.
-        TLorentzVector fourPos(position.x() / CLHEP::cm,
-                               position.y() / CLHEP::cm,
-                               position.z() / CLHEP::cm,
-                               time / CLHEP::ns);
-
-        const G4ThreeVector momentum = postStepPoint->GetMomentum();
-        const G4double energy = postStepPoint->GetTotalEnergy();
-        TLorentzVector fourMom(momentum.x() / CLHEP::GeV,
-                               momentum.y() / CLHEP::GeV,
-                               momentum.z() / CLHEP::GeV,
-                               energy / CLHEP::GeV);
-
-        // Add another point in the trajectory.
-        AddPointToCurrentParticle(fourPos, fourMom, std::string(process));
+      if (!postStepPoint->GetProcessDefinedStep()) {
+        // A primary can finish without a step-defining process (e.g. a proton at rest).
+        // Preserve one actual track state if no stepping callback recorded a point.
+        if (fCurrentParticle.particle->NumberTrajectoryPoints() == 0) {
+          auto const& position = aTrack->GetPosition();
+          auto const& momentum = aTrack->GetMomentum();
+          TLorentzVector const fourPos{position.x() / CLHEP::cm,
+                                       position.y() / CLHEP::cm,
+                                       position.z() / CLHEP::cm,
+                                       aTrack->GetGlobalTime() / CLHEP::ns};
+          TLorentzVector const fourMom{momentum.x() / CLHEP::GeV,
+                                       momentum.y() / CLHEP::GeV,
+                                       momentum.z() / CLHEP::GeV,
+                                       aTrack->GetTotalEnergy() / CLHEP::GeV};
+          AddPointToCurrentParticle(fourPos, fourMom, "Start");
+        }
+        // Leave the end process unset, then apply the usual filter and truth association.
       }
-      // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
-      else if (fSparsifyTrajectories) {
-        fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin, fKeepSecondToLast);
+      else {
+        G4String process = postStepPoint->GetProcessDefinedStep()->GetProcessName();
+        fCurrentParticle.particle->SetEndProcess(process);
+
+        // -- D.R. Store the final point only for particles that have not had intermediate trajectory
+        //    points saved. This avoids double counting the final trajectory point for particles from
+        //    generators with storable trajectory points.
+
+        if (!fCurrentParticle.keepFullTrajectory) {
+          const G4ThreeVector position = postStepPoint->GetPosition();
+          G4double time = postStepPoint->GetGlobalTime();
+
+          // Remember that LArSoft uses cm, ns, GeV.
+          TLorentzVector fourPos(position.x() / CLHEP::cm,
+                                 position.y() / CLHEP::cm,
+                                 position.z() / CLHEP::cm,
+                                 time / CLHEP::ns);
+
+          const G4ThreeVector momentum = postStepPoint->GetMomentum();
+          const G4double energy = postStepPoint->GetTotalEnergy();
+          TLorentzVector fourMom(momentum.x() / CLHEP::GeV,
+                                 momentum.y() / CLHEP::GeV,
+                                 momentum.z() / CLHEP::GeV,
+                                 energy / CLHEP::GeV);
+
+          // Add another point in the trajectory.
+          AddPointToCurrentParticle(fourPos, fourMom, std::string(process));
+        }
+        // -- particle has a full trajectory, apply SparsifyTrajectory method if enabled
+        else if (fSparsifyTrajectories) {
+          fCurrentParticle.particle->SparsifyTrajectory(fSparsifyMargin, fKeepSecondToLast);
+        }
       }
     }
 

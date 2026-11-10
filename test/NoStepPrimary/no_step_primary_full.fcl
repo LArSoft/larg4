@@ -1,0 +1,2 @@
+#include "no_step_primary.fcl"
+physics.producers.check.FullTrajectory: true
