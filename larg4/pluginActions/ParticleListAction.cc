@@ -374,11 +374,10 @@ namespace larg4 {
       // cut, don't add it to our list.
       G4double energy = track->GetKineticEnergy();
       if (energy < fenergyCut && pdgCode != 0) {
+        // Register the edge before resolving ancestry for both the map and deposits.
+        fParentIDMap[trackID] = parentID;
         fdroppedTracksMap[this->GetParentage(trackID)].insert(trackID);
         fCurrentParticle.clear();
-        // do add the particle to the parent id map though
-        // and set the current track id to be it's ultimate parent
-        fParentIDMap[trackID] = parentID;
         fCurrentTrackID = -1 * this->GetParentage(trackID);
         fTargetIDMap[trackID] = fCurrentTrackID;
         // keep track of this particle in the fMCTIndexMap as well, as we may keep a daughter

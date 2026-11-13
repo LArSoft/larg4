@@ -1,0 +1,11 @@
+process_name: LowEnergyAncestryTest
+source: { module_type: EmptyEvent maxEvents: 1 }
+services: { ActionHolder: { service_type: ActionHolder } }
+physics: {
+  producers: { truth: { module_type: AncestryTestInput } }
+  analyzers: { check: { module_type: LowEnergyAncestryCheck } }
+  makeTruth: [truth]
+  checkAncestry: [check]
+  trigger_paths: [makeTruth]
+  end_paths: [checkAncestry]
+}

@@ -1,0 +1,2 @@
+#include "low_energy_ancestry.fcl"
+physics.analyzers.check.KeepEMShowerDaughters: true
