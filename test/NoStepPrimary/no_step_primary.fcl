@@ -1,0 +1,11 @@
+process_name: NoStepPrimaryTest
+source: { module_type: EmptyEvent maxEvents: 1 }
+services: { ActionHolder: { service_type: ActionHolder } }
+physics: {
+  producers: {
+    truth: { module_type: PrimaryTestInput }
+    check: { module_type: NoStepPrimaryCheck }
+  }
+  simulate: [truth, check]
+  trigger_paths: [simulate]
+}
